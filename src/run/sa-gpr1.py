@@ -6,71 +6,7 @@ import scipy.linalg
 import argparse 
 from random import shuffle
 
-def add_command_line_arguments_learn(parsetext):
-    parser = argparse.ArgumentParser(description=parsetext)
-    parser.add_argument("-lm", "--lmda", nargs='+', help="Lambda values list for KRR calculation")
-    parser.add_argument("-ftr", "--ftrain",type=float, help="Fraction of data points used for testing")
-    parser.add_argument("-t", "--tensors", help="File containing tensors")
-    parser.add_argument("-k1", "--kernel1", help="File containing L=0 kernel")
-    parser.add_argument("-sel", "--select",nargs='+', help="Select maximum training partition")
-    parser.add_argument("-rdm", "--random",type=int, help="Number of random training points")
-    args = parser.parse_args()
-    return args
-
-def set_variable_values_learn(args):
-    lm0=0.01
-    lm1=0.01
-    lm2=0.01
-    lm3=0.01
-    lm = [lm0,lm1,lm2,lm2]
-    if args.lmda:
-        lmlist = args.lmda
-        # This list will either be separated by spaces or by commas (or will not be allowed).
-        # We will be a little forgiving and allow a mixture of both.
-        if sum([lmlist[i].count(',') for i in xrange(len(lmlist))]) > 0:
-            for i in xrange(len(lmlist)):
-                lmlist[i] = lmlist[i].split(',')
-            lmlist = np.concatenate(lmlist)
-        if (len(lmlist)%2 != 0):
-            print "Error: list of lambdas must have the format n,lambda[n],m,lambda[m],..."
-            sys.exit(0)
-        for i in xrange(len(lmlist)/2):
-            nval = int(lmlist[2*i])
-            lmval = float(lmlist[2*i+1])
-            lm[nval] = lmval
-
-    ftrain=1
-    if args.ftrain:
-        ftr = args.ftrain 
-    if args.tensors:
-        tfile = args.tensors
-    else:
-        print "Features file must be specified!"
-        sys.exit(0)
-    # Read in features
-    tens=[line.rstrip('\n') for line in open(tfile)]
-    print "Loading kernel matrices..."
-    if args.kernel1:
-        kfile1 = args.kernel1
-    else:
-        print "Kernel 1 file must be specified!"
-        sys.exit(0)
-    kernel1 = np.loadtxt(kfile1,dtype=float)
-
-    beg = 0
-    end = int(len(tens)/2)
-    sel = [beg,end]
-    if args.select:
-        sellist = args.select
-        for i in xrange(len(sellist)):
-            sel[0] = int(sellist[0])
-            sel[1] = int(sellist[1])
-
-    rdm = 0
-    if args.random:
-        rdm = args.random
-
-    return [lm[1],ftr,tens,kernel1,sel,rdm]
+###############################################################################################################################
 
 def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
 
@@ -168,6 +104,78 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
     print " TEST STD  = %.6f"%intrins_dev1
     print " ABS  RMSE = %.6f"%abs_error1
     print " TEST RMSE = %.6f %%"%intrins_error1
+
+###############################################################################################################################
+
+def add_command_line_arguments_learn(parsetext):
+    parser = argparse.ArgumentParser(description=parsetext)
+    parser.add_argument("-lm", "--lmda", nargs='+', help="Lambda values list for KRR calculation")
+    parser.add_argument("-ftr", "--ftrain",type=float, help="Fraction of data points used for testing")
+    parser.add_argument("-t", "--tensors", help="File containing tensors")
+    parser.add_argument("-k1", "--kernel1", help="File containing L=0 kernel")
+    parser.add_argument("-sel", "--select",nargs='+', help="Select maximum training partition")
+    parser.add_argument("-rdm", "--random",type=int, help="Number of random training points")
+    args = parser.parse_args()
+    return args
+
+###############################################################################################################################
+
+def set_variable_values_learn(args):
+    lm0=0.01
+    lm1=0.01
+    lm2=0.01
+    lm3=0.01
+    lm = [lm0,lm1,lm2,lm2]
+    if args.lmda:
+        lmlist = args.lmda
+        # This list will either be separated by spaces or by commas (or will not be allowed).
+        # We will be a little forgiving and allow a mixture of both.
+        if sum([lmlist[i].count(',') for i in xrange(len(lmlist))]) > 0:
+            for i in xrange(len(lmlist)):
+                lmlist[i] = lmlist[i].split(',')
+            lmlist = np.concatenate(lmlist)
+        if (len(lmlist)%2 != 0):
+            print "Error: list of lambdas must have the format n,lambda[n],m,lambda[m],..."
+            sys.exit(0)
+        for i in xrange(len(lmlist)/2):
+            nval = int(lmlist[2*i])
+            lmval = float(lmlist[2*i+1])
+            lm[nval] = lmval
+
+    ftrain=1
+    if args.ftrain:
+        ftr = args.ftrain 
+    if args.tensors:
+        tfile = args.tensors
+    else:
+        print "Features file must be specified!"
+        sys.exit(0)
+    # Read in features
+    tens=[line.rstrip('\n') for line in open(tfile)]
+    print "Loading kernel matrices..."
+    if args.kernel1:
+        kfile1 = args.kernel1
+    else:
+        print "Kernel 1 file must be specified!"
+        sys.exit(0)
+    kernel1 = np.loadtxt(kfile1,dtype=float)
+
+    beg = 0
+    end = int(len(tens)/2)
+    sel = [beg,end]
+    if args.select:
+        sellist = args.select
+        for i in xrange(len(sellist)):
+            sel[0] = int(sellist[0])
+            sel[1] = int(sellist[1])
+
+    rdm = 0
+    if args.random:
+        rdm = args.random
+
+    return [lm[1],ftr,tens,kernel1,sel,rdm]
+
+###############################################################################################################################
 
 if __name__ == '__main__':
     # Read in all arguments and call the main function.
