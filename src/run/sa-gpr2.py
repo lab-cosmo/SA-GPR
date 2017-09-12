@@ -18,30 +18,16 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
     abs_error0 = 0.0
     intrins_dev2 = 0.0
     abs_error2 = 0.0
-    ncycles = 5.0
+    ncycles = 5
 
-    print "Results averaged over "+str(int(ncycles))+" cycles"
+    print "Results averaged over "+str(ncycles)+" cycles"
 
-    for ic in range(int(ncycles)):
+    for ic in range(ncycles):
 
         ndata = len(alps)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
        
         # Build kernel matrix
-#        kernel0 = np.zeros((ndata,ndata),dtype=float)
-#        k=0
-#        for i in xrange(ndata):
-#            for j in xrange(ndata):
-#                kernel0[i,j] = kernel0_flatten[k]    
-#                k += 1
-#        kernel2 = np.zeros((ndata,ndata,5,5),dtype=float)
-#        k=0
-#        for i in xrange(ndata):
-#            for j in xrange(ndata):
-#                for iim in xrange(5):
-#                    for jjm in xrange(5):
-#                        kernel2[i,j,iim,jjm] = kernel2_flatten[k]
-#                        k += 1
         kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
         kernel2 = utils.kern_utils.unflatten_kernel(ndata,5,kernel2_flatten)
 

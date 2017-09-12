@@ -17,22 +17,16 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
     mean0 = 0.0 
     intrins_dev0 = 0.0
     abs_error0 = 0.0
-    ncycles = 5.0
+    ncycles = 5
 
-    print "Results averaged over "+str(int(ncycles))+" cycles"
+    print "Results averaged over "+str(ncycles)+" cycles"
 
-    for ic in range(int(ncycles)):
+    for ic in range(ncycles):
 
         ndata = len(ener)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-#        kernel0 = np.zeros((ndata,ndata),dtype=float)
-#        k=0
-#        for i in xrange(ndata):
-#            for j in xrange(ndata):
-#                kernel0[i,j] = kernel0_flatten[k]
-#                k += 1
         kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
 
         # Partition properties and kernel for training and testing

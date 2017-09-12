@@ -18,36 +18,20 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
     abs_error1 = 0.0
     intrins_dev3 = 0.0
     abs_error3 = 0.0
-    ncycles = 5.0
+    ncycles = 5
 
-    print "Results averaged over "+str(int(ncycles))+" cycles"
+    print "Results averaged over "+str(ncycles)+" cycles"
 
-    for ic in range(int(ncycles)):
+    for ic in range(ncycles):
 
         ndata = len(bets)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-#        kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
-#        k=0
-#        for i in xrange(ndata):
-#            for j in xrange(ndata):
-#                for iim in xrange(3):
-#                    for jjm in xrange(3):
-#                        kernel1[i,j,iim,jjm] = kernel1_flatten[k]
-#                        k += 1
-#
-#        kernel3 = np.zeros((ndata,ndata,7,7),dtype=float)
-#        k=0
-#        for i in xrange(ndata):    
-#            for j in xrange(ndata):    
-#                for iim in xrange(7):
-#                    for jjm in xrange(7):
-#                        kernel3[i,j,iim,jjm] = kernel3_flatten[k]
-#                        k += 1
         kernel1 = utils.kern_utils.unflatten_kernel(ndata,3,kernel1_flatten)
         kernel3 = utils.kern_utils.unflatten_kernel(ndata,7,kernel3_flatten)
 
+        # Partition properties and kernel for training and testing
         betstrain = [bets[i] for i in trrange]
         betstest = [bets[i] for i in terange]
         vtrain = np.array([i.split() for i in betstrain]).astype(complex)
