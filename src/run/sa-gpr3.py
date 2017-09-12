@@ -12,25 +12,6 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def shuffle_data(ndata,sel,rdm):
-
-    if rdm == 0:
-        trrangemax = np.asarray(range(sel[0],sel[1]),int)
-    else:
-        data_list = range(ndata)
-        shuffle(data_list)
-        trrangemax = np.asarray(data_list[:rdm],int).copy()
-    terange = np.setdiff1d(range(ndata),trrangemax)
-
-    ns = len(terange)
-    ntmax = len(trrangemax)
-    nt = int(fractrain*ntmax)
-    trrange = trrangemax[0:nt]
-
-    return [ns,nt,ntmax,trrange,terange]
-
-###############################################################################################################################
-
 def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
 
     intrins_dev1 = 0.0
@@ -42,43 +23,30 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
     print "Results averaged over "+str(int(ncycles))+" cycles"
 
     for ic in range(int(ncycles)):
-#
-#        ndata = len(bets)
-#        if rdm == 0:
-#            trrangemax =  sorted(set(range(sel[0],sel[1])))
-#            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
-#        else:
-#            data_list = range(ndata)
-#            shuffle(data_list)
-#            trrangemax = sorted([data_list[i] for i in range(rdm)])
-#            terange =  sorted(set(range(ndata))-set(trrangemax))
-#
-#        ns = len(terange)
-#        ntmax = len(trrangemax)
-#        nt = int(fractrain*ntmax)
-#        trrange = trrangemax[0:nt]
 
         ndata = len(bets)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-        kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                for iim in xrange(3):
-                    for jjm in xrange(3):
-                        kernel1[i,j,iim,jjm] = kernel1_flatten[k]
-                        k += 1
-
-        kernel3 = np.zeros((ndata,ndata,7,7),dtype=float)
-        k=0
-        for i in xrange(ndata):    
-            for j in xrange(ndata):    
-                for iim in xrange(7):
-                    for jjm in xrange(7):
-                        kernel3[i,j,iim,jjm] = kernel3_flatten[k]
-                        k += 1
+#        kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
+#        k=0
+#        for i in xrange(ndata):
+#            for j in xrange(ndata):
+#                for iim in xrange(3):
+#                    for jjm in xrange(3):
+#                        kernel1[i,j,iim,jjm] = kernel1_flatten[k]
+#                        k += 1
+#
+#        kernel3 = np.zeros((ndata,ndata,7,7),dtype=float)
+#        k=0
+#        for i in xrange(ndata):    
+#            for j in xrange(ndata):    
+#                for iim in xrange(7):
+#                    for jjm in xrange(7):
+#                        kernel3[i,j,iim,jjm] = kernel3_flatten[k]
+#                        k += 1
+        kernel1 = utils.kern_utils.unflatten_kernel(ndata,3,kernel1_flatten)
+        kernel3 = utils.kern_utils.unflatten_kernel(ndata,7,kernel3_flatten)
 
         betstrain = [bets[i] for i in trrange]
         betstest = [bets[i] for i in terange]
@@ -127,6 +95,7 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         vtrain3 = np.concatenate(np.array([np.real(np.dot(CR3,vtrain3[i])) for i in xrange(nt)],dtype=float)).astype(float)
         vtest3  = np.concatenate(np.array([np.real(np.dot(CR3,vtest3[i]))  for i in xrange(ns)],dtype=float)).astype(float)
 
+        # Build training kernels
         ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
         ktrain3 = np.zeros((7*nt,7*nt),dtype=float)
         ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)

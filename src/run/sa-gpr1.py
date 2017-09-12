@@ -8,26 +8,6 @@ import argparse
 import os
 sys.path.insert(1,os.path.join(sys.path[0], '..'))
 import utils.kern_utils
-#from random import shuffle
-
-###############################################################################################################################
-
-def shuffle_data(ndata,sel,rdm):
-
-    if rdm == 0:
-        trrangemax = np.asarray(range(sel[0],sel[1]),int)
-    else:
-        data_list = range(ndata)
-        shuffle(data_list)
-        trrangemax = np.asarray(data_list[:rdm],int).copy()
-    terange = np.setdiff1d(range(ndata),trrangemax)
-
-    ns = len(terange)
-    ntmax = len(trrangemax)
-    nt = int(fractrain*ntmax)
-    trrange = trrangemax[0:nt]
-
-    return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
 
@@ -41,33 +21,20 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
     print "Results averaged over "+str(int(ncycles))+" cycles"
 
     for ic in range(int(ncycles)):
-#        ndata = len(dips)
-#        if rdm == 0:
-#            trrangemax =  sorted(set(range(sel[0],sel[1])))
-#            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
-#        else:
-#            data_list = range(ndata)
-#            shuffle(data_list)
-#            trrangemax = sorted([data_list[i] for i in range(rdm)])
-#            terange =  sorted(set(range(ndata))-set(trrangemax))
-#
-#        ns = len(terange)
-#        ntmax = len(trrangemax)
-#        nt = int(fractrain*ntmax)
-#        trrange = trrangemax[0:nt]
 
         ndata = len(dips)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-        kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                for iim in xrange(3):
-                    for jjm in xrange(3):
-                        kernel1[i,j,iim,jjm] = kernel1_flatten[k]
-                        k += 1
+#        kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
+#        k=0
+#        for i in xrange(ndata):
+#            for j in xrange(ndata):
+#                for iim in xrange(3):
+#                    for jjm in xrange(3):
+#                        kernel1[i,j,iim,jjm] = kernel1_flatten[k]
+#                        k += 1
+        kernel1 = utils.kern_utils.unflatten_kernel(ndata,3,kernel1_flatten)
 
         dipstrain = [dips[i] for i in trrange]
         dipstest = [dips[i] for i in terange]

@@ -8,26 +8,6 @@ import argparse
 import os
 sys.path.insert(1,os.path.join(sys.path[0], '..'))
 import utils.kern_utils
-#from random import shuffle
-
-###############################################################################################################################
-
-def shuffle_data(ndata,sel,rdm):
-
-    if rdm == 0:
-        trrangemax = np.asarray(range(sel[0],sel[1]),int)
-    else:
-        data_list = range(ndata)
-        shuffle(data_list)
-        trrangemax = np.asarray(data_list[:rdm],int).copy()
-    terange = np.setdiff1d(range(ndata),trrangemax)
-
-    ns = len(terange)
-    ntmax = len(trrangemax)
-    nt = int(fractrain*ntmax)
-    trrange = trrangemax[0:nt]
-
-    return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
 
@@ -43,31 +23,17 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
 
     for ic in range(int(ncycles)):
 
-#        ndata = len(ener)
-#        if rdm == 0:
-#            trrangemax =  sorted(set(range(sel[0],sel[1])))
-#            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
-#        else:
-#            data_list = range(ndata)
-#            shuffle(data_list)
-#            trrangemax = sorted([data_list[i] for i in range(rdm)])
-#            terange =  sorted(set(range(ndata))-set(trrangemax))
-#   
-#        ns = len(terange)
-#        ntmax = len(trrangemax)
-#        nt = int(fractrain*ntmax)
-#        trrange = trrangemax[0:nt]
-
         ndata = len(ener)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-        kernel0 = np.zeros((ndata,ndata),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                kernel0[i,j] = kernel0_flatten[k]
-                k += 1
+#        kernel0 = np.zeros((ndata,ndata),dtype=float)
+#        k=0
+#        for i in xrange(ndata):
+#            for j in xrange(ndata):
+#                kernel0[i,j] = kernel0_flatten[k]
+#                k += 1
+        kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
 
         # Partition properties and kernel for training and testing
         enertrain = [ener[i] for i in trrange]
@@ -88,7 +54,7 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
         # Predict on train data set.
         outvec0 = np.dot(np.real(k0tr),invktrvec0)
 
-        # Predict on test data set..
+        # Predict on test data set.
         outvec0 = np.dot(np.real(k0te),invktrvec0) + np.real(np.mean(vtrain))
         # Print out errors and diagnostics.
         mean0 += np.mean(vtest0)-np.min(vtest0)

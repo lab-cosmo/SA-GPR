@@ -8,26 +8,6 @@ import argparse
 import os
 sys.path.insert(1,os.path.join(sys.path[0], '..'))
 import utils.kern_utils
-#from random import shuffle
-
-###############################################################################################################################
-
-def shuffle_data(ndata,sel,rdm):
-
-    if rdm == 0:
-        trrangemax = np.asarray(range(sel[0],sel[1]),int)
-    else:
-        data_list = range(ndata)
-        shuffle(data_list)
-        trrangemax = np.asarray(data_list[:rdm],int).copy()
-    terange = np.setdiff1d(range(ndata),trrangemax)
-
-    ns = len(terange)
-    ntmax = len(trrangemax)
-    nt = int(fractrain*ntmax)
-    trrange = trrangemax[0:nt]
-
-    return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
 
@@ -44,38 +24,26 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
 
     for ic in range(int(ncycles)):
 
-#        ndata = len(alps)
-#        if rdm == 0:
-#            trrangemax =  np.asarray(range(sel[0],sel[1]),int)
-#        else:
-#            data_list = range(ndata)
-#            shuffle(data_list)
-#            trrangemax = np.asarray(data_list[:rdm],int).copy()
-#        terange = np.setdiff1d(range(ndata), trrangemax)
-#    
-#        ns = len(terange)
-#        ntmax = len(trrangemax)
-#        nt = int(fractrain*ntmax)
-#        trrange = trrangemax[0:nt]
-#
         ndata = len(alps)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
        
         # Build kernel matrix
-        kernel0 = np.zeros((ndata,ndata),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                kernel0[i,j] = kernel0_flatten[k]    
-                k += 1
-        kernel2 = np.zeros((ndata,ndata,5,5),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                for iim in xrange(5):
-                    for jjm in xrange(5):
-                        kernel2[i,j,iim,jjm] = kernel2_flatten[k]
-                        k += 1
+#        kernel0 = np.zeros((ndata,ndata),dtype=float)
+#        k=0
+#        for i in xrange(ndata):
+#            for j in xrange(ndata):
+#                kernel0[i,j] = kernel0_flatten[k]    
+#                k += 1
+#        kernel2 = np.zeros((ndata,ndata,5,5),dtype=float)
+#        k=0
+#        for i in xrange(ndata):
+#            for j in xrange(ndata):
+#                for iim in xrange(5):
+#                    for jjm in xrange(5):
+#                        kernel2[i,j,iim,jjm] = kernel2_flatten[k]
+#                        k += 1
+        kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
+        kernel2 = utils.kern_utils.unflatten_kernel(ndata,5,kernel2_flatten)
 
         # Partition properties and kernel for training and testing
         alpstrain = [alps[i] for i in trrange]

@@ -23,3 +23,31 @@ def shuffle_data(ndata,sel,rdm,fractrain):
     return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
+
+def unflatten_kernel(ndata,size,kernel_flatten):
+    # Unpack kernel into the desired format for the code
+    kernel = np.zeros((ndata,ndata,size,size),dtype=float)
+    k=0
+    for i in xrange(ndata):
+        for j in xrange(ndata):
+            for iim in xrange(size):
+                for jjm in xrange(size):
+                    kernel[i,j,iim,jjm] = kernel_flatten[k]
+                    k += 1
+
+    return kernel
+
+###############################################################################################################################
+
+def unflatten_kernel0(ndata,kernel_flatten):
+    # Unpack kernel into the desired format for the code
+    kernel = np.zeros((ndata,ndata),dtype=float)
+    k=0
+    for i in xrange(ndata):
+        for j in xrange(ndata):
+            kernel[i,j] = kernel_flatten[k]
+            k += 1
+
+    return kernel
+
+###############################################################################################################################
