@@ -1,10 +1,33 @@
 #!/usr/bin/python
 
+import sys
 import numpy as np
 import math
 import scipy.linalg
 import argparse 
-from random import shuffle
+import os
+sys.path.insert(1,os.path.join(sys.path[0], '..'))
+import utils.kern_utils
+#from random import shuffle
+
+###############################################################################################################################
+
+def shuffle_data(ndata,sel,rdm):
+
+    if rdm == 0:
+        trrangemax = np.asarray(range(sel[0],sel[1]),int)
+    else:
+        data_list = range(ndata)
+        shuffle(data_list)
+        trrangemax = np.asarray(data_list[:rdm],int).copy()
+    terange = np.setdiff1d(range(ndata),trrangemax)
+
+    ns = len(terange)
+    ntmax = len(trrangemax)
+    nt = int(fractrain*ntmax)
+    trrange = trrangemax[0:nt]
+
+    return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
 
@@ -18,21 +41,25 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
     print "Results averaged over "+str(int(ncycles))+" cycles"
 
     for ic in range(int(ncycles)):
+#        ndata = len(dips)
+#        if rdm == 0:
+#            trrangemax =  sorted(set(range(sel[0],sel[1])))
+#            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
+#        else:
+#            data_list = range(ndata)
+#            shuffle(data_list)
+#            trrangemax = sorted([data_list[i] for i in range(rdm)])
+#            terange =  sorted(set(range(ndata))-set(trrangemax))
+#
+#        ns = len(terange)
+#        ntmax = len(trrangemax)
+#        nt = int(fractrain*ntmax)
+#        trrange = trrangemax[0:nt]
+
         ndata = len(dips)
-        if rdm == 0:
-            trrangemax =  sorted(set(range(sel[0],sel[1])))
-            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
-        else:
-            data_list = range(ndata)
-            shuffle(data_list)
-            trrangemax = sorted([data_list[i] for i in range(rdm)])
-            terange =  sorted(set(range(ndata))-set(trrangemax))
+        [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
-        ns = len(terange)
-        ntmax = len(trrangemax)
-        nt = int(fractrain*ntmax)
-        trrange = trrangemax[0:nt]
-
+        # Build kernel matrix
         kernel1 = np.zeros((ndata,ndata,3,3),dtype=float)
         k=0
         for i in xrange(ndata):

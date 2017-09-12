@@ -5,7 +5,29 @@ import numpy as np
 import math
 import scipy.linalg
 import argparse 
-from random import shuffle
+import os
+sys.path.insert(1,os.path.join(sys.path[0], '..'))
+import utils.kern_utils
+#from random import shuffle
+
+###############################################################################################################################
+
+def shuffle_data(ndata,sel,rdm):
+
+    if rdm == 0:
+        trrangemax = np.asarray(range(sel[0],sel[1]),int)
+    else:
+        data_list = range(ndata)
+        shuffle(data_list)
+        trrangemax = np.asarray(data_list[:rdm],int).copy()
+    terange = np.setdiff1d(range(ndata),trrangemax)
+
+    ns = len(terange)
+    ntmax = len(trrangemax)
+    nt = int(fractrain*ntmax)
+    trrange = trrangemax[0:nt]
+
+    return [ns,nt,ntmax,trrange,terange]
 
 ###############################################################################################################################
 
@@ -17,72 +39,75 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
     abs_error0 = 0.0
     ncycles = 5.0
 
-   print "Results averaged over "+str(int(ncycles))+" cycles"
+    print "Results averaged over "+str(int(ncycles))+" cycles"
 
-   for ic in range(int(ncycles)):
+    for ic in range(int(ncycles)):
 
-       ndata = len(ener)
-       if rdm == 0:
-           trrangemax =  sorted(set(range(sel[0],sel[1])))
-           terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
-       else:
-           data_list = range(ndata)
-           shuffle(data_list)
-           trrangemax = sorted([data_list[i] for i in range(rdm)])
-           terange =  sorted(set(range(ndata))-set(trrangemax))
-   
-       ns = len(terange)
-       ntmax = len(trrangemax)
-       nt = int(fractrain*ntmax)
-       trrange = trrangemax[0:nt]
+#        ndata = len(ener)
+#        if rdm == 0:
+#            trrangemax =  sorted(set(range(sel[0],sel[1])))
+#            terange =  sorted(set(range(ndata))-set(range(sel[0],sel[1])))
+#        else:
+#            data_list = range(ndata)
+#            shuffle(data_list)
+#            trrangemax = sorted([data_list[i] for i in range(rdm)])
+#            terange =  sorted(set(range(ndata))-set(trrangemax))
+#   
+#        ns = len(terange)
+#        ntmax = len(trrangemax)
+#        nt = int(fractrain*ntmax)
+#        trrange = trrangemax[0:nt]
 
-       # Build kernel matrix
-       kernel0 = np.zeros((ndata,ndata),dtype=float)
-       k=0
-       for i in xrange(ndata):
-           for j in xrange(ndata):
-               kernel0[i,j] = kernel0_flatten[k]
-               k += 1
+        ndata = len(ener)
+        [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
-       # Partition properties and kernel for training and testing
-       enertrain = [ener[i] for i in trrange]
-       enertest = [ener[i] for i in terange]
-       vtrain = np.array([i.split() for i in enertrain]).astype(float)
-       vtest = np.array([i.split() for i in enertest]).astype(float)
-       k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
-       k0te = [[kernel0[i,j] for j in trrange] for i in terange]
+        # Build kernel matrix
+        kernel0 = np.zeros((ndata,ndata),dtype=float)
+        k=0
+        for i in xrange(ndata):
+            for j in xrange(ndata):
+                kernel0[i,j] = kernel0_flatten[k]
+                k += 1
 
-       # Build regression vectors
-       vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
-       vtest0 = np.real(vtest).astype(float)
+        # Partition properties and kernel for training and testing
+        enertrain = [ener[i] for i in trrange]
+        enertest = [ener[i] for i in terange]
+        vtrain = np.array([i.split() for i in enertrain]).astype(float)
+        vtest = np.array([i.split() for i in enertest]).astype(float)
+        k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
+        k0te = [[kernel0[i,j] for j in trrange] for i in terange]
 
-       # Build and invert training kernel
-       ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
-       invktrvec0 = scipy.linalg.solve(ktrain0,vtrain0)
+        # Build regression vectors
+        vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
+        vtest0 = np.real(vtest).astype(float)
+ 
+        # Build and invert training kernel
+        ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
+        invktrvec0 = scipy.linalg.solve(ktrain0,vtrain0)
 
-       # Predict on train data set.
-       outvec0 = np.dot(np.real(k0tr),invktrvec0)
+        # Predict on train data set.
+        outvec0 = np.dot(np.real(k0tr),invktrvec0)
 
-       # Predict on test data set..
-       outvec0 = np.dot(np.real(k0te),invktrvec0) + np.real(np.mean(vtrain))
-       # Print out errors and diagnostics.
-       mean0 += np.mean(vtest0)-np.min(vtest0)
-       intrins_dev0 += np.std(vtest0)**2
-       abs_error0 += np.sum((outvec0-vtest0)**2)/float(ns)
+        # Predict on test data set..
+        outvec0 = np.dot(np.real(k0te),invktrvec0) + np.real(np.mean(vtrain))
+        # Print out errors and diagnostics.
+        mean0 += np.mean(vtest0)-np.min(vtest0)
+        intrins_dev0 += np.std(vtest0)**2
+        abs_error0 += np.sum((outvec0-vtest0)**2)/float(ns)
 
-   mean0 /= float(ncycles)
-   intrins_dev0 = np.sqrt(intrins_dev0/float(ncycles))
-   abs_error0 = np.sqrt(abs_error0/float(ncycles))
-   intrins_error0 = 100*np.sqrt(abs_error0**2/intrins_dev0**2)
-   print ""
-   print "testing data points: ", ns    
-   print "training data points: ", nt   
-   print "Results for lambda_0 = ", lm0
-   print "--------------------------------"
-   print " TEST AVE  (l=0) = %.6f"%mean0
-   print " TEST STD  (l=0) = %.6f"%intrins_dev0
-   print " ABS  RMSE (l=0) = %.6f"%abs_error0
-   print " TEST RMSE (l=0) = %.6f %%"%intrins_error0
+    mean0 /= float(ncycles)
+    intrins_dev0 = np.sqrt(intrins_dev0/float(ncycles))
+    abs_error0 = np.sqrt(abs_error0/float(ncycles))
+    intrins_error0 = 100*np.sqrt(abs_error0**2/intrins_dev0**2)
+    print ""
+    print "testing data points: ", ns    
+    print "training data points: ", nt   
+    print "Results for lambda_0 = ", lm0
+    print "--------------------------------"
+    print " TEST AVE  (l=0) = %.6f"%mean0
+    print " TEST STD  (l=0) = %.6f"%intrins_dev0
+    print " ABS  RMSE (l=0) = %.6f"%abs_error0
+    print " TEST RMSE (l=0) = %.6f %%"%intrins_error0
 
 ###############################################################################################################################
 
