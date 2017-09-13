@@ -246,6 +246,6 @@ def set_variable_values_learn(args):
 
 if __name__ == '__main__':
     # Read in all arguments and call the main function.
-    args = add_command_line_arguments_learn("a")
+    args = add_command_line_arguments_learn("SA-GPR for rank-2 tensors")
     [lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm] = set_variable_values_learn(args)
     do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm)

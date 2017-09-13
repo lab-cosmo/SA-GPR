@@ -166,6 +166,6 @@ def set_variable_values_learn(args):
 
 if __name__ == '__main__':
     # Read in all arguments and call the main function.
-    args = add_command_line_arguments_learn("a")
+    args = add_command_line_arguments_learn("SA-GPR for vectors")
     [lm1,fractrain,dips,kernel1_flatten,sel,rdm] = set_variable_values_learn(args)
     do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm)
