@@ -41,14 +41,6 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         k3tr = [[kernel3[i,j] for j in trrange] for i in trrange]
         k3te = [[kernel3[i,j] for j in trrange] for i in terange]
 
-#        # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
-#        bettrain = np.zeros((nt,10),dtype=complex)
-#        bettest = np.zeros((ns,10),dtype=complex)
-#        for i in xrange(nt):
-#            bettrain[i] = np.array( [vtrain[i][0],vtrain[i][1]*np.sqrt(3.0),vtrain[i][2]*np.sqrt(3.0),vtrain[i][4]*np.sqrt(3.0),vtrain[i][5]*np.sqrt(6.0),vtrain[i][8]*np.sqrt(3.0),vtrain[i][13],vtrain[i][14]*np.sqrt(3.0),vtrain[i][17]*np.sqrt(3.0),vtrain[i][26]],dtype = complex)
-#        for i in xrange(ns):
-#            bettest[i] = np.array( [vtest[i][0],vtest[i][1]*np.sqrt(3.0),vtest[i][2]*np.sqrt(3.0),vtest[i][4]*np.sqrt(3.0),vtest[i][5]*np.sqrt(6.0),vtest[i][8]*np.sqrt(3.0),vtest[i][13],vtest[i][14]*np.sqrt(3.0),vtest[i][17]*np.sqrt(3.0),vtest[i][26]],dtype = complex)
-
         # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
         [bettrain,bettest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
 
@@ -57,24 +49,11 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         degeneracy = [1.0,np.sqrt(3.0),np.sqrt(3.0),np.sqrt(3.0),np.sqrt(6.0),np.sqrt(3.0),1.0,np.sqrt(3.0),np.sqrt(3.0),1.0]
         for i in xrange(10):
             CS[i] = CS[i] * degeneracy[i]
+
         # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
         CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
         # Transformation matrix from complex to real spherical harmonics (l=3,m=-3,-2,-1,0,+1,+2,+3).
         CR3 =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],[0.0,1.0j,0.0,0.0,0.0,-1.0j,0.0],[0.0,0.0,1.0j,0.0,1.0j,0.0,0.0],[0.0,0.0,0.0,np.sqrt(2.0),0.0,0.0,0.0],[0.0,0.0,1.0,0.0,-1.0,0.0,0.0],[0.0,1.0,0.0,0.0,0.0,1.0,0.0],[1.0,0.0,0.0,0.0,0.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
-
-#        # Extract the complex spherical components (l=1,l=3) of the hyperpolarizabilities.
-#        vtrain1 = np.zeros((nt,3),dtype=complex)        # m = -1,0,+1
-#        vtest1  = np.zeros((ns,3),dtype=complex)        # m = -1,0,+1
-#        vtrain3 = np.zeros((nt,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
-#        vtest3  = np.zeros((ns,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
-#        for i in xrange(nt):
-#            dotpr = np.dot(bettrain[i],CS)
-#            vtrain1[i] = dotpr[0:3]
-#            vtrain3[i] = dotpr[3:]
-#        for i in xrange(ns):
-#            dotpr = np.dot(bettest[i],CS)
-#            vtest1[i] = dotpr[0:3]
-#            vtest3[i] = dotpr[3:]
 
         # Extract the complex spherical components (l=1,l=3) of the hyperpolarizabilities.
         [ [vtrain1,vtrain3],[vtest1,vtest3] ] = utils.kern_utils.partition_spherical_components(bettrain,bettest,CS,[3,7],ns,nt)
