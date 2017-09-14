@@ -50,9 +50,6 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         for i in xrange(6):
             CS[i] = CS[i] * degeneracy[i]
 
-#        # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
-#        CR2 = np.array([[1.0j,0.0,0.0,0.0,-1.0j],[0.0,1.0j,0.0,1.0j,0.0],[0.0,0.0,np.sqrt(2.0),0.0,0.0],[0.0,1.0,0.0,-1.0,0.0],[1.0,0.0,0.0,0.0,1.0]],dtype=complex) / np.sqrt(2.0)
-
         # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
         [CR2] = utils.kern_utils.complex_to_real_transformation([5])
 

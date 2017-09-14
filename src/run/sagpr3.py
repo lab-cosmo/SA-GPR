@@ -50,11 +50,6 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         for i in xrange(10):
             CS[i] = CS[i] * degeneracy[i]
 
-#        # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
-#        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
-#        # Transformation matrix from complex to real spherical harmonics (l=3,m=-3,-2,-1,0,+1,+2,+3).
-#        CR3 =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],[0.0,1.0j,0.0,0.0,0.0,-1.0j,0.0],[0.0,0.0,1.0j,0.0,1.0j,0.0,0.0],[0.0,0.0,0.0,np.sqrt(2.0),0.0,0.0,0.0],[0.0,0.0,1.0,0.0,-1.0,0.0,0.0],[0.0,1.0,0.0,0.0,0.0,1.0,0.0],[1.0,0.0,0.0,0.0,0.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
-
         # Transformation matrices from complex to real spherical harmonics (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3)
         [CR1,CR3] = utils.kern_utils.complex_to_real_transformation([3,7])
 

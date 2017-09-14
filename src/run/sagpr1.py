@@ -40,7 +40,6 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         CS  = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
 
         # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
-#        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype = complex) / np.sqrt(2.0)    # Get training and testing vectors for l=1.
         [CR1] = utils.kern_utils.complex_to_real_transformation([3])
 
         # Extract the complex spherical components (l=1) of the dipoles.
@@ -50,10 +49,6 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,vtrain1[i])) for i in xrange(nt)])).astype(float)
         vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,vtest1[i])) for i in xrange(ns)])).astype(float)
         
-#        # For l=1, convert the complex spherical components into real spherical components.
-#        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtrain[i],CS))) for i in xrange(nt)])).astype(float)
-#        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtest[i],CS)))  for i in xrange(ns)])).astype(float)
-
         # Build training kernel.
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
 
@@ -63,7 +58,7 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         # Build testing kernel.
         ktest1 = utils.kern_utils.build_testing_kernel(ns,nt,3,k1te) 
 
-        # Predict on test data set..
+        # Predict on test data set.
         outvec1 = np.dot(ktest1,invktrvec1)
         intrins_dev1 += np.std(vtest1)**2
         abs_error1 += np.sum((outvec1-vtest1)**2)/(3*ns)
