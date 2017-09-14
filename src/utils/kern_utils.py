@@ -85,3 +85,63 @@ def build_testing_kernel(ns,nt,size,kte):
     return ktest
 
 ###############################################################################################################################
+
+def partition_spherical_components(train,test,CS,sizes,ns,nt):
+    # Extract the complex spherical components of the tensors.
+    vtrain = []
+    vtest = []
+    for i in xrange(len(sizes)):
+        if (sizes[i]==1):
+            vtrain.append( np.zeros(nt,dtype=complex) )
+            vtest.append(  np.zeros(ns,dtype=complex) )
+        else:
+            vtrain.append( np.zeros((nt,sizes[i]),dtype=complex) )
+            vtest.append(  np.zeros((ns,sizes[i]),dtype=complex) )
+    for i in xrange(nt):
+        dotpr = np.dot(train[i],CS)
+        k = 0
+        for j in xrange(len(sizes)):
+            vtrain[j][i] = dotpr[k:k+sizes[j]]
+            k += sizes[j]
+    for i in xrange(ns):
+        dotpr = np.dot(test[i],CS)
+        k = 0
+        for j in xrange(len(sizes)):
+            vtest[j][i] = dotpr[k:k+sizes[j]]
+            k += sizes[j]
+
+    return [vtrain,vtest]
+
+###############################################################################################################################
+#
+#
+#
+#        # Extract the complex spherical components (l=0,l=2) of the polarizabilities.
+#        vtrain0 = np.zeros(nt,dtype=complex)        # m =       0
+#        vtest0  = np.zeros(ns,dtype=complex)        # m =       0
+#        vtrain2 = np.zeros((nt,5),dtype=complex)    # m = -2,-1,0,+1,+2
+#        vtest2  = np.zeros((ns,5),dtype=complex)    # m = -2,-1,0,+1,+2
+#        for i in xrange(nt):
+#            dotpr = np.dot(alptrain[i],CS)
+#            vtrain0[i] = dotpr[0]
+#            vtrain2[i] = dotpr[1:6]
+#        for i in xrange(ns):
+#            dotpr = np.dot(alptest[i],CS)
+#            vtest0[i] = dotpr[0]
+#            vtest2[i] = dotpr[1:6]
+#
+#
+#
+#        # Extract the complex spherical components (l=1,l=3) of the hyperpolarizabilities.
+#        vtrain1 = np.zeros((nt,3),dtype=complex)        # m = -1,0,+1
+#        vtest1  = np.zeros((ns,3),dtype=complex)        # m = -1,0,+1
+#        vtrain3 = np.zeros((nt,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
+#        vtest3  = np.zeros((ns,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
+#        for i in xrange(nt):
+#            dotpr = np.dot(bettrain[i],CS)
+#            vtrain1[i] = dotpr[0:3]
+#            vtrain3[i] = dotpr[3:]
+#        for i in xrange(ns):
+#            dotpr = np.dot(bettest[i],CS)
+#            vtest1[i] = dotpr[0:3]
+#            vtest3[i] = dotpr[3:]
