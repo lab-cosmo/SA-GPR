@@ -108,24 +108,26 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         invktrvec3 = scipy.linalg.solve(ktrain3,vtrain3)
 
         # Build testing kernels.
-        ktest1 = np.zeros((3*ns,3*nt),dtype=float)
-        ktest3 = np.zeros((7*ns,7*nt),dtype=float)
-        for i in xrange(ns):
-            for j in xrange(nt):
-                k1rte = k1te[i][j]
-                k3rte = k3te[i][j]
-                for al in xrange(3):
-                    for be in xrange(3):
-                        aval = 3*i + al
-                        bval = 3*j + be
-                        ktest1[aval][bval] = k1rte[al][be]
-                for al in xrange(7):
-                    for be in xrange(7):
-                        aval = 7*i + al
-                        bval = 7*j + be
-                        ktest3[aval][bval] = k3rte[al][be]
+        ktest1 = utils.kern_utils.build_testing_kernel(ns,nt,3,k1te)
+        ktest3 = utils.kern_utils.build_testing_kernel(ns,nt,7,k3te)
+#        ktest1 = np.zeros((3*ns,3*nt),dtype=float)
+#        ktest3 = np.zeros((7*ns,7*nt),dtype=float)
+#        for i in xrange(ns):
+#            for j in xrange(nt):
+#                k1rte = k1te[i][j]
+#                k3rte = k3te[i][j]
+#                for al in xrange(3):
+#                    for be in xrange(3):
+#                        aval = 3*i + al
+#                        bval = 3*j + be
+#                        ktest1[aval][bval] = k1rte[al][be]
+#                for al in xrange(7):
+#                    for be in xrange(7):
+#                        aval = 7*i + al
+#                        bval = 7*j + be
+#                        ktest3[aval][bval] = k3rte[al][be]
 
-        # Predict on test data set..
+        # Predict on test data set.
         outvec1 = np.dot(ktest1,invktrvec1)
         outvec3 = np.dot(ktest3,invktrvec3)
         # Convert the predicted full tensor back to Cartesian coordinates.

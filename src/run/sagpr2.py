@@ -103,15 +103,16 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
 
         # Build testing kernels.
         ktest0 = np.real(k0te)
-        ktest2 = np.zeros((5*ns,5*nt),dtype=float)
-        for i in xrange(ns):
-            for j in xrange(nt):
-                k2rte = k2te[i][j]
-                for al in xrange(5):
-                    for be in xrange(5):
-                        aval = 5*i + al
-                        bval = 5*j + be    
-                        ktest2[aval][bval] = k2rte[al][be]
+#        ktest2 = np.zeros((5*ns,5*nt),dtype=float)
+#        for i in xrange(ns):
+#            for j in xrange(nt):
+#                k2rte = k2te[i][j]
+#                for al in xrange(5):
+#                    for be in xrange(5):
+#                        aval = 5*i + al
+#                        bval = 5*j + be    
+#                        ktest2[aval][bval] = k2rte[al][be]
+        ktest2 = utils.kern_utils.build_testing_kernel(ns,nt,5,k2te)
  
         # Predict on test data set.
         outvec0 = np.dot(ktest0,invktrvec0)

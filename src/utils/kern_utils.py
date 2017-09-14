@@ -69,3 +69,19 @@ def build_training_kernel(nt,size,ktr,lm):
     return [ktrain,ktrainpred]
 
 ###############################################################################################################################
+
+def build_testing_kernel(ns,nt,size,kte):
+    # Build testing kernel
+    ktest = np.zeros((size*ns,size*nt),dtype=float)
+    for i in xrange(ns):
+        for j in xrange(nt):
+            krte = kte[i][j]
+            for al in xrange(size):
+                for be in xrange(size):
+                    aval = size*i + al
+                    bval = size*j + be
+                    ktest[aval][bval] = krte[al][be]
+
+    return ktest
+
+###############################################################################################################################
