@@ -44,17 +44,18 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtest[i],CS)))  for i in xrange(ns)])).astype(float)
 
         # Build training kernel.
-        ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
-        ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)
-        for i in xrange(nt):
-            for j in xrange(nt):
-                k1rtr = k1tr[i][j]
-                for al in xrange(3):
-                    for be in xrange(3):
-                        aval = 3*i + al
-                        bval = 3*j + be
-                        ktrain1[aval][bval] = k1rtr[al][be] + lm1*(aval==bval)
-                        ktrainpred1[aval][bval] = k1rtr[al][be]
+        [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
+#        ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
+#        ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)
+#        for i in xrange(nt):
+#            for j in xrange(nt):
+#                k1rtr = k1tr[i][j]
+#                for al in xrange(3):
+#                    for be in xrange(3):
+#                        aval = 3*i + al
+#                        bval = 3*j + be
+#                        ktrain1[aval][bval] = k1rtr[al][be] + lm1*(aval==bval)
+#                        ktrainpred1[aval][bval] = k1rtr[al][be]
 
         # Invert training kernel.
         invktrvec1 = scipy.linalg.solve(ktrain1,vtrain1)

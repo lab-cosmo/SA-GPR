@@ -51,3 +51,21 @@ def unflatten_kernel0(ndata,kernel_flatten):
     return kernel
 
 ###############################################################################################################################
+
+def build_training_kernel(nt,size,ktr,lm):
+    # Build training kernel
+    ktrain = np.zeros((size*nt,size*nt),dtype=float)
+    ktrainpred = np.zeros((size*nt,size*nt),dtype=float)
+    for i in xrange(nt):
+        for j in xrange(nt):
+            krtr = ktr[i][j]
+            for al in xrange(size):
+                for be in xrange(size):
+                    aval = size*i + al
+                    bval = size*j + be
+                    ktrain[aval][bval] = krtr[al][be] + lm*(aval==bval)
+                    ktrainpred[aval][bval] = krtr[al][be]
+
+    return [ktrain,ktrainpred]
+
+###############################################################################################################################

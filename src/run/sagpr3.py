@@ -80,26 +80,28 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         vtest3  = np.concatenate(np.array([np.real(np.dot(CR3,vtest3[i]))  for i in xrange(ns)],dtype=float)).astype(float)
 
         # Build training kernels
-        ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
-        ktrain3 = np.zeros((7*nt,7*nt),dtype=float)
-        ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)
-        ktrainpred3 = np.zeros((7*nt,7*nt),dtype=float)
-        for i in xrange(nt):
-            for j in xrange(nt):
-                k1rtr = k1tr[i][j]
-                k3rtr = k3tr[i][j]
-                for al in xrange(3):
-                    for be in xrange(3):
-                        aval = 3*i + al
-                        bval = 3*j + be
-                        ktrain1[aval][bval] = k1rtr[al][be] + lm1*(aval==bval)
-                        ktrainpred1[aval][bval] = k1rtr[al][be]    
-                for al in xrange(7):
-                    for be in xrange(7):
-                        aval = 7*i + al
-                        bval = 7*j + be
-                        ktrain3[aval][bval] = k3rtr[al][be] + lm3*(aval==bval)
-                        ktrainpred3[aval][bval] = k3rtr[al][be]
+#        ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
+#        ktrain3 = np.zeros((7*nt,7*nt),dtype=float)
+#        ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)
+#        ktrainpred3 = np.zeros((7*nt,7*nt),dtype=float)
+#        for i in xrange(nt):
+#            for j in xrange(nt):
+#                k1rtr = k1tr[i][j]
+#                k3rtr = k3tr[i][j]
+#                for al in xrange(3):
+#                    for be in xrange(3):
+#                        aval = 3*i + al
+#                        bval = 3*j + be
+#                        ktrain1[aval][bval] = k1rtr[al][be] + lm1*(aval==bval)
+#                        ktrainpred1[aval][bval] = k1rtr[al][be]    
+#                for al in xrange(7):
+#                    for be in xrange(7):
+#                        aval = 7*i + al
+#                        bval = 7*j + be
+#                        ktrain3[aval][bval] = k3rtr[al][be] + lm3*(aval==bval)
+#                        ktrainpred3[aval][bval] = k3rtr[al][be]
+        [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
+        [ktrain3,ktrainpred3] = utils.kern_utils.build_training_kernel(nt,7,k3tr,lm3)
 
         # Invert training kernels.
         invktrvec1 = scipy.linalg.solve(ktrain1,vtrain1)
