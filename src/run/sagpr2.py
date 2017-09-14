@@ -71,6 +71,8 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
             vtest0[i] = dotpr[0]
             vtest2[i] = dotpr[1:6]
 
+        # Extract the complex spherical components (l=0,l=2) of the polarizabilities.
+
         vtrain0 = np.real(vtrain0).astype(float)
         meantrain0 = np.mean(vtrain0)
         vtrain0 -= meantrain0        
@@ -82,20 +84,7 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
 
         # Build training kernels.
         ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
-#        ktrain2 = np.zeros((5*nt,5*nt),dtype=float)
-#        ktrainpred2 = np.zeros((5*nt,5*nt),dtype=float)
         [ktrain2,ktrainpred2] = utils.kern_utils.build_training_kernel(nt,5,k2tr,lm2)
-        CC2 = np.conj(CR2)
-        CT2 = np.transpose(CR2)
-#        for i in xrange(nt):
-#            for j in xrange(nt):
-#                k2rtr = k2tr[i][j]
-#                for al in xrange(5):
-#                    for be in xrange(5):
-#                        aval = 5*i + al
-#                        bval = 5*j + be
-#                        ktrain2[aval][bval] = k2rtr[al][be] + lm2*(aval==bval)
-#                        ktrainpred2[aval][bval] = k2rtr[al][be] 
     
         # Invert training kernels.
         invktrvec0 = scipy.linalg.solve(ktrain0,vtrain0)
@@ -103,15 +92,6 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
 
         # Build testing kernels.
         ktest0 = np.real(k0te)
-#        ktest2 = np.zeros((5*ns,5*nt),dtype=float)
-#        for i in xrange(ns):
-#            for j in xrange(nt):
-#                k2rte = k2te[i][j]
-#                for al in xrange(5):
-#                    for be in xrange(5):
-#                        aval = 5*i + al
-#                        bval = 5*j + be    
-#                        ktest2[aval][bval] = k2rte[al][be]
         ktest2 = utils.kern_utils.build_testing_kernel(ns,nt,5,k2te)
  
         # Predict on test data set.

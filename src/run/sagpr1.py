@@ -45,32 +45,12 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
 
         # Build training kernel.
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
-#        ktrain1 = np.zeros((3*nt,3*nt),dtype=float)
-#        ktrainpred1 = np.zeros((3*nt,3*nt),dtype=float)
-#        for i in xrange(nt):
-#            for j in xrange(nt):
-#                k1rtr = k1tr[i][j]
-#                for al in xrange(3):
-#                    for be in xrange(3):
-#                        aval = 3*i + al
-#                        bval = 3*j + be
-#                        ktrain1[aval][bval] = k1rtr[al][be] + lm1*(aval==bval)
-#                        ktrainpred1[aval][bval] = k1rtr[al][be]
 
         # Invert training kernel.
         invktrvec1 = scipy.linalg.solve(ktrain1,vtrain1)
 
         # Build testing kernel.
-        ktest1 = utils.kern_utils.build_testing_kernel(ns,nt,3,k1te)
-#        ktest1 = np.zeros((3*ns,3*nt),dtype=float)
-#        for i in xrange(ns):
-#            for j in xrange(nt):
-#                k1rte = k1te[i][j]
-#                for al in xrange(3):
-#                    for be in xrange(3):
-#                        aval = 3*i + al
-#                        bval = 3*j + be    
-#                        ktest1[aval][bval] = k1rte[al][be]    
+        ktest1 = utils.kern_utils.build_testing_kernel(ns,nt,3,k1te) 
 
         # Predict on test data set..
         outvec1 = np.dot(ktest1,invktrvec1)
