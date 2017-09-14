@@ -50,15 +50,18 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         for i in xrange(10):
             CS[i] = CS[i] * degeneracy[i]
 
-        # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
-        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
-        # Transformation matrix from complex to real spherical harmonics (l=3,m=-3,-2,-1,0,+1,+2,+3).
-        CR3 =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],[0.0,1.0j,0.0,0.0,0.0,-1.0j,0.0],[0.0,0.0,1.0j,0.0,1.0j,0.0,0.0],[0.0,0.0,0.0,np.sqrt(2.0),0.0,0.0,0.0],[0.0,0.0,1.0,0.0,-1.0,0.0,0.0],[0.0,1.0,0.0,0.0,0.0,1.0,0.0],[1.0,0.0,0.0,0.0,0.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
+#        # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
+#        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
+#        # Transformation matrix from complex to real spherical harmonics (l=3,m=-3,-2,-1,0,+1,+2,+3).
+#        CR3 =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],[0.0,1.0j,0.0,0.0,0.0,-1.0j,0.0],[0.0,0.0,1.0j,0.0,1.0j,0.0,0.0],[0.0,0.0,0.0,np.sqrt(2.0),0.0,0.0,0.0],[0.0,0.0,1.0,0.0,-1.0,0.0,0.0],[0.0,1.0,0.0,0.0,0.0,1.0,0.0],[1.0,0.0,0.0,0.0,0.0,0.0,-1.0]],dtype=complex) / np.sqrt(2.0)
+
+        # Transformation matrices from complex to real spherical harmonics (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3)
+        [CR1,CR3] = utils.kern_utils.complex_to_real_transformation([3,7])
 
         # Extract the complex spherical components (l=1,l=3) of the hyperpolarizabilities.
         [ [vtrain1,vtrain3],[vtest1,vtest3] ] = utils.kern_utils.partition_spherical_components(bettrain,bettest,CS,[3,7],ns,nt)
 
-        # Convert the complex spherical components into real spherical components.
+        # For l=1 and l=3, convert the complex spherical components into real spherical components.
         vtrain1 = np.concatenate(np.array([np.real(np.dot(CR1,vtrain1[i])) for i in xrange(nt)],dtype=float)).astype(float)
         vtest1  = np.concatenate(np.array([np.real(np.dot(CR1,vtest1[i]))  for i in xrange(ns)],dtype=float)).astype(float)
         vtrain3 = np.concatenate(np.array([np.real(np.dot(CR3,vtrain3[i])) for i in xrange(nt)],dtype=float)).astype(float)

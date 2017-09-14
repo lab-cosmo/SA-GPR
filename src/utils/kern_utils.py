@@ -167,3 +167,27 @@ def get_non_equivalent_components(train,test):
     
 
 ###############################################################################################################################
+
+def complex_to_real_transformation(sizes):
+    # Transformation matrix from complex to real spherical harmonics.
+
+    matrices = []
+    for i in xrange(len(sizes)):
+        lval = (sizes[i]-1)/2
+        st = (-1.0)**(lval+1)
+        transformation_matrix = np.zeros((sizes[i],sizes[i]),dtype=complex)
+        for j in xrange( (sizes[i]-1)/2 ):
+            transformation_matrix[j][j] = 1.0j
+            transformation_matrix[j][sizes[i]-j-1] = st*1.0j
+            transformation_matrix[sizes[i]-j-1][j] = 1.0
+            transformation_matrix[sizes[i]-j-1][sizes[i]-j-1] = st*-1.0
+            st = st * -1.0
+#            transformation_matrix[j][sizes[i]-j] = 1.0j * (-1.0)**j
+#            transformation_matrix[sizes[i]-j][sizes[i]-j] = (-1.0)**j
+        transformation_matrix[(sizes[i]-1)/2][(sizes[i]-1)/2] = np.sqrt(2.0)
+        transformation_matrix /= np.sqrt(2.0)
+        matrices.append(transformation_matrix)
+
+    return matrices
+
+###############################################################################################################################

@@ -38,10 +38,21 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
 
         # Unitary transormation matrix from Cartesian to spherical (l=1,m=-1,0,+1), Condon-Shortley convention.
         CS  = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
+
         # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
-        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype = complex) / np.sqrt(2.0)    # Get training and testing vectors for l=1.
-        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtrain[i],CS))) for i in xrange(nt)])).astype(float)
-        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtest[i],CS)))  for i in xrange(ns)])).astype(float)
+#        CR1 = np.array([[1.0j,0.0,1.0j],[0.0,np.sqrt(2.0),0.0],[1.0,0.0,-1.0]],dtype = complex) / np.sqrt(2.0)    # Get training and testing vectors for l=1.
+        [CR1] = utils.kern_utils.complex_to_real_transformation([3])
+
+        # Extract the complex spherical components (l=1) of the dipoles.
+        [ [vtrain1],[vtest1] ] = utils.kern_utils.partition_spherical_components(vtrain,vtest,CS,[3],ns,nt)
+
+        # For l=1, convert the complex spherical components into real spherical components.
+        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,vtrain1[i])) for i in xrange(nt)])).astype(float)
+        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,vtest1[i])) for i in xrange(ns)])).astype(float)
+        
+#        # For l=1, convert the complex spherical components into real spherical components.
+#        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtrain[i],CS))) for i in xrange(nt)])).astype(float)
+#        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,np.dot(vtest[i],CS)))  for i in xrange(ns)])).astype(float)
 
         # Build training kernel.
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
@@ -56,6 +67,7 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         outvec1 = np.dot(ktest1,invktrvec1)
         intrins_dev1 += np.std(vtest1)**2
         abs_error1 += np.sum((outvec1-vtest1)**2)/(3*ns)
+
         # Convert the predicted full tensor back to Cartesian coordinates.
         outvec1s = outvec1.reshape((ns,3))
         predcart = np.concatenate(np.array([np.real(np.dot(np.dot(np.conj(CR1).T,outvec1s[i]),np.conj(CS).T)) for i in xrange(ns)])).astype(float)

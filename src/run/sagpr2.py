@@ -50,8 +50,11 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         for i in xrange(6):
             CS[i] = CS[i] * degeneracy[i]
 
+#        # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
+#        CR2 = np.array([[1.0j,0.0,0.0,0.0,-1.0j],[0.0,1.0j,0.0,1.0j,0.0],[0.0,0.0,np.sqrt(2.0),0.0,0.0],[0.0,1.0,0.0,-1.0,0.0],[1.0,0.0,0.0,0.0,1.0]],dtype=complex) / np.sqrt(2.0)
+
         # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
-        CR2 = np.array([[1.0j,0.0,0.0,0.0,-1.0j],[0.0,1.0j,0.0,1.0j,0.0],[0.0,0.0,np.sqrt(2.0),0.0,0.0],[0.0,1.0,0.0,-1.0,0.0],[1.0,0.0,0.0,0.0,1.0]],dtype=complex) / np.sqrt(2.0)
+        [CR2] = utils.kern_utils.complex_to_real_transformation([5])
 
         # Extract the complex spherical components (l=0,l=2) of the polarizabilities.
         [ [vtrain0,vtrain2],[vtest0,vtest2] ] = utils.kern_utils.partition_spherical_components(alptrain,alptest,CS,[1,5],ns,nt)
@@ -60,6 +63,7 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         meantrain0 = np.mean(vtrain0)
         vtrain0 -= meantrain0        
         vtest0 = np.real(vtest0).astype(float)
+
         # For l=2, convert the complex spherical components into real spherical components.
         realvtrain2 = np.array([np.real(np.dot(CR2,vtrain2[i])) for i in xrange(nt)],dtype=float)
         vtrain2 = np.concatenate(realvtrain2).astype(float) 
