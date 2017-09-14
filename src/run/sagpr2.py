@@ -41,14 +41,17 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         k2tr = [[kernel2[i,j] for j in trrange] for i in trrange]
         k2te = [[kernel2[i,j] for j in trrange] for i in terange]
 
+#        # Extract the 6 non-equivalent components xx,xy,xz,yy,yz,zz; include degeneracy.
+#        alptrain = np.zeros((nt,6),dtype=complex)
+#        alptest = np.zeros((ns,6),dtype=complex)
+#        for i in xrange(nt):
+#            alptrain[i] = np.array([vtrain[i][0],vtrain[i][1]*np.sqrt(2.0),vtrain[i][2]*np.sqrt(2.0),vtrain[i][4],vtrain[i][5]*np.sqrt(2.0),vtrain[i][8]],dtype=complex)
+#        for i in xrange(ns):
+#            alptest[i]  = np.array([vtest[i][0],vtest[i][1]*np.sqrt(2.0),vtest[i][2]*np.sqrt(2.0),vtest[i][4],vtest[i][5]*np.sqrt(2.0),vtest[i][8]],dtype=complex)
+
         # Extract the 6 non-equivalent components xx,xy,xz,yy,yz,zz; include degeneracy.
-        alptrain = np.zeros((nt,6),dtype=complex)
-        alptest = np.zeros((ns,6),dtype=complex)
-        for i in xrange(nt):
-            alptrain[i] = np.array([vtrain[i][0],vtrain[i][1]*np.sqrt(2.0),vtrain[i][2]*np.sqrt(2.0),vtrain[i][4],vtrain[i][5]*np.sqrt(2.0),vtrain[i][8]],dtype=complex)
-        for i in xrange(ns):
-            alptest[i]  = np.array([vtest[i][0],vtest[i][1]*np.sqrt(2.0),vtest[i][2]*np.sqrt(2.0),vtest[i][4],vtest[i][5]*np.sqrt(2.0),vtest[i][8]],dtype=complex)
-    
+        [alptrain,alptest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
+   
         # Unitary transormation matrix from Cartesian to spherical (l=0,m=0 | l=2,m=-2,-1,0,+1,+2), Condon-Shortley convention.
         CS = np.array([[-1.0/np.sqrt(3.0),0.5,0.0,-1.0/np.sqrt(6.0),0.0,0.5],[0.0,-0.5j,0.0,0.0,0.0,0.5j],[0.0,0.0,0.5,0.0,-0.5,0.0],[-1.0/np.sqrt(3.0),-0.5,0.0,-1.0/np.sqrt(6.0),0.0,-0.5],[0.0,0.0,-0.5j,0.0,-0.5j,0.0],[-1.0/np.sqrt(3.0),0.0,0.0,2.0/np.sqrt(6.0),0.0,0.0]],dtype = complex)
         degeneracy = [1.0,np.sqrt(2.0),np.sqrt(2.0),1.0,np.sqrt(2.0),1.0]

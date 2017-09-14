@@ -41,13 +41,16 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         k3tr = [[kernel3[i,j] for j in trrange] for i in trrange]
         k3te = [[kernel3[i,j] for j in trrange] for i in terange]
 
+#        # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
+#        bettrain = np.zeros((nt,10),dtype=complex)
+#        bettest = np.zeros((ns,10),dtype=complex)
+#        for i in xrange(nt):
+#            bettrain[i] = np.array( [vtrain[i][0],vtrain[i][1]*np.sqrt(3.0),vtrain[i][2]*np.sqrt(3.0),vtrain[i][4]*np.sqrt(3.0),vtrain[i][5]*np.sqrt(6.0),vtrain[i][8]*np.sqrt(3.0),vtrain[i][13],vtrain[i][14]*np.sqrt(3.0),vtrain[i][17]*np.sqrt(3.0),vtrain[i][26]],dtype = complex)
+#        for i in xrange(ns):
+#            bettest[i] = np.array( [vtest[i][0],vtest[i][1]*np.sqrt(3.0),vtest[i][2]*np.sqrt(3.0),vtest[i][4]*np.sqrt(3.0),vtest[i][5]*np.sqrt(6.0),vtest[i][8]*np.sqrt(3.0),vtest[i][13],vtest[i][14]*np.sqrt(3.0),vtest[i][17]*np.sqrt(3.0),vtest[i][26]],dtype = complex)
+
         # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
-        bettrain = np.zeros((nt,10),dtype=complex)
-        bettest = np.zeros((ns,10),dtype=complex)
-        for i in xrange(nt):
-            bettrain[i] = np.array( [vtrain[i][0],vtrain[i][1]*np.sqrt(3.0),vtrain[i][2]*np.sqrt(3.0),vtrain[i][4]*np.sqrt(3.0),vtrain[i][5]*np.sqrt(6.0),vtrain[i][8]*np.sqrt(3.0),vtrain[i][13],vtrain[i][14]*np.sqrt(3.0),vtrain[i][17]*np.sqrt(3.0),vtrain[i][26]],dtype = complex)
-        for i in xrange(ns):
-            bettest[i] = np.array( [vtest[i][0],vtest[i][1]*np.sqrt(3.0),vtest[i][2]*np.sqrt(3.0),vtest[i][4]*np.sqrt(3.0),vtest[i][5]*np.sqrt(6.0),vtest[i][8]*np.sqrt(3.0),vtest[i][13],vtest[i][14]*np.sqrt(3.0),vtest[i][17]*np.sqrt(3.0),vtest[i][26]],dtype = complex)
+        [bettrain,bettest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
 
         # Unitary transormation matrix from Cartesian to spherical (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3), Condon-Shortley convention; include degeneracy.
         CS = np.array([[-3.0/np.sqrt(30.0),0.0,3.0/np.sqrt(30.0),1.0/np.sqrt(8.0),0.0,-3.0/np.sqrt(120.0),0.0,3.0/np.sqrt(120.0),0.0,-1.0/np.sqrt(8.0)],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),-1.0j/np.sqrt(8.0),0.0,1.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(120.0),0.0,-1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,1.0/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),-1.0/np.sqrt(8.0),0.0,-1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(8.0)],[0.0,0.0,0.0,0.0,-1.0j/np.sqrt(12.0),0.0,0.0,0.0,1.0j/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),0.0,0.0,4.0/np.sqrt(120.0),0.0,-4.0/np.sqrt(120.0),0.0,0.0],[3.0j/np.sqrt(30.0),0.0,3.0j/np.sqrt(30.0),1.0j/np.sqrt(8.0),0.0,3.0j/np.sqrt(120.0),0.0,3.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,-1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,-1.0/np.sqrt(12.0),0.0],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),0.0,0.0,-4.0j/np.sqrt(120),0.0,-4.0j/np.sqrt(120),0.0,0.0],[0.0,-3.0/np.sqrt(15.0),0.0,0.0,0.0,0.0,2.0/np.sqrt(10.0),0.0,0.0,0.0]],dtype=complex)

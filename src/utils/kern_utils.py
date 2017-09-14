@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
+import sys
 from random import shuffle
 
 ###############################################################################################################################
@@ -113,35 +114,56 @@ def partition_spherical_components(train,test,CS,sizes,ns,nt):
     return [vtrain,vtest]
 
 ###############################################################################################################################
-#
-#
-#
-#        # Extract the complex spherical components (l=0,l=2) of the polarizabilities.
-#        vtrain0 = np.zeros(nt,dtype=complex)        # m =       0
-#        vtest0  = np.zeros(ns,dtype=complex)        # m =       0
-#        vtrain2 = np.zeros((nt,5),dtype=complex)    # m = -2,-1,0,+1,+2
-#        vtest2  = np.zeros((ns,5),dtype=complex)    # m = -2,-1,0,+1,+2
-#        for i in xrange(nt):
-#            dotpr = np.dot(alptrain[i],CS)
-#            vtrain0[i] = dotpr[0]
-#            vtrain2[i] = dotpr[1:6]
-#        for i in xrange(ns):
-#            dotpr = np.dot(alptest[i],CS)
-#            vtest0[i] = dotpr[0]
-#            vtest2[i] = dotpr[1:6]
-#
-#
-#
-#        # Extract the complex spherical components (l=1,l=3) of the hyperpolarizabilities.
-#        vtrain1 = np.zeros((nt,3),dtype=complex)        # m = -1,0,+1
-#        vtest1  = np.zeros((ns,3),dtype=complex)        # m = -1,0,+1
-#        vtrain3 = np.zeros((nt,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
-#        vtest3  = np.zeros((ns,7),dtype=complex)        # m = -3,-2,-1,0,+1,+2,+3
-#        for i in xrange(nt):
-#            dotpr = np.dot(bettrain[i],CS)
-#            vtrain1[i] = dotpr[0:3]
-#            vtrain3[i] = dotpr[3:]
-#        for i in xrange(ns):
-#            dotpr = np.dot(bettest[i],CS)
-#            vtest1[i] = dotpr[0:3]
-#            vtest3[i] = dotpr[3:]
+
+def get_non_equivalent_components(train,test):
+    # Get the non-equivalent components for a tensor, along with their degeneracies.
+    nt = len(train)
+    ns = len(test)
+    rank = int(np.log(len(train[0])) / np.log(3.0))
+    # For each element we assign a label.
+    labels = []
+    labels.append(np.zeros(rank,dtype=int))
+    for i in xrange(1,len(train[0])):
+        lbl = list(labels[i-1])
+        lbl[rank-1] += 1
+        for j in xrange(rank-1,-1,-1):
+            if (lbl[j] > 2):
+                lbl[j] = 0
+                lbl[j-1] += 1
+        labels.append(np.array(lbl))
+    # Now go through these and find their degeneracies.
+    masks = np.zeros(len(train[0]))
+    for i in xrange(len(train[0])):
+        lb1 = sorted(labels[i])
+        # Compare this label with all of the previous ones, and see if it's the same within permutation.
+        unique = True
+        for j in xrange(0,i-1):
+            if ((lb1 == sorted(labels[j])) & (unique==True)):
+                # They are the same.
+                unique = False
+                masks[j] += 1
+        if (unique):
+            masks[i] = 1
+    unique_vals = 0
+    for j in xrange(len(train[0])):
+        if (masks[j] > 0):
+            unique_vals += 1
+    out_train = np.zeros((nt,unique_vals),dtype=complex)
+    out_test  = np.zeros((ns,unique_vals),dtype=complex)
+    for i in xrange(nt):
+        k = 0
+        for j in xrange(len(train[i])):
+            if (masks[j] > 0):
+                out_train[i][k] = train[i][j] * np.sqrt(float(masks[j]))
+                k += 1
+    for i in xrange(ns):
+        k = 0
+        for j in xrange(len(test[i])):
+            if (masks[j] > 0):
+                out_test[i][k] = test[i][j] * np.sqrt(float(masks[j]))
+                k += 1
+
+    return [out_train,out_test]
+    
+
+###############################################################################################################################
