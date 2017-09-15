@@ -31,6 +31,9 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         # Partition properties and kernel for training and testing
         [vtrain,vtest,[k1tr],[k1te]] = utils.kern_utils.partition_kernels_properties(dips,[kernel1],trrange,terange)
 
+        # Extract the 3 non-equivalent components x,y,z; include degeneracy.
+        [diptrain,diptest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
+
         # Unitary transormation matrix from Cartesian to spherical (l=1,m=-1,0,+1), Condon-Shortley convention.
         CS  = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
 
@@ -38,7 +41,7 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         [CR1] = utils.kern_utils.complex_to_real_transformation([3])
 
         # Extract the real spherical components (l=1) of the dipoles.
-        [ [vtrain1],[vtest1] ] = utils.kern_utils.partition_spherical_components(vtrain,vtest,CS,[CR1],[3],ns,nt)
+        [ [vtrain1],[vtest1] ] = utils.kern_utils.partition_spherical_components(diptrain,diptest,CS,[CR1],[3],ns,nt)
         
         # Build training kernel.
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)

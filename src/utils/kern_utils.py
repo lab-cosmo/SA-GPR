@@ -193,8 +193,6 @@ def complex_to_real_transformation(sizes):
             transformation_matrix[sizes[i]-j-1][j] = 1.0
             transformation_matrix[sizes[i]-j-1][sizes[i]-j-1] = st*-1.0
             st = st * -1.0
-#            transformation_matrix[j][sizes[i]-j] = 1.0j * (-1.0)**j
-#            transformation_matrix[sizes[i]-j][sizes[i]-j] = (-1.0)**j
         transformation_matrix[(sizes[i]-1)/2][(sizes[i]-1)/2] = np.sqrt(2.0)
         transformation_matrix /= np.sqrt(2.0)
         matrices.append(transformation_matrix)
