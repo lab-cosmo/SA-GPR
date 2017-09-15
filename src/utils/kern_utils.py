@@ -240,26 +240,3 @@ def spherical_to_cartesian(outvec,sizes,ns,CR,CS):
     return cart
 
 ###############################################################################################################################
-#
-#        outvec2s = outvec2.reshape((ns,5))
-#        outsphr2 = np.zeros((ns,5),dtype=complex)
-#        alpsphe = np.zeros((ns,6),dtype=complex)
-#        alpcart = np.zeros((ns,6),dtype=float)
-#        alphas = np.zeros((ns,9),dtype=float)
-#        for i in xrange(ns):
-#            outsphr2[i] = np.dot(np.conj(CR2).T,outvec2s[i])
-#            alpsphe[i] = [outvec0[i],outsphr2[i][0],outsphr2[i][1],outsphr2[i][2],outsphr2[i][3],outsphr2[i][4]]
-#            alpcart[i] = np.real(np.dot(alpsphe[i],np.conj(CS).T))
-#
-#        outvec1s = outvec1.reshape((ns,3))
-#        outvec3s = outvec3.reshape((ns,7))
-#        outsphr1 = np.zeros((ns,3),dtype=complex)
-#        outsphr3 = np.zeros((ns,7),dtype=complex)
-#        betsphe = np.zeros((ns,10),dtype=complex)
-#        betcart = np.zeros((ns,10),dtype=float)
-#        betas = np.zeros((ns,27),dtype=float)
-#        for i in xrange(ns):
-#            outsphr1[i] = np.dot(np.conj(CR1).T,outvec1s[i])
-#            outsphr3[i] = np.dot(np.conj(CR3).T,outvec3s[i])
-#            betsphe[i] = [outsphr1[i][0],outsphr1[i][1],outsphr1[i][2],outsphr3[i][0],outsphr3[i][1],outsphr3[i][2],outsphr3[i][3],outsphr3[i][4],outsphr3[i][5],outsphr3[i][6]]
-#            betcart[i] = np.real(np.dot(betsphe[i],np.conj(CS).T))
