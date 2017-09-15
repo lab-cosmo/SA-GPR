@@ -30,21 +30,13 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
         kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
 
         # Partition properties and kernel for training and testing
-#        enertrain = [ener[i] for i in trrange]
-#        enertest = [ener[i] for i in terange]
-#        vtrain = np.array([i.split() for i in enertrain]).astype(float)
-#        vtest = np.array([i.split() for i in enertest]).astype(float)
-#        k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
-#        k0te = [[kernel0[i,j] for j in trrange] for i in terange]
-#
         [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(ener,[kernel0],trrange,terange)
 
         # Build regression vectors
         vtrain0    = np.real(vtrain).astype(float)
         meantrain0 = np.mean(vtrain0)
         vtrain0   -= meantrain0
-#        vtrain0     = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
-        vtest0 = np.real(vtest).astype(float)
+        vtest0     = np.real(vtest).astype(float)
  
         # Build and invert training kernel
         ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
@@ -55,6 +47,7 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
 
         # Predict on test data set.
         outvec0 = np.dot(np.real(k0te),invktrvec0) + meantrain0
+
         # Print out errors and diagnostics.
         mean0 += np.mean(vtest0)-np.min(vtest0)
         intrins_dev0 += np.std(vtest0)**2

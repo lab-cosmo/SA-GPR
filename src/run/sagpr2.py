@@ -44,7 +44,7 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
             CS[i] = CS[i] * degeneracy[i]
 
         # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
-        [CR2] = utils.kern_utils.complex_to_real_transformation([5])
+        [CR0,CR2] = utils.kern_utils.complex_to_real_transformation([1,5])
 
         # Extract the real spherical components (l=0,l=2) of the polarizabilities.
         [ [vtrain0,vtrain2],[vtest0,vtest2] ] = utils.kern_utils.partition_spherical_components(alptrain,alptest,CS,[None,CR2],[1,5],ns,nt)
@@ -78,16 +78,26 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         abs_error2 += np.sum((outvec2-vtest2)**2)/(5*ns)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
+        outvec0s = outvec0.reshape((ns,1))
         outvec2s = outvec2.reshape((ns,5))
+        outsphr0 = np.zeros((ns,1),dtype=complex)
         outsphr2 = np.zeros((ns,5),dtype=complex)
+
         alpsphe = np.zeros((ns,6),dtype=complex)
         alpcart = np.zeros((ns,6),dtype=float)
         alphas = np.zeros((ns,9),dtype=float)
+
         for i in xrange(ns):
+#            outsphr0[i] = np.dot([1.0],outvec0s[i])
+            outsphr0[i] = np.dot(np.conj(CR0).T,outvec0s[i])
             outsphr2[i] = np.dot(np.conj(CR2).T,outvec2s[i])
-            alpsphe[i] = [outvec0[i],outsphr2[i][0],outsphr2[i][1],outsphr2[i][2],outsphr2[i][3],outsphr2[i][4]]
+#            alpsphe[i] = [outsphr0[i],outsphr2[i][0],outsphr2[i][1],outsphr2[i][2],outsphr2[i][3],outsphr2[i][4]]
+            alpsphe[i] = np.concatenate([outsphr0[i],outsphr2[i]])
             alpcart[i] = np.real(np.dot(alpsphe[i],np.conj(CS).T))
+
         predcart = np.concatenate([[alpcart[i][0],alpcart[i][1]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][1]/np.sqrt(2.0),alpcart[i][3],alpcart[i][4]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][4]/np.sqrt(2.0),alpcart[i][5]] for i in xrange(ns)]).astype(float)
+
+        testcart = np.real(np.concatenate(vtest)).astype(float)
 
     intrins_dev0 = np.sqrt(intrins_dev0/float(ncycles))
     abs_error0 = np.sqrt(abs_error0/float(ncycles))
