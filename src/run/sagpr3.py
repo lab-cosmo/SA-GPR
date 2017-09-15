@@ -66,22 +66,41 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         outvec3 = np.dot(ktest3,invktrvec3)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
-        outvec1s = outvec1.reshape((ns,3))
-        outvec3s = outvec3.reshape((ns,7))
-        outsphr1 = np.zeros((ns,3),dtype=complex)
-        outsphr3 = np.zeros((ns,7),dtype=complex)
-
-        betsphe = np.zeros((ns,10),dtype=complex)
-        betcart = np.zeros((ns,10),dtype=float)
-        betas = np.zeros((ns,27),dtype=float)
-
-        for i in xrange(ns):
-            outsphr1[i] = np.dot(np.conj(CR1).T,outvec1s[i])
-            outsphr3[i] = np.dot(np.conj(CR3).T,outvec3s[i])
-#            betsphe[i] = [outsphr1[i][0],outsphr1[i][1],outsphr1[i][2],outsphr3[i][0],outsphr3[i][1],outsphr3[i][2],outsphr3[i][3],outsphr3[i][4],outsphr3[i][5],outsphr3[i][6]]
-            betsphe[i] = np.concatenate([outsphr1[i],outsphr3[i]])
-            betcart[i] = np.real(np.dot(betsphe[i],np.conj(CS).T))
-
+#        sizes = [3,7]
+#        outvec = [outvec1,outvec3]
+#        CR = [CR1,CR3]
+#
+#        outvecs = []
+#        outsphr = []
+#        sphe = np.zeros((ns,sum(sizes)),dtype=complex)
+#        cart = np.zeros((ns,sum(sizes)),dtype=float)
+#        for j in xrange(len(sizes)):
+#            outvecs.append(outvec[j].reshape((ns,sizes[j])))
+#            outsphr.append(np.zeros((ns,sizes[j]),dtype=complex))
+#        for i in xrange(ns):
+#            for j in xrange(len(sizes)):
+#                outsphr[j][i] = np.dot(np.conj(CR[j]).T,outvecs[j][i])
+#            sphe[i] = np.concatenate([outsphr[j][i] for j in xrange(len(sizes))])
+#            cart[i] = np.real(np.dot(sphe[i],np.conj(CS).T))
+#
+#        betcart = cart
+        betcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS)
+#
+#        outvec1s = outvec1.reshape((ns,3))
+#        outvec3s = outvec3.reshape((ns,7))
+#        outsphr1 = np.zeros((ns,3),dtype=complex)
+#        outsphr3 = np.zeros((ns,7),dtype=complex)
+#
+#        betsphe = np.zeros((ns,10),dtype=complex)
+#        betcart = np.zeros((ns,10),dtype=float)
+##        betas = np.zeros((ns,27),dtype=float)
+#
+#        for i in xrange(ns):
+#            outsphr1[i] = np.dot(np.conj(CR1).T,outvec1s[i])
+#            outsphr3[i] = np.dot(np.conj(CR3).T,outvec3s[i])
+#            betsphe[i] = np.concatenate([outsphr1[i],outsphr3[i]])
+#            betcart[i] = np.real(np.dot(betsphe[i],np.conj(CS).T))
+#
         predcart = np.concatenate([ [betcart[i][0],betcart[i][1]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][3]/np.sqrt(3.0),betcart[i][6],betcart[i][7]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][5]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][9]] for i in xrange(ns)]).astype(float)
 
         testcart = np.real(np.concatenate(vtest)).astype(float)

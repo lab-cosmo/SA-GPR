@@ -78,22 +78,39 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         abs_error2 += np.sum((outvec2-vtest2)**2)/(5*ns)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
-        outvec0s = outvec0.reshape((ns,1))
-        outvec2s = outvec2.reshape((ns,5))
-        outsphr0 = np.zeros((ns,1),dtype=complex)
-        outsphr2 = np.zeros((ns,5),dtype=complex)
-
-        alpsphe = np.zeros((ns,6),dtype=complex)
-        alpcart = np.zeros((ns,6),dtype=float)
-        alphas = np.zeros((ns,9),dtype=float)
-
-        for i in xrange(ns):
-#            outsphr0[i] = np.dot([1.0],outvec0s[i])
-            outsphr0[i] = np.dot(np.conj(CR0).T,outvec0s[i])
-            outsphr2[i] = np.dot(np.conj(CR2).T,outvec2s[i])
-#            alpsphe[i] = [outsphr0[i],outsphr2[i][0],outsphr2[i][1],outsphr2[i][2],outsphr2[i][3],outsphr2[i][4]]
-            alpsphe[i] = np.concatenate([outsphr0[i],outsphr2[i]])
-            alpcart[i] = np.real(np.dot(alpsphe[i],np.conj(CS).T))
+#        sizes = [1,5]
+#        outvec = [outvec0,outvec2]
+#        CR = [CR0,CR2]
+#
+#        outvecs = []
+#        outsphr = []
+#        sphe = np.zeros((ns,sum(sizes)),dtype=complex)
+#        cart = np.zeros((ns,sum(sizes)),dtype=float)
+#        for j in xrange(len(sizes)):
+#            outvecs.append(outvec[j].reshape((ns,sizes[j])))
+#            outsphr.append(np.zeros((ns,sizes[j]),dtype=complex))
+#        for i in xrange(ns):
+#            for j in xrange(len(sizes)):
+#                outsphr[j][i] = np.dot(np.conj(CR[j]).T,outvecs[j][i])
+#            sphe[i] = np.concatenate([outsphr[j][i] for j in xrange(len(sizes))])
+#            cart[i] = np.real(np.dot(sphe[i],np.conj(CS).T))
+#        alpcart = cart
+        alpcart = utils.kern_utils.spherical_to_cartesian([outvec0,outvec2],[1,5],ns,[CR0,CR2],CS)
+#
+#        outvec0s = outvec0.reshape((ns,1))
+#        outvec2s = outvec2.reshape((ns,5))
+#        outsphr0 = np.zeros((ns,1),dtype=complex)
+#        outsphr2 = np.zeros((ns,5),dtype=complex)
+#
+#        alpsphe = np.zeros((ns,6),dtype=complex)
+#        alpcart = np.zeros((ns,6),dtype=float)
+##        alphas = np.zeros((ns,9),dtype=float)
+#
+#        for i in xrange(ns):
+#            outsphr0[i] = np.dot(np.conj(CR0).T,outvec0s[i])
+#            outsphr2[i] = np.dot(np.conj(CR2).T,outvec2s[i])
+#            alpsphe[i] = np.concatenate([outsphr0[i],outsphr2[i]])
+#            alpcart[i] = np.real(np.dot(alpsphe[i],np.conj(CS).T))
 
         predcart = np.concatenate([[alpcart[i][0],alpcart[i][1]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][1]/np.sqrt(2.0),alpcart[i][3],alpcart[i][4]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][4]/np.sqrt(2.0),alpcart[i][5]] for i in xrange(ns)]).astype(float)
 
