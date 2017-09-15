@@ -87,7 +87,7 @@ def build_testing_kernel(ns,nt,size,kte):
 
 ###############################################################################################################################
 
-def partition_spherical_components(train,test,CS,sizes,ns,nt):
+def partition_spherical_components(train,test,CS,CR,sizes,ns,nt):
     # Extract the complex spherical components of the tensors.
     vtrain = []
     vtest = []
@@ -111,7 +111,18 @@ def partition_spherical_components(train,test,CS,sizes,ns,nt):
             vtest[j][i] = dotpr[k:k+sizes[j]]
             k += sizes[j]
 
-    return [vtrain,vtest]
+    # Convert the complex spherical components into real spherical components.
+    vtrain_out = []
+    vtest_out = []
+    for i in xrange(len(vtrain)):
+        if (CR[i] is None):
+            vtrain_out.append(vtrain[i])
+            vtest_out.append( vtest[i] )
+        else:
+            vtrain_out.append(np.concatenate(np.array([np.real(np.dot(CR[i],vtrain[i][j])) for j in xrange(nt)],dtype=float)).astype(float))
+            vtest_out.append( np.concatenate(np.array([np.real(np.dot(CR[i],vtest[i][j]))  for j in xrange(ns)],dtype=float)).astype(float))
+
+    return [vtrain_out,vtest_out]
 
 ###############################################################################################################################
 
@@ -189,5 +200,23 @@ def complex_to_real_transformation(sizes):
         matrices.append(transformation_matrix)
 
     return matrices
+
+###############################################################################################################################
+
+def partition_kernels_properties(data,kernels,trrange,terange):
+    # Partition kernels and properties for training and testing.
+    train  = [data[i] for i in trrange]
+    test   = [data[i] for i in terange]
+    vtrain = np.array([i.split() for i in train]).astype(float)
+    vtest  = np.array([i.split() for i in test]).astype(float)
+    ktr = []
+    kte = []
+    for kernel in kernels:
+        kttr    = [[kernel[i,j] for j in trrange] for i in trrange]
+        ktte    = [[kernel[i,j] for j in trrange] for i in terange]
+        ktr.append(kttr)
+        kte.append(ktte)
+
+    return [vtrain,vtest,ktr,kte]
 
 ###############################################################################################################################

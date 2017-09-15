@@ -30,12 +30,14 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
         kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
 
         # Partition properties and kernel for training and testing
-        enertrain = [ener[i] for i in trrange]
-        enertest = [ener[i] for i in terange]
-        vtrain = np.array([i.split() for i in enertrain]).astype(float)
-        vtest = np.array([i.split() for i in enertest]).astype(float)
-        k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
-        k0te = [[kernel0[i,j] for j in trrange] for i in terange]
+#        enertrain = [ener[i] for i in trrange]
+#        enertest = [ener[i] for i in terange]
+#        vtrain = np.array([i.split() for i in enertrain]).astype(float)
+#        vtest = np.array([i.split() for i in enertest]).astype(float)
+#        k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
+#        k0te = [[kernel0[i,j] for j in trrange] for i in terange]
+#
+        [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(ener,[kernel0],trrange,terange)
 
         # Build regression vectors
         vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))

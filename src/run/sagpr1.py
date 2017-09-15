@@ -29,12 +29,13 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         kernel1 = utils.kern_utils.unflatten_kernel(ndata,3,kernel1_flatten)
 
         # Partition properties and kernel for training and testing
-        dipstrain = [dips[i] for i in trrange]
-        dipstest = [dips[i] for i in terange]
-        vtrain = np.array([i.split() for i in dipstrain]).astype(complex)
-        vtest = np.array([i.split() for i in dipstest]).astype(complex)
-        k1tr = [[kernel1[i,j] for j in trrange] for i in trrange]
-        k1te = [[kernel1[i,j] for j in trrange] for i in terange]
+#        dipstrain = [dips[i] for i in trrange]
+#        dipstest = [dips[i] for i in terange]
+#        vtrain = np.array([i.split() for i in dipstrain]).astype(complex)
+#        vtest = np.array([i.split() for i in dipstest]).astype(complex)
+#        k1tr = [[kernel1[i,j] for j in trrange] for i in trrange]
+#        k1te = [[kernel1[i,j] for j in trrange] for i in terange]
+        [vtrain,vtest,[k1tr],[k1te]] = utils.kern_utils.partition_kernels_properties(dips,[kernel1],trrange,terange)
 
         # Unitary transormation matrix from Cartesian to spherical (l=1,m=-1,0,+1), Condon-Shortley convention.
         CS  = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
@@ -43,11 +44,11 @@ def do_sagpr1(lm1,fractrain,dips,kernel1_flatten,sel,rdm):
         [CR1] = utils.kern_utils.complex_to_real_transformation([3])
 
         # Extract the complex spherical components (l=1) of the dipoles.
-        [ [vtrain1],[vtest1] ] = utils.kern_utils.partition_spherical_components(vtrain,vtest,CS,[3],ns,nt)
+        [ [vtrain1],[vtest1] ] = utils.kern_utils.partition_spherical_components(vtrain,vtest,CS,[CR1],[3],ns,nt)
 
-        # For l=1, convert the complex spherical components into real spherical components.
-        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,vtrain1[i])) for i in xrange(nt)])).astype(float)
-        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,vtest1[i])) for i in xrange(ns)])).astype(float)
+#        # For l=1, convert the complex spherical components into real spherical components.
+#        vtrain1 = np.concatenate(np.array([np.real( np.dot(CR1,vtrain1[i])) for i in xrange(nt)])).astype(float)
+#        vtest1  = np.concatenate(np.array([np.real( np.dot(CR1,vtest1[i])) for i in xrange(ns)])).astype(float)
         
         # Build training kernel.
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
