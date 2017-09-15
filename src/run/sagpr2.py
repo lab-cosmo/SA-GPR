@@ -32,14 +32,6 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         kernel2 = utils.kern_utils.unflatten_kernel(ndata,5,kernel2_flatten)
 
         # Partition properties and kernel for training and testing
-#        alpstrain = [alps[i] for i in trrange]
-#        alpstest = [alps[i] for i in terange]
-#        vtrain = np.array([i.split() for i in alpstrain]).astype(complex)
-#        vtest = np.array([i.split() for i in alpstest]).astype(complex)
-#        k0tr = [[kernel0[i,j] for j in trrange] for i in trrange]
-#        k0te = [[kernel0[i,j] for j in trrange] for i in terange]
-#        k2tr = [[kernel2[i,j] for j in trrange] for i in trrange]
-#        k2te = [[kernel2[i,j] for j in trrange] for i in terange]
         [vtrain,vtest,[k0tr,k2tr],[k0te,k2te]] = utils.kern_utils.partition_kernels_properties(alps,[kernel0,kernel2],trrange,terange)
 
         # Extract the 6 non-equivalent components xx,xy,xz,yy,yz,zz; include degeneracy.
@@ -61,11 +53,6 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         meantrain0 = np.mean(vtrain0)
         vtrain0   -= meantrain0        
         vtest0     = np.real(vtest0).astype(float)
-
-#        # For l=2, convert the complex spherical components into real spherical components.
-#        realvtrain2 = np.array([np.real(np.dot(CR2,vtrain2[i])) for i in xrange(nt)],dtype=float)
-#        vtrain2 = np.concatenate(realvtrain2).astype(float) 
-#        vtest2 = np.concatenate(np.array([np.real(np.dot(CR2,vtest2[i])) for i in xrange(ns)],dtype=float)).astype(float)
 
         # Build training kernels.
         ktrain0 = np.real(k0tr) + lm0*np.identity(nt)

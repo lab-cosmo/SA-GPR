@@ -32,14 +32,6 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         kernel3 = utils.kern_utils.unflatten_kernel(ndata,7,kernel3_flatten)
 
         # Partition properties and kernel for training and testing
-#        betstrain = [bets[i] for i in trrange]
-#        betstest = [bets[i] for i in terange]
-#        vtrain = np.array([i.split() for i in betstrain]).astype(complex)
-#        vtest = np.array([i.split() for i in betstest]).astype(complex)
-#        k1tr = [[kernel1[i,j] for j in trrange] for i in trrange]
-#        k1te = [[kernel1[i,j] for j in trrange] for i in terange]
-#        k3tr = [[kernel3[i,j] for j in trrange] for i in trrange]
-#        k3te = [[kernel3[i,j] for j in trrange] for i in terange]
         [vtrain,vtest,[k1tr,k3tr],[k1te,k3te]] = utils.kern_utils.partition_kernels_properties(bets,[kernel1,kernel3],trrange,terange)
 
         # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
@@ -56,12 +48,6 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
 
         # Extract the real spherical components (l=1,l=3) of the hyperpolarizabilities.
         [ [vtrain1,vtrain3],[vtest1,vtest3] ] = utils.kern_utils.partition_spherical_components(bettrain,bettest,CS,[CR1,CR3],[3,7],ns,nt)
-
-#        # For l=1 and l=3, convert the complex spherical components into real spherical components.
-#        vtrain1 = np.concatenate(np.array([np.real(np.dot(CR1,vtrain1[i])) for i in xrange(nt)],dtype=float)).astype(float)
-#        vtest1  = np.concatenate(np.array([np.real(np.dot(CR1,vtest1[i]))  for i in xrange(ns)],dtype=float)).astype(float)
-#        vtrain3 = np.concatenate(np.array([np.real(np.dot(CR3,vtrain3[i])) for i in xrange(nt)],dtype=float)).astype(float)
-#        vtest3  = np.concatenate(np.array([np.real(np.dot(CR3,vtest3[i]))  for i in xrange(ns)],dtype=float)).astype(float)
 
         # Build training kernels
         [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)

@@ -40,7 +40,10 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
         [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(ener,[kernel0],trrange,terange)
 
         # Build regression vectors
-        vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
+        vtrain0    = np.real(vtrain).astype(float)
+        meantrain0 = np.mean(vtrain0)
+        vtrain0   -= meantrain0
+#        vtrain0     = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
         vtest0 = np.real(vtest).astype(float)
  
         # Build and invert training kernel
@@ -51,7 +54,7 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
         outvec0 = np.dot(np.real(k0tr),invktrvec0)
 
         # Predict on test data set.
-        outvec0 = np.dot(np.real(k0te),invktrvec0) + np.real(np.mean(vtrain))
+        outvec0 = np.dot(np.real(k0te),invktrvec0) + meantrain0
         # Print out errors and diagnostics.
         mean0 += np.mean(vtest0)-np.min(vtest0)
         intrins_dev0 += np.std(vtest0)**2
