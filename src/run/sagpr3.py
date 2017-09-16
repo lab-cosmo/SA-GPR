@@ -67,17 +67,6 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         # Convert the predicted full tensor back to Cartesian coordinates.
         predcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS,mask1,mask2)
 
-#        predcart = np.concatenate([ [betcart[i][0],betcart[i][1]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][3]/np.sqrt(3.0),betcart[i][6],betcart[i][7]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][5]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][9]] for i in xrange(ns)]).astype(float)
-
-#        predcart = []
-#        for i in xrange(ns):
-#            crt = np.zeros(len(np.concatenate(mask2)),dtype=float)
-#            for j in xrange(len(mask2)):
-#                for k in xrange(len(mask2[j])):
-#                    crt[mask2[j][k]] = betcart[i][j] / mask1[j]
-#            predcart.append(crt)
-#        predcart = np.concatenate(predcart)
-
         testcart = np.real(np.concatenate(vtest)).astype(float)
 
         intrins_dev1   += np.std(vtest1)**2

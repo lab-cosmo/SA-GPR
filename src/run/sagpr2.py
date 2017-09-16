@@ -79,17 +79,6 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         # Convert the predicted full tensor back to Cartesian coordinates.
         predcart = utils.kern_utils.spherical_to_cartesian([outvec0,outvec2],[1,5],ns,[CR0,CR2],CS,mask1,mask2)
 
-#        predcart = np.concatenate([[alpcart[i][0],alpcart[i][1]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][1]/np.sqrt(2.0),alpcart[i][3],alpcart[i][4]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][4]/np.sqrt(2.0),alpcart[i][5]] for i in xrange(ns)]).astype(float)
-
-#        predcart = []
-#        for i in xrange(ns):
-#            crt = np.zeros(len(np.concatenate(mask2)),dtype=float)
-#            for j in xrange(len(mask2)):
-#                for k in xrange(len(mask2[j])):
-#                    crt[mask2[j][k]] = alpcart[i][j] / mask1[j]
-#            predcart.append(crt)
-#        predcart = np.concatenate(predcart)
-
         testcart = np.real(np.concatenate(vtest)).astype(float)
 
     intrins_dev0 = np.sqrt(intrins_dev0/float(ncycles))
