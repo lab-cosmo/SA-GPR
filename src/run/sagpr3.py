@@ -35,13 +35,12 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         [vtrain,vtest,[k1tr,k3tr],[k1te,k3te]] = utils.kern_utils.partition_kernels_properties(bets,[kernel1,kernel3],trrange,terange)
 
         # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
-        [bettrain,bettest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
+        [bettrain,bettest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
 
         # Unitary transormation matrix from Cartesian to spherical (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3), Condon-Shortley convention; include degeneracy.
         CS = np.array([[-3.0/np.sqrt(30.0),0.0,3.0/np.sqrt(30.0),1.0/np.sqrt(8.0),0.0,-3.0/np.sqrt(120.0),0.0,3.0/np.sqrt(120.0),0.0,-1.0/np.sqrt(8.0)],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),-1.0j/np.sqrt(8.0),0.0,1.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(120.0),0.0,-1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,1.0/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),-1.0/np.sqrt(8.0),0.0,-1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(8.0)],[0.0,0.0,0.0,0.0,-1.0j/np.sqrt(12.0),0.0,0.0,0.0,1.0j/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),0.0,0.0,4.0/np.sqrt(120.0),0.0,-4.0/np.sqrt(120.0),0.0,0.0],[3.0j/np.sqrt(30.0),0.0,3.0j/np.sqrt(30.0),1.0j/np.sqrt(8.0),0.0,3.0j/np.sqrt(120.0),0.0,3.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,-1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,-1.0/np.sqrt(12.0),0.0],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),0.0,0.0,-4.0j/np.sqrt(120),0.0,-4.0j/np.sqrt(120),0.0,0.0],[0.0,-3.0/np.sqrt(15.0),0.0,0.0,0.0,0.0,2.0/np.sqrt(10.0),0.0,0.0,0.0]],dtype=complex)
-        degeneracy = [1.0,np.sqrt(3.0),np.sqrt(3.0),np.sqrt(3.0),np.sqrt(6.0),np.sqrt(3.0),1.0,np.sqrt(3.0),np.sqrt(3.0),1.0]
         for i in xrange(10):
-            CS[i] = CS[i] * degeneracy[i]
+            CS[i] = CS[i] * mask1[i]
 
         # Transformation matrices from complex to real spherical harmonics (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3)
         [CR1,CR3] = utils.kern_utils.complex_to_real_transformation([3,7])
@@ -66,9 +65,18 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
         outvec3 = np.dot(ktest3,invktrvec3)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
-        betcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS)
+        predcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS,mask1,mask2)
 
-        predcart = np.concatenate([ [betcart[i][0],betcart[i][1]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][3]/np.sqrt(3.0),betcart[i][6],betcart[i][7]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][5]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][9]] for i in xrange(ns)]).astype(float)
+#        predcart = np.concatenate([ [betcart[i][0],betcart[i][1]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][1]/np.sqrt(3.0),betcart[i][3]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][3]/np.sqrt(3.0),betcart[i][6],betcart[i][7]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][2]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][5]/np.sqrt(3.0),betcart[i][4]/np.sqrt(6.0),betcart[i][7]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][5]/np.sqrt(3.0),betcart[i][8]/np.sqrt(3.0),betcart[i][9]] for i in xrange(ns)]).astype(float)
+
+#        predcart = []
+#        for i in xrange(ns):
+#            crt = np.zeros(len(np.concatenate(mask2)),dtype=float)
+#            for j in xrange(len(mask2)):
+#                for k in xrange(len(mask2[j])):
+#                    crt[mask2[j][k]] = betcart[i][j] / mask1[j]
+#            predcart.append(crt)
+#        predcart = np.concatenate(predcart)
 
         testcart = np.real(np.concatenate(vtest)).astype(float)
 

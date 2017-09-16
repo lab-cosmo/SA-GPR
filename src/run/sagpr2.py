@@ -35,13 +35,12 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         [vtrain,vtest,[k0tr,k2tr],[k0te,k2te]] = utils.kern_utils.partition_kernels_properties(alps,[kernel0,kernel2],trrange,terange)
 
         # Extract the 6 non-equivalent components xx,xy,xz,yy,yz,zz; include degeneracy.
-        [alptrain,alptest] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
+        [alptrain,alptest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
    
         # Unitary transormation matrix from Cartesian to spherical (l=0,m=0 | l=2,m=-2,-1,0,+1,+2), Condon-Shortley convention.
         CS = np.array([[-1.0/np.sqrt(3.0),0.5,0.0,-1.0/np.sqrt(6.0),0.0,0.5],[0.0,-0.5j,0.0,0.0,0.0,0.5j],[0.0,0.0,0.5,0.0,-0.5,0.0],[-1.0/np.sqrt(3.0),-0.5,0.0,-1.0/np.sqrt(6.0),0.0,-0.5],[0.0,0.0,-0.5j,0.0,-0.5j,0.0],[-1.0/np.sqrt(3.0),0.0,0.0,2.0/np.sqrt(6.0),0.0,0.0]],dtype = complex)
-        degeneracy = [1.0,np.sqrt(2.0),np.sqrt(2.0),1.0,np.sqrt(2.0),1.0]
         for i in xrange(6):
-            CS[i] = CS[i] * degeneracy[i]
+            CS[i] = CS[i] * mask1[i]
 
         # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
         [CR0,CR2] = utils.kern_utils.complex_to_real_transformation([1,5])
@@ -78,9 +77,18 @@ def do_sagpr2(lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm):
         abs_error2 += np.sum((outvec2-vtest2)**2)/(5*ns)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
-        alpcart = utils.kern_utils.spherical_to_cartesian([outvec0,outvec2],[1,5],ns,[CR0,CR2],CS)
+        predcart = utils.kern_utils.spherical_to_cartesian([outvec0,outvec2],[1,5],ns,[CR0,CR2],CS,mask1,mask2)
 
-        predcart = np.concatenate([[alpcart[i][0],alpcart[i][1]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][1]/np.sqrt(2.0),alpcart[i][3],alpcart[i][4]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][4]/np.sqrt(2.0),alpcart[i][5]] for i in xrange(ns)]).astype(float)
+#        predcart = np.concatenate([[alpcart[i][0],alpcart[i][1]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][1]/np.sqrt(2.0),alpcart[i][3],alpcart[i][4]/np.sqrt(2.0),alpcart[i][2]/np.sqrt(2.0),alpcart[i][4]/np.sqrt(2.0),alpcart[i][5]] for i in xrange(ns)]).astype(float)
+
+#        predcart = []
+#        for i in xrange(ns):
+#            crt = np.zeros(len(np.concatenate(mask2)),dtype=float)
+#            for j in xrange(len(mask2)):
+#                for k in xrange(len(mask2[j])):
+#                    crt[mask2[j][k]] = alpcart[i][j] / mask1[j]
+#            predcart.append(crt)
+#        predcart = np.concatenate(predcart)
 
         testcart = np.real(np.concatenate(vtest)).astype(float)
 

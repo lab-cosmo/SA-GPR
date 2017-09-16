@@ -144,6 +144,9 @@ def get_non_equivalent_components(train,test):
         labels.append(np.array(lbl))
     # Now go through these and find their degeneracies.
     masks = np.zeros(len(train[0]))
+    return_list = []
+    for i in xrange(len(train[0])):
+        return_list.append([])
     for i in xrange(len(train[0])):
         lb1 = sorted(labels[i])
         # Compare this label with all of the previous ones, and see if it's the same within permutation.
@@ -153,19 +156,24 @@ def get_non_equivalent_components(train,test):
                 # They are the same.
                 unique = False
                 masks[j] += 1
+                return_list[j].append(i)
         if (unique):
             masks[i] = 1
+            return_list[i].append(i)
     unique_vals = 0
     for j in xrange(len(train[0])):
         if (masks[j] > 0):
             unique_vals += 1
     out_train = np.zeros((nt,unique_vals),dtype=complex)
     out_test  = np.zeros((ns,unique_vals),dtype=complex)
+    mask1 = np.zeros(unique_vals,dtype=float)
+    return_out = []
     for i in xrange(nt):
         k = 0
         for j in xrange(len(train[i])):
             if (masks[j] > 0):
                 out_train[i][k] = train[i][j] * np.sqrt(float(masks[j]))
+                mask1[k] = np.sqrt(float(masks[j]))
                 k += 1
     for i in xrange(ns):
         k = 0
@@ -173,8 +181,11 @@ def get_non_equivalent_components(train,test):
             if (masks[j] > 0):
                 out_test[i][k] = test[i][j] * np.sqrt(float(masks[j]))
                 k += 1
+    for j in xrange(len(test[0])):
+        if (masks[j] > 0):
+            return_out.append(return_list[j])
 
-    return [out_train,out_test]
+    return [out_train,out_test,mask1,return_out]
     
 
 ###############################################################################################################################
@@ -219,7 +230,7 @@ def partition_kernels_properties(data,kernels,trrange,terange):
 
 ###############################################################################################################################
 
-def spherical_to_cartesian(outvec,sizes,ns,CR,CS):
+def spherical_to_cartesian(outvec,sizes,ns,CR,CS,mask1,mask2):
     # Convert the spherical tensor representation back to Cartesian.
 
     outvecs = []
@@ -235,6 +246,15 @@ def spherical_to_cartesian(outvec,sizes,ns,CR,CS):
         sphe[i] = np.concatenate([outsphr[j][i] for j in xrange(len(sizes))])
         cart[i] = np.real(np.dot(sphe[i],np.conj(CS).T))
 
-    return cart
+        predcart = []
+        for i in xrange(ns):
+            crt = np.zeros(len(np.concatenate(mask2)),dtype=float)
+            for j in xrange(len(mask2)):
+                for k in xrange(len(mask2[j])):
+                    crt[mask2[j][k]] = cart[i][j] / mask1[j]
+            predcart.append(crt)
+        predcart = np.concatenate(predcart)
+
+    return predcart
 
 ###############################################################################################################################
