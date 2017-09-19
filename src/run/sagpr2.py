@@ -11,12 +11,12 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr2(lm,fractrain,tens,kernel_flatten,sel,rdm):
+def do_sagpr2(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm):
 
     # initialize regression
     ncycles = 1
 
-    lvals = [0,2]
+#    lvals = [0,2]
     degen = [(2*l+1) for l in lvals]
     intrins_dev   = np.zeros(len(lvals),dtype=float)
     intrins_error = np.zeros(len(lvals),dtype=float)

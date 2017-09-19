@@ -113,15 +113,30 @@ for k in xrange(len(kernels)):
     else:
         kernel.append(0)
 
+# Get list of l values.
+lvals = []
+if (rank%2 == 0):
+    lvals = [l for l in xrange(0,rank+1,2)]
+else:
+    # Odd L
+    lvals = [l for l in xrange(1,rank+1,2)]
+
+lms     = [lm[i]     for i in lvals]
+kernels = [kernel[i] for i in lvals]
+
 # Call the appropriate subroutine.
 if (rank==0):
-    run.sagpr0.do_sagpr0([lm[0]],fractrain,tens,[kernel[0]],sel,rdm)
+#    run.sagpr0.do_sagpr0(lvals,[lm[0]],fractrain,tens,[kernel[0]],sel,rdm)
+    run.sagpr0.do_sagpr0(lvals,lms,fractrain,tens,kernels,sel,rdm)
 elif (rank==1):
-    run.sagpr1.do_sagpr1([lm[1]],fractrain,tens,[kernel[1]],sel,rdm)
+#    run.sagpr1.do_sagpr1(lvals,[lm[1]],fractrain,tens,[kernel[1]],sel,rdm)
+    run.sagpr1.do_sagpr1(lvals,lms,fractrain,tens,kernels,sel,rdm)
 elif (rank==2):
-    run.sagpr2.do_sagpr2([lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
+#    run.sagpr2.do_sagpr2(lvals,[lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
+    run.sagpr2.do_sagpr2(lvals,lms,fractrain,tens,kernels,sel,rdm)
 elif (rank==3):
-    run.sagpr3.do_sagpr3([lm[1],lm[3]],fractrain,tens,[kernel[1],kernel[3]],sel,rdm)
+#    run.sagpr3.do_sagpr3(lvals,[lm[1],lm[3]],fractrain,tens,[kernel[1],kernel[3]],sel,rdm)
+    run.sagpr3.do_sagpr3(lvals,lms,fractrain,tens,kernels,sel,rdm)
 else:
     print "The code is currently not setup for this rank!"
     sys.exit(0)
