@@ -11,7 +11,7 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr0(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm):
+def do_sagpr0(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank):
 
     # Initialize regression
     ncycles = 5
@@ -39,9 +39,11 @@ def do_sagpr0(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm):
         [tenstrain,tenstest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
 
         # Unitary transormation matrix from Cartesian to spherical (l=0,m=0), Condon-Shortley convention.
-        CS = np.array([1.0],dtype=complex)
-        for i in xrange(1):
-            CS[i] = CS[i] * mask1[i]
+#        CS = np.array([1.0],dtype=complex)
+#        for i in xrange(1):
+#            CS[i] = CS[i] * mask1[i]
+#
+        CS = utils.kern_utils.get_CS_matrix(rank,mask1,mask2)
 
         # Transformation matrix from complex to real spherical harmonics (l=0,m=0).
         CR = utils.kern_utils.complex_to_real_transformation(degen)
@@ -175,4 +177,4 @@ if __name__ == '__main__':
     # Read in all arguments and call the main function.
     args = add_command_line_arguments_learn("SA-GPR for scalars")
     [lm0,fractrain,ener,kernel0_flatten,sel,rdm] = set_variable_values_learn(args)
-    do_sagpr0([lm0],fractrain,ener,[kernel0_flatten],sel,rdm)
+    do_sagpr0([lm0],fractrain,ener,[kernel0_flatten],sel,rdm,rank)

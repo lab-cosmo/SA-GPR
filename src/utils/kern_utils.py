@@ -279,3 +279,53 @@ def spherical_to_cartesian(outvec,sizes,ns,CR,CS,mask1,mask2):
     return predcart
 
 ###############################################################################################################################
+
+def get_CS_matrix(rank,mask1,mask2):
+    # Get Cartesian to spherical tensor transformation matrix.
+    if (rank==0):
+        CS = np.array([1.0],dtype=complex)
+        for i in xrange(1):
+            CS[i] = CS[i] * mask1[i]
+    else:
+        # One way to do this is to build it up from the L=1 rank to the appropriate one.
+        # This may or may not be the most efficient way, but it might be the easiest to code for now.
+        cmatr = []
+        cmatr.append(np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0))
+        if (rank>1):
+            for i in xrange(2,rank+1):
+                # Generate the next transformation matrix by using the previous one.
+                cs_new = np.zeros((3**rank,sum(get_degen(i))),dtype=complex)
+                print "here"
+        CS = cmatr[-1]
+        if (rank>1):
+            # Take care of degeneracies.
+            print "here"
+
+    for i in xrange(1):
+        CS[i] = CS[i] * mask1[i]
+
+    return CS
+
+
+###############################################################################################################################
+
+def get_lvals(rank):
+    # Get the lvals for a given rank.
+
+    if (rank%2 == 0):
+        lvals = [l for l in xrange(0,rank+1,2)]
+    else:
+        # Odd L
+        lvals = [l for l in xrange(1,rank+1,2)]
+
+    return lvals
+
+###############################################################################################################################
+
+def get_degen(rank):
+    # Get the degeneracies for a given rank.
+
+    lvals = get_lvals(rank)
+    return [2*l+1 for l in lvals]
+
+###############################################################################################################################
