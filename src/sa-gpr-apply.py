@@ -121,7 +121,7 @@ elif (rank==1):
 elif (rank==2):
     run.sagpr2.do_sagpr2([lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
 elif (rank==3):
-    run.sagpr3.do_sagpr3(lm[1],lm[3],fractrain,tens,kernel[1],kernel[3],sel,rdm)
+    run.sagpr3.do_sagpr3([lm[1],lm[3]],fractrain,tens,[kernel[1],kernel[3]],sel,rdm)
 else:
     print "The code is currently not setup for this rank!"
     sys.exit(0)
