@@ -39,18 +39,25 @@ def do_sagpr0(lm0,fractrain,tens,kernel0_flatten,sel,rdm):
         [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(tens,[kernel0],trrange,terange)
 
 ###        # Extract the non-equivalent component, including degeneracy.
+        [tenstrain,tenstest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
 
 ###        # Unitary transormation matrix from Cartesian to spherical (l=0,m=0), Condon-Shortley convention.
+        CS = np.array([1.0],dtype=complex)
+        for i in xrange(1):
+            CS[i] = CS[i] * mask1[i]
 
-###        # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
+###        # Transformation matrix from complex to real spherical harmonics (l=0,m=0).
+        CR = utils.kern_utils.complex_to_real_transformation(degen)
 
 ###        # Extract the real spherical components (l=1) of the dipoles.
+        [ [vtrain0],[vtest0] ] = utils.kern_utils.partition_spherical_components(tenstrain,tenstest,CS,CR,degen,ns,nt)
 
         # Build regression vectors
-        vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
-        vtest0 = np.real(vtest).astype(float)
+        vtrain0 = vtrain0 - np.real(np.mean(vtrain))
+#        vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
+#        vtest0 = np.real(vtest).astype(float)
  
-        # Build and invert training kernel
+        # Build training kernel
         ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
 
         # Invert training kernel

@@ -113,18 +113,24 @@ def partition_spherical_components(train,test,CS,CR,sizes,ns,nt):
         else:
             vtrain.append( np.zeros((nt,sizes[i]),dtype=complex) )
             vtest.append(  np.zeros((ns,sizes[i]),dtype=complex) )
-    for i in xrange(nt):
-        dotpr = np.dot(train[i],CS)
-        k = 0
-        for j in xrange(len(sizes)):
-            vtrain[j][i] = dotpr[k:k+sizes[j]]
-            k += sizes[j]
-    for i in xrange(ns):
-        dotpr = np.dot(test[i],CS)
-        k = 0
-        for j in xrange(len(sizes)):
-            vtest[j][i] = dotpr[k:k+sizes[j]]
-            k += sizes[j]
+    if sum(sizes)>1:
+        for i in xrange(nt):
+            dotpr = np.dot(train[i],CS)
+            k = 0
+            for j in xrange(len(sizes)):
+                vtrain[j][i] = dotpr[k:k+sizes[j]]
+                k += sizes[j]
+        for i in xrange(ns):
+            dotpr = np.dot(test[i],CS)
+            k = 0
+            for j in xrange(len(sizes)):
+                vtest[j][i] = dotpr[k:k+sizes[j]]
+                k += sizes[j]
+    else:
+        for i in xrange(nt):
+            vtrain[0][i] = np.dot(train[i],CS)
+        for i in xrange(ns):
+            vtest[0][i]  = np.dot(test[i],CS)
 
     # Convert the complex spherical components into real spherical components.
     vtrain_out = []
