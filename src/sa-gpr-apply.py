@@ -119,7 +119,7 @@ if (rank==0):
 elif (rank==1):
     run.sagpr1.do_sagpr1(lm[1],fractrain,tens,kernel[1],sel,rdm)
 elif (rank==2):
-    run.sagpr2.do_sagpr2(lm[0],lm[2],fractrain,tens,kernel[0],kernel[2],sel,rdm)
+    run.sagpr2.do_sagpr2([lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
 elif (rank==3):
     run.sagpr3.do_sagpr3(lm[1],lm[3],fractrain,tens,kernel[1],kernel[3],sel,rdm)
 else:

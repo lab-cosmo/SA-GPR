@@ -62,17 +62,18 @@ def do_sagpr3(lm1,lm3,fractrain,bets,kernel1_flatten,kernel3_flatten,sel,rdm):
 
         # Predict on test data set.
         outvec1 = np.dot(ktest1,invktrvec1)
+        intrins_dev1   += np.std(vtest1)**2
+        abs_error1 += np.sum((outvec1-vtest1)**2)/(3*ns)
+
         outvec3 = np.dot(ktest3,invktrvec3)
+        intrins_dev3   += np.std(vtest3)**2
+        abs_error3 += np.sum((outvec3-vtest3)**2)/(7*ns)
+
 
         # Convert the predicted full tensor back to Cartesian coordinates.
         predcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS,mask1,mask2)
 
         testcart = np.real(np.concatenate(vtest)).astype(float)
-
-        intrins_dev1   += np.std(vtest1)**2
-        abs_error1 += np.sum((outvec1-vtest1)**2)/(3*ns)
-        intrins_dev3   += np.std(vtest3)**2
-        abs_error3 += np.sum((outvec3-vtest3)**2)/(7*ns)
 
     intrins_dev1 = np.sqrt(intrins_dev1/float(ncycles))
     abs_error1 = np.sqrt(abs_error1/float(ncycles))
