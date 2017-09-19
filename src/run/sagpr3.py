@@ -14,10 +14,6 @@ import utils.kern_utils
 
 def do_sagpr3(lm,fractrain,tens,kernel_flatten,sel,rdm):
 
-#    intrins_dev1 = 0.0
-#    abs_error1 = 0.0
-#    intrins_dev3 = 0.0
-#    abs_error3 = 0.0
     ncycles = 1
 
     lvals = [1,3]
@@ -34,12 +30,9 @@ def do_sagpr3(lm,fractrain,tens,kernel_flatten,sel,rdm):
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
-#        kernel1 = utils.kern_utils.unflatten_kernel(ndata,3,kernel1_flatten)
-#        kernel3 = utils.kern_utils.unflatten_kernel(ndata,7,kernel3_flatten)
         kernel = [utils.kern_utils.unflatten_kernel(ndata,degen[i],kernel_flatten[i]) for i in xrange(len(lvals))]
 
         # Partition properties and kernel for training and testing
-#        [vtrain,vtest,[k1tr,k3tr],[k1te,k3te]] = utils.kern_utils.partition_kernels_properties(bets,[kernel1,kernel3],trrange,terange)
         [vtrain,vtest,ktr,kte] = utils.kern_utils.partition_kernels_properties(tens,kernel,trrange,terange)
 
         # Extract the 10 non-equivalent components xxx,xxy,xxz,xyy,xyz,xzz,yyy,yyz,yzz,zzz; include degeneracy.
@@ -51,11 +44,9 @@ def do_sagpr3(lm,fractrain,tens,kernel_flatten,sel,rdm):
             CS[i] = CS[i] * mask1[i]
 
         # Transformation matrices from complex to real spherical harmonics (l=1,m=-1,0,+1 | l=3,m=-3,-2,-1,0,+1,+2,+3)
-#        [CR1,CR3] = utils.kern_utils.complex_to_real_transformation([3,7])
         CR = utils.kern_utils.complex_to_real_transformation(degen)
 
         # Extract the real spherical components (l=1,l=3) of the hyperpolarizabilities.
-#        [ [vtrain1,vtrain3],[vtest1,vtest3] ] = utils.kern_utils.partition_spherical_components(bettrain,bettest,CS,[CR1,CR3],[3,7],ns,nt)
         [ vtrain_part,vtest_part ] = utils.kern_utils.partition_spherical_components(tenstrain,tenstest,CS,CR,degen,ns,nt)
 
         meantrain = np.zeros(len(degen),dtype=float)
@@ -67,31 +58,17 @@ def do_sagpr3(lm,fractrain,tens,kernel_flatten,sel,rdm):
                 vtest_part[i]   = np.real(vtest_part[i]).astype(float)
 
         # Build training kernels
-#        [ktrain1,ktrainpred1] = utils.kern_utils.build_training_kernel(nt,3,k1tr,lm1)
-#        [ktrain3,ktrainpred3] = utils.kern_utils.build_training_kernel(nt,7,k3tr,lm3)
         ktrain_all_pred = [utils.kern_utils.build_training_kernel(nt,degen[i],ktr[i],lm[i]) for i in xrange(len(degen))]
         ktrain     = [ktrain_all_pred[i][0] for i in xrange(len(degen))]
         ktrainpred = [ktrain_all_pred[i][1] for i in xrange(len(degen))]
 
         # Invert training kernels.
-#        invktrvec1 = scipy.linalg.solve(ktrain1,vtrain1)
-#        invktrvec3 = scipy.linalg.solve(ktrain3,vtrain3)
         invktrvec = [scipy.linalg.solve(ktrain[i],vtrain_part[i]) for i in xrange(len(degen))]
 
         # Build testing kernels.
-#        ktest1 = utils.kern_utils.build_testing_kernel(ns,nt,3,k1te)
-#        ktest3 = utils.kern_utils.build_testing_kernel(ns,nt,7,k3te)
         ktest = [utils.kern_utils.build_testing_kernel(ns,nt,degen[i],kte[i]) for i in xrange(len(degen))]
 
         # Predict on test data set.
-#        outvec1 = np.dot(ktest1,invktrvec1)
-#        intrins_dev1   += np.std(vtest1)**2
-#        abs_error1 += np.sum((outvec1-vtest1)**2)/(3*ns)
-#
-#        outvec3 = np.dot(ktest3,invktrvec3)
-#        intrins_dev3   += np.std(vtest3)**2
-#        abs_error3 += np.sum((outvec3-vtest3)**2)/(7*ns)
-#
         outvec = [np.dot(ktest[i],invktrvec[i]) for i in xrange(len(degen))]
         for i in xrange(len(degen)):
             if degen[i]==1:
@@ -103,35 +80,9 @@ def do_sagpr3(lm,fractrain,tens,kernel_flatten,sel,rdm):
             abs_error[i] += np.sum((outvec[i]-vtest_part[i])**2)/(degen[i]*ns)
 
         # Convert the predicted full tensor back to Cartesian coordinates.
-#        predcart = utils.kern_utils.spherical_to_cartesian([outvec1,outvec3],[3,7],ns,[CR1,CR3],CS,mask1,mask2)
         predcart = utils.kern_utils.spherical_to_cartesian(outvec,degen,ns,CR,CS,mask1,mask2)
 
         testcart = np.real(np.concatenate(vtest)).astype(float)
-
-#    intrins_dev1 = np.sqrt(intrins_dev1/float(ncycles))
-#    abs_error1 = np.sqrt(abs_error1/float(ncycles))
-#    intrins_error1 = 100*np.sqrt(abs_error1**2/intrins_dev1**2)
-#
-#    intrins_dev3 = np.sqrt(intrins_dev3/float(ncycles))
-#    abs_error3 = np.sqrt(abs_error3/float(ncycles))
-#    intrins_error3 = 100*np.sqrt(abs_error3**2/intrins_dev3**2)
-#
-#    print ""
-#    print "testing data points: ", ns    
-#    print "training data points: ", nt   
-#    print "Results for lambda_1 and lambda_3 = ", lm1, lm3
-#    print "--------------------------------"
-#    print "RESULTS FOR L=1"
-#    print "--------------------------------"
-#    print " TEST STD  = %.6f"%intrins_dev1
-#    print " ABS  RMSE = %.6f"%abs_error1
-#    print " TEST RMSE = %.6f %%"%intrins_error1
-#    print "--------------------------------"
-#    print "RESULTS FOR L=3"
-#    print "--------------------------------"
-#    print " TEST STD  = %.6f"%intrins_dev3
-#    print " ABS  RMSE = %.6f"%abs_error3
-#    print " TEST RMSE = %.6f %%"%intrins_error3
 
     for i in xrange(len(degen)):
         intrins_dev[i] = np.sqrt(intrins_dev[i]/float(ncycles))

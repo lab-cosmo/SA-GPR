@@ -11,7 +11,7 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
+def do_sagpr0(lm0,fractrain,tens,kernel0_flatten,sel,rdm):
 
     # Initialize regression
     mean0 = 0.0 
@@ -19,35 +19,48 @@ def do_sagpr0(lm0,fractrain,ener,kernel0_flatten,sel,rdm):
     abs_error0 = 0.0
     ncycles = 5
 
+    lvals = [0]
+    degen = [(2*l+1) for l in lvals]
+    intrins_dev   = np.zeros(len(lvals),dtype=float)
+    intrins_error = np.zeros(len(lvals),dtype=float)
+    abs_error     = np.zeros(len(lvals),dtype=float)
+
     print "Results averaged over "+str(ncycles)+" cycles"
 
     for ic in range(ncycles):
 
-        ndata = len(ener)
+        ndata = len(tens)
         [ns,nt,ntmax,trrange,terange] = utils.kern_utils.shuffle_data(ndata,sel,rdm,fractrain)
 
         # Build kernel matrix
         kernel0 = utils.kern_utils.unflatten_kernel0(ndata,kernel0_flatten)
 
         # Partition properties and kernel for training and testing
-        [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(ener,[kernel0],trrange,terange)
+        [vtrain,vtest,[k0tr],[k0te]] = utils.kern_utils.partition_kernels_properties(tens,[kernel0],trrange,terange)
+
+###        # Extract the non-equivalent component, including degeneracy.
+
+###        # Unitary transormation matrix from Cartesian to spherical (l=0,m=0), Condon-Shortley convention.
+
+###        # Transformation matrix from complex to real spherical harmonics (l=1,m=-1,0,+1).
+
+###        # Extract the real spherical components (l=1) of the dipoles.
 
         # Build regression vectors
-        vtrain0    = np.real(vtrain).astype(float)
-        meantrain0 = np.mean(vtrain0)
-        vtrain0   -= meantrain0
-        vtest0     = np.real(vtest).astype(float)
+        vtrain0 = np.real(vtrain).astype(float) - np.real(np.mean(vtrain))
+        vtest0 = np.real(vtest).astype(float)
  
         # Build and invert training kernel
         ktrain0 = np.real(k0tr) + lm0*np.identity(nt)
+
+        # Invert training kernel
         invktrvec0 = scipy.linalg.solve(ktrain0,vtrain0)
 
         # Predict on train data set.
         outvec0 = np.dot(np.real(k0tr),invktrvec0)
 
         # Predict on test data set.
-        outvec0 = np.dot(np.real(k0te),invktrvec0) + meantrain0
-
+        outvec0 = np.dot(np.real(k0te),invktrvec0) + np.real(np.mean(vtrain))
         # Print out errors and diagnostics.
         mean0 += np.mean(vtest0)-np.min(vtest0)
         intrins_dev0 += np.std(vtest0)**2
