@@ -117,7 +117,7 @@ for k in xrange(len(kernels)):
 if (rank==0):
     run.sagpr0.do_sagpr0(lm[0],fractrain,tens,kernel[0],sel,rdm)
 elif (rank==1):
-    run.sagpr1.do_sagpr1(lm[1],fractrain,tens,kernel[1],sel,rdm)
+    run.sagpr1.do_sagpr1([lm[1]],fractrain,tens,[kernel[1]],sel,rdm)
 elif (rank==2):
     run.sagpr2.do_sagpr2([lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
 elif (rank==3):
