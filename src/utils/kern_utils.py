@@ -284,6 +284,26 @@ def get_CS_matrix(rank,mask1,mask2):
     # Get Cartesian to spherical tensor transformation matrix.
     if (rank==0):
         CS = np.array([1.0],dtype=complex)
+#        for i in xrange(1):
+#            CS[i] = CS[i] * mask1[i]
+    elif (rank==1):
+        CS = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
+    elif (rank==2):
+        CS = np.array([[-1.0/np.sqrt(3.0),0.5,0.0,-1.0/np.sqrt(6.0),0.0,0.5],[0.0,-0.5j,0.0,0.0,0.0,0.5j],[0.0,0.0,0.5,0.0,-0.5,0.0],[-1.0/np.sqrt(3.0),-0.5,0.0,-1.0/np.sqrt(6.0),0.0,-0.5],[0.0,0.0,-0.5j,0.0,-0.5j,0.0],[-1.0/np.sqrt(3.0),0.0,0.0,2.0/np.sqrt(6.0),0.0,0.0]],dtype = complex)
+    elif (rank==3):
+        CS = np.array([[-3.0/np.sqrt(30.0),0.0,3.0/np.sqrt(30.0),1.0/np.sqrt(8.0),0.0,-3.0/np.sqrt(120.0),0.0,3.0/np.sqrt(120.0),0.0,-1.0/np.sqrt(8.0)],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),-1.0j/np.sqrt(8.0),0.0,1.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(120.0),0.0,-1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,1.0/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),-1.0/np.sqrt(8.0),0.0,-1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(8.0)],[0.0,0.0,0.0,0.0,-1.0j/np.sqrt(12.0),0.0,0.0,0.0,1.0j/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),0.0,0.0,4.0/np.sqrt(120.0),0.0,-4.0/np.sqrt(120.0),0.0,0.0],[3.0j/np.sqrt(30.0),0.0,3.0j/np.sqrt(30.0),1.0j/np.sqrt(8.0),0.0,3.0j/np.sqrt(120.0),0.0,3.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,-1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,-1.0/np.sqrt(12.0),0.0],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),0.0,0.0,-4.0j/np.sqrt(120),0.0,-4.0j/np.sqrt(120),0.0,0.0],[0.0,-3.0/np.sqrt(15.0),0.0,0.0,0.0,0.0,2.0/np.sqrt(10.0),0.0,0.0,0.0]],dtype=complex)
+    else:
+        print "This L value is not yet accounted for!"
+        sys.exit(0)
+    for i in xrange(len(mask1)):
+        CS[i] = CS[i] * mask1[i]
+
+    return CS
+    #TODO: The code below is in progress. It could perhaps be done iteratively.
+        
+
+    if (rank==0):
+        CS = np.array([1.0],dtype=complex)
         for i in xrange(1):
             CS[i] = CS[i] * mask1[i]
     else:
@@ -294,7 +314,26 @@ def get_CS_matrix(rank,mask1,mask2):
         if (rank>1):
             for i in xrange(2,rank+1):
                 # Generate the next transformation matrix by using the previous one.
-                cs_new = np.zeros((3**rank,sum(get_degen(i))),dtype=complex)
+                cs_new = np.zeros((3**rank,sum(get_degen(rank))),dtype=complex)
+                # Work out the row and column labels for the new transformation matrix.
+                # The row labels are easy, as these are just the Cartesian axes.
+                row_labels = []
+                row_labels.append(np.zeros(rank,dtype=int))
+                for i in xrange(1,3**rank):
+                    lbl = list(row_labels[i-1])
+                    lbl[rank-1] += 1
+                    for j in xrange(rank-1,-1,-1):
+                        if (lbl[j] > 2):
+                            lbl[j] = 0
+                            lbl[j-1] += 1
+                    row_labels.append(np.array(lbl))
+                # The column labels are trickier; these are based on l and m values.
+#                for l in xrange(rank+1):
+#                    for m in xrange(-l,l+1):
+#                lvals = get_lvals(rank)
+#                for l in lvals:
+#                    for m in xrange(-l,l+1):
+                        
                 print "here"
         CS = cmatr[-1]
         if (rank>1):

@@ -11,7 +11,7 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr2(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm):
+def do_sagpr2(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank):
 
     # initialize regression
     ncycles = 1
@@ -39,9 +39,11 @@ def do_sagpr2(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm):
         [tenstrain,tenstest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
    
         # Unitary transormation matrix from Cartesian to spherical (l=0,m=0 | l=2,m=-2,-1,0,+1,+2), Condon-Shortley convention.
-        CS = np.array([[-1.0/np.sqrt(3.0),0.5,0.0,-1.0/np.sqrt(6.0),0.0,0.5],[0.0,-0.5j,0.0,0.0,0.0,0.5j],[0.0,0.0,0.5,0.0,-0.5,0.0],[-1.0/np.sqrt(3.0),-0.5,0.0,-1.0/np.sqrt(6.0),0.0,-0.5],[0.0,0.0,-0.5j,0.0,-0.5j,0.0],[-1.0/np.sqrt(3.0),0.0,0.0,2.0/np.sqrt(6.0),0.0,0.0]],dtype = complex)
-        for i in xrange(6):
-            CS[i] = CS[i] * mask1[i]
+#        CS = np.array([[-1.0/np.sqrt(3.0),0.5,0.0,-1.0/np.sqrt(6.0),0.0,0.5],[0.0,-0.5j,0.0,0.0,0.0,0.5j],[0.0,0.0,0.5,0.0,-0.5,0.0],[-1.0/np.sqrt(3.0),-0.5,0.0,-1.0/np.sqrt(6.0),0.0,-0.5],[0.0,0.0,-0.5j,0.0,-0.5j,0.0],[-1.0/np.sqrt(3.0),0.0,0.0,2.0/np.sqrt(6.0),0.0,0.0]],dtype = complex)
+#        for i in xrange(6):
+#            CS[i] = CS[i] * mask1[i]
+#
+        CS = utils.kern_utils.get_CS_matrix(rank,mask1,mask2)
 
         # Transformation matrix from complex to real spherical harmonics (l=2,m=-2,-1,0,+1,+2).
         CR = utils.kern_utils.complex_to_real_transformation(degen)
@@ -189,4 +191,4 @@ if __name__ == '__main__':
     # Read in all arguments and call the main function.
     args = add_command_line_arguments_learn("SA-GPR for rank-2 tensors")
     [lm0,lm2,fractrain,alps,kernel0_flatten,kernel2_flatten,sel,rdm] = set_variable_values_learn(args)
-    do_sagpr2([lm0,lm2],fractrain,alps,[kernel0_flatten,kernel2_flatten],sel,rdm)
+    do_sagpr2([lm0,lm2],fractrain,alps,[kernel0_flatten,kernel2_flatten],sel,rdm,2)
