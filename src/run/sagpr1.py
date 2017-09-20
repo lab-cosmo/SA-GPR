@@ -11,10 +11,10 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr1(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank):
+def do_sagpr1(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
     # Initialize regression
-    ncycles = 1
+#    ncycles = 1
 
 #    lvals = [1]
     degen = [(2*l+1) for l in lvals]

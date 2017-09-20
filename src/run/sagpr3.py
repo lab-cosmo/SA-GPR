@@ -12,9 +12,9 @@ import utils.kern_utils
 
 ###############################################################################################################################
 
-def do_sagpr3(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank):
+def do_sagpr3(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
-    ncycles = 1
+#    ncycles = 1
 
 #    lvals = [1,3]
     degen = [(2*l+1) for l in lvals]
