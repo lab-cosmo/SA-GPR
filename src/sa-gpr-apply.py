@@ -32,7 +32,7 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
         # Extract the non-equivalent tensor components; include degeneracy.
         [tenstrain,tenstest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
-   
+  
         # Unitary transormation matrix from Cartesian to spherical, Condon-Shortley convention.
         CS = utils.kern_utils.get_CS_matrix(rank,mask1,mask2)
 
@@ -41,6 +41,12 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
         # Extract the real spherical components of the tensors.
         [ vtrain_part,vtest_part ] = utils.kern_utils.partition_spherical_components(tenstrain,tenstest,CS,CR,degen,ns,nt)
+
+        print vtrain_part[1]
+        print vtest_part[1]
+        print len(vtrain_part[1])
+        print len(vtest_part[1])
+        sys.exit(0)
 
         meantrain = np.zeros(len(degen),dtype=float)
         for i in xrange(len(degen)):
