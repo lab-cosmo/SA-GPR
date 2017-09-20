@@ -17,6 +17,7 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-per","--periodic",type=bool, help="Call for periodic systems")
     parser.add_argument("-sub", "--subset", type=float, help="Fraction of the input data set")
     parser.add_argument("-cen", "--center", nargs='+', help="List of atoms to center on (default all)")
+    parser.add_argument("-nc",  "--ncycles", type=int, help="Number of cycles for regression with random selection")
     args = parser.parse_args()
     return args
 
@@ -84,6 +85,11 @@ def set_variable_values_tenskernel(args):
         # If we are considering gas-phase systems, we don't need the unit cell.
         vcell = []
 
+    if args.ncycles:
+        ncycles = args.ncycles
+    else:
+        ncycles = 1
+
     print rc
-    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen]
+    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen,ncycles]
    

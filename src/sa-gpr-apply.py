@@ -23,6 +23,7 @@ def add_command_line_arguments_learn(parsetext):
     parser.add_argument("-k", "--kernel",nargs='+', help="Files containing kernels")
     parser.add_argument("-sel", "--select",nargs='+', help="Select maximum training partition")
     parser.add_argument("-rdm", "--random",type=int, help="Number of random training points")
+    parser.add_argument("-nc",  "--ncycles", type=int, help="Number of cycles for regression with random selection")
     args = parser.parse_args()
     return args
 
@@ -32,9 +33,6 @@ def set_variable_values_learn(args):
 
     # default values
     lm0 = 0.001
-    lm1 = 0.001
-    lm2 = 0.001
-    lm3 = 0.001
     ftr = 1
 
     if args.rank:
@@ -43,7 +41,7 @@ def set_variable_values_learn(args):
         print "Rank of tensor must be specified!"
         sys.exit(0)
  
-    lm = [lm0,lm1,lm2,lm3]
+    lm = [lm0 for l in xrange(rank+1)]
     if args.lmda:
         lmlist = args.lmda
         if sum([lmlist[i].count(',') for i in xrange(len(lmlist))]) > 0:
@@ -94,9 +92,14 @@ def set_variable_values_learn(args):
 
     rdm = 0
     if args.random:
-        rdm = args.random 
+        rdm = args.random
 
-    return [lm,ftr,tens,kernels,sel,rdm,rank]
+    if args.ncycles:
+        ncycles = args.ncycles
+    else:
+        ncycles = 1
+
+    return [lm,ftr,tens,kernels,sel,rdm,rank,ncycles]
 
 ###############################################################################################################################
 
@@ -191,7 +194,7 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
 # Parse input arguments.
 args = add_command_line_arguments_learn("SA-GPR")
-[lm,fractrain,tens,kernels,sel,rdm,rank] = set_variable_values_learn(args)
+[lm,fractrain,tens,kernels,sel,rdm,rank,ncycles] = set_variable_values_learn(args)
 
 # Read-in kernels.
 print "Loading kernel matrices..."
@@ -214,27 +217,4 @@ else:
 lms     = [lm[i]     for i in lvals]
 kernels = [kernel[i] for i in lvals]
 
-ncycles = 1
-
 do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
-
-# Call the appropriate subroutine.
-#if (rank==0):
-##    run.sagpr0.do_sagpr0(lvals,[lm[0]],fractrain,tens,[kernel[0]],sel,rdm)
-##    run.sagpr0.do_sagpr0(lvals,lms,fractrain,tens,kernels,sel,rdm,0,ncycles)
-#    do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
-#elif (rank==1):
-##    run.sagpr1.do_sagpr1(lvals,[lm[1]],fractrain,tens,[kernel[1]],sel,rdm)
-##    run.sagpr1.do_sagpr1(lvals,lms,fractrain,tens,kernels,sel,rdm,1,ncycles)
-#    do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
-#elif (rank==2):
-##    run.sagpr2.do_sagpr2(lvals,[lm[0],lm[2]],fractrain,tens,[kernel[0],kernel[2]],sel,rdm)
-##    run.sagpr2.do_sagpr2(lvals,lms,fractrain,tens,kernels,sel,rdm,2,ncycles)
-#    do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
-#elif (rank==3):
-##    run.sagpr3.do_sagpr3(lvals,[lm[1],lm[3]],fractrain,tens,[kernel[1],kernel[3]],sel,rdm)
-##    run.sagpr3.do_sagpr3(lvals,lms,fractrain,tens,kernels,sel,rdm,3,ncycles)
-#    do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
-#else:
-#    print "The code is currently not setup for this rank!"
-#    sys.exit(0)
