@@ -251,6 +251,17 @@ def partition_kernels_properties(data,kernels,trrange,terange):
 
 ###############################################################################################################################
 
+def partition_properties(data,trrange,terange):
+    # Partition properties for training and testing.
+    train  = [data[i] for i in trrange]
+    test   = [data[i] for i in terange]
+    vtrain = np.array([i.split() for i in train]).astype(float)
+    vtest  = np.array([i.split() for i in test] ).astype(float)
+
+    return [vtrain,vtest]
+
+###############################################################################################################################
+
 def spherical_to_cartesian(outvec,sizes,ns,CR,CS,mask1,mask2):
     # Convert the spherical tensor representation back to Cartesian.
 

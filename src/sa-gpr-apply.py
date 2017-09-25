@@ -42,12 +42,6 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
         # Extract the real spherical components of the tensors.
         [ vtrain_part,vtest_part ] = utils.kern_utils.partition_spherical_components(tenstrain,tenstest,CS,CR,degen,ns,nt)
 
-        print vtrain_part[1]
-        print vtest_part[1]
-        print len(vtrain_part[1])
-        print len(vtest_part[1])
-        sys.exit(0)
-
         meantrain = np.zeros(len(degen),dtype=float)
         for i in xrange(len(degen)):
             if degen[i]==1:
@@ -60,13 +54,12 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
         ktrain_all_pred = [utils.kern_utils.build_training_kernel(nt,degen[i],ktr[i],lm[i]) for i in xrange(len(degen))]
         ktrain     = [ktrain_all_pred[i][0] for i in xrange(len(degen))]
         ktrainpred = [ktrain_all_pred[i][1] for i in xrange(len(degen))]
-    
+  
         # Invert training kernels.
         invktrvec = [scipy.linalg.solve(ktrain[i],vtrain_part[i]) for i in xrange(len(degen))]
 
         # Build testing kernels.
         ktest = [utils.kern_utils.build_testing_kernel(ns,nt,degen[i],kte[i]) for i in xrange(len(degen))]
-
 
         # Predict on test data set.
         outvec = [np.dot(ktest[i],invktrvec[i]) for i in xrange(len(degen))]
