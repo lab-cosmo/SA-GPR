@@ -117,7 +117,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                 if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
                     einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='greedy' )[0]
+                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='optimal' )[0]
                 ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
                                 sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
