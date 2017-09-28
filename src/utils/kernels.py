@@ -103,18 +103,24 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
 
     # compute local tensorial kernels
     
-    skernel  = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
+    skernel = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
+    einpath = None
+    listl = np.asarray(xrange(lcut+1))            
+    ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)    
     for i,j in product(xrange(npoints),xrange(npoints)):
-        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-            ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)
+        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):  
+            ISOAP[:] = 0.0          
             for ix in xrange(nspecies):
                 sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
-                listl = np.asarray(xrange(lcut+1))
                 for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):
                      sph_in[iii,jjj,:] = special.spherical_in(listl,length[i,ii,ix,iii]*length[j,jj,ix,jjj])
+                if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
+                    einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
+                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
+                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='greedy' )[0]
                 ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=True )
+                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
 
     print "KERNEL DONE", time()-start, ISOAP.sum(), skernel.sum()
