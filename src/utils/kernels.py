@@ -102,17 +102,19 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     start=time()
 
     # compute local tensorial kernels
+    
     skernel  = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
             ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)
             for ix in xrange(nspecies):
                 sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
-                for iii,jjj,lc in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix]),xrange(lcut+1)):
-                     sph_in[iii,jjj,lc] = special.spherical_in(lc,length[i,ii,ix,iii]*length[j,jj,ix,jjj])
+                listl = np.asarray(xrange(lcut+1))
+                for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):
+                     sph_in[iii,jjj,:] = special.spherical_in(listl,length[i,ii,ix,iii]*length[j,jj,ix,jjj])
                 ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:] )
+                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=True )
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
 
     print "KERNEL DONE", time()-start, ISOAP.sum(), skernel.sum()
