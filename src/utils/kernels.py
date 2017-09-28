@@ -107,7 +107,8 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     einpath = None
     listl = np.asarray(xrange(lcut+1))            
     ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)    
-    for i,j in product(xrange(npoints),xrange(npoints)):
+    for i in xrange(npoints):
+      for j in xrange(i+1):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):  
             ISOAP[:] = 0.0          
             for ix in xrange(nspecies):
@@ -122,7 +123,9 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
                                 sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
-
+            if not j == i : 
+                skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)
+            
     print "KERNEL DONE", time()-start, ISOAP.sum(), skernel.sum()
     start= time()
     # compute normalization factors

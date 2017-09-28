@@ -1,10 +1,12 @@
 import sys
 import numpy as np
+from time import time
 
 # Function which returns atom-centered environment parameters for all the species 
 
 def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,centers):
 
+    start = time()
     nsmax = 26 # max number of species (up to iron)
 
     # Define a dictionary of atomic valence
@@ -62,7 +64,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
     if periodic == True:
 
         nat = np.zeros(npoints,dtype=int)
-        ncell = 3  # maximum repetition along the cell vectors
+        ncell = 2  # maximum repetition along the cell vectors
         cell   = np.zeros((npoints,3,3), dtype=float)
         # over configurations
         for i in xrange(npoints):
@@ -85,15 +87,16 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
                         n = 0
                         # over neighbours of that specie
                         for m in atom_indexes[i][ix]:
+                            rr  = coords[i,m] - coords[i,l] # folds atoms in the unit cell
+                            # apply pbc 
+                            sr = np.dot(ih, rr)
+                            sr -= np.round(sr)                                                                    
+                            rml = np.dot(h, sr)
                             for ia in xrange(-ncell,ncell+1):
                                 for ib in xrange(-ncell,ncell+1):
                                     for ic in xrange(-ncell,ncell+1):
-                                        rr  = coords[i,m] - coords[i,l]
-                                        # apply pbc 
-                                        sr = np.dot(ih, rr)
-                                        sr -= np.round(sr)                                        
                                         # automatically build replicated cells
-                                        rr = np.dot(h, sr) + ia*cell[i,0] + ib*cell[i,1] + ic*cell[i,2]
+                                        rr = rml + ia*cell[i,0] + ib*cell[i,1] + ic*cell[i,2]
 
                                         # is it the neighbour within the spherical cutoff ?
                                         if np.linalg.norm(rr) <= rcut:
@@ -116,44 +119,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
                         ispe += 1
                     iat += 1
 
-#        ncell = 3  # maximum repetition along the cell vectors
-#        cell   = np.zeros((npoints,3,3), dtype=float)
-#        # over configurations
-#        for i in xrange(npoints):
-#            for k in xrange(3):
-#                for j in xrange(3):
-#                    cell[i,k,j] = cel[i,k,j]
-#            # over atomic centers
-#            for l in xrange(nat[i]):
-#                # over species
-#                for ix in xrange(nspecies):
-#                    n = 0
-#                    # over neighbours of that specie
-#                    for m in atom_indexes[i][ix]:
-#                        for ia in xrange(-ncell,ncell+1):
-#                            for ib in xrange(-ncell,ncell+1):
-#                                for ic in xrange(-ncell,ncell+1):
-#                                    rrm = coords[i,m] + ia*cell[i,0] + ib*cell[i,1] + ic*cell[i,2]
-#                                    rr  = rrm - coords[i,l]
-#                                    # is it the neighbour within the spherical cutoff ?
-#                                    if np.linalg.norm(rr) <= rcut:
-#                                        rr /= (np.sqrt(2.0)*sg)
-#                                        # central atom ?
-#                                        if ia==0 and ib==0 and ic==0 and m==l:
-#                                            nneigh[i,l,ix]      = nneigh[i,l,ix] + 1
-#                                            length[i,l,ix,n]    = 0.0                    
-#                                            theta[i,l,ix,n]     = 0.0                                 
-#                                            phi[i,l,ix,n]       = 0.0                      
-#                                            efact[i,l,ix,n]     = cweight
-#                                            n = n + 1
-#                                        else:
-#                                            nneigh[i,l,ix]      = nneigh[i,l,ix] + 1
-#                                            length[i,l,ix,n]    = np.linalg.norm(rr)
-#                                            theta[i,l,ix,n]     = np.arccos(rr[2]/length[i,l,ix,n])
-#                                            phi[i,l,ix,n]       = np.arctan2(rr[1],rr[0])
-#                                            efact[i,l,ix,n]     = np.exp(-0.5*length[i,l,ix,n]**2)
-#                                            n = n + 1
-
+        print "Computed neighbors", time()-start        
         return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies]
 
     else:
@@ -195,36 +161,6 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
                                     n = n + 1
                         ispe += 1
                     iat += 1
-
-#        # over configurations
-#        for i in xrange(npoints):
-#            # over atomic centers 
-#            for l in xrange(nat[i]):
-#                # over species
-#                for ix in xrange(nspecies):
-#                    n = 0
-#                    # over neighbours of that specie
-#                    for m in atom_indexes[i][ix]:
-#                        rrm = coords[i,m] 
-#                        rr  = rrm - coords[i,l]
-#                        # is it the neighbour within the spherical cutoff ?
-#                        if np.linalg.norm(rr) <= rcut:
-#                            rr /= (np.sqrt(2.0)*sg)
-#                            # central atom ?
-#                            if m==l:
-#                                nneigh[i,l,ix]      = nneigh[i,l,ix] + 1
-#                                length[i,l,ix,n]    = 0.0    
-#                                theta[i,l,ix,n]     = 0.0 
-#                                phi[i,l,ix,n]       = 0.0
-#                                efact[i,l,ix,n]     = cweight
-#                                n = n + 1
-#                            else:
-#                                nneigh[i,l,ix]      = nneigh[i,l,ix] + 1
-#                                length[i,l,ix,n]    = np.linalg.norm(rr)
-#                                theta[i,l,ix,n]     = np.arccos(rr[2]/length[i,l,ix,n])
-#                                phi[i,l,ix,n]       = np.arctan2(rr[1],rr[0])
-#                                efact[i,l,ix,n]     = np.exp(-0.5*length[i,l,ix,n]**2)
-#                                n = n + 1
 
         return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies]
 
