@@ -113,8 +113,9 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
             ISOAP[:] = 0.0          
             for ix in xrange(nspecies):
                 sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
-                for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):
-                     sph_in[iii,jjj,:] = special.spherical_in(listl,length[i,ii,ix,iii]*length[j,jj,ix,jjj])
+                for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):                    
+                    sph_in[iii,jjj,:] = special.spherical_in(listl, length[i,ii,ix,iii]*length[j,jj,ix,jjj])
+                    
                 if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
                     einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
@@ -140,7 +141,25 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
             kernel[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
         kernel[i,j] /= float(nat[i]*nat[j])
+    
+    # compute normalization factors
+    for i,j in product(xrange(npoints),xrange(npoints)):
+        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+            skernel[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:],np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
+            
+    for i in xrange(npoints):
+        for ii in xrange(nat[i]):
+            norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
+
+    # compute the kernel
+    kernel3 = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
+    for i,j in product(xrange(npoints),xrange(npoints)):
+        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+            kernel3[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
+        kernel3[i,j] /= float(nat[i]*nat[j])
+    
     print "FINISHED ", time()-start, kernel.sum()
+        
     return [kernel]
  
 #########################################################################################
