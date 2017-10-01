@@ -101,7 +101,7 @@ def set_variable_values_tenskernel(args):
 
     print nlist
 
-    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen]
+    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen,nlist]
 
 
 ###############################################################################################################################

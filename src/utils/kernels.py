@@ -15,7 +15,7 @@ import pow_spec
 
 # Build SOAP kernels for L=0
 
-def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb):
+def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist):
 
     mcut = 2*lcut+1
     divfac = np.array([1.0/float(2*l+1) for l in xrange(lcut+1)])
@@ -69,7 +69,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 
 # Build SOAP kernel for L>0
 from time import time
-def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb):
+def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist):
 
     mcut = 2*lcut+1
     divfac = np.array([np.sqrt(1.0/float(2*l + 1)) for l in xrange(lcut+1)])
@@ -164,7 +164,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
  
 #########################################################################################
 
-def build_kernels(n,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers):
+def build_kernels(n,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist):
 
     # Interpret the coordinate file.
     [coords,cell,all_names] = utils.read_xyz.readftrs(ftrs,vcell)
@@ -177,14 +177,14 @@ def build_kernels(n,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,ce
         if (vrb):
             print "Calculating L=0 kernel."
 
-        kernels.append(build_SOAP0_kernels(npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb))
+        kernels.append(build_SOAP0_kernels(npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist))
 
     elif (n > 0):
 
         if (vrb):
             print "Calculating L=%i kernel."%n
 
-        kernels.append(build_SOAP_kernels(n,npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb))
+        kernels.append(build_SOAP_kernels(n,npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist))
 
     else:
 

@@ -10,7 +10,7 @@ import numpy as np
 
 # INPUT ARGUMENTS
 args = utils.parsing.add_command_line_arguments_tenskernel("Tensorial kernel")
-[ftrs,vcell,npoints,lval,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers] = utils.parsing.set_variable_values_tenskernel(args)
+[ftrs,vcell,npoints,lval,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist] = utils.parsing.set_variable_values_tenskernel(args)
 
 print ""
 print "NUMBER OF CONFIGURATIONS =", npoints
@@ -27,7 +27,7 @@ print ""
 
 if (lval==0):
 
-    [[kernel]] = utils.kernels.build_kernels(0,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers)
+    [[kernel]] = utils.kernels.build_kernels(0,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # Save the kernel
     kernel_file = open("kernel0_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
@@ -38,7 +38,7 @@ if (lval==0):
 
 elif (lval==1):
 
-    [[ckernel]] = utils.kernels.build_kernels(1,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers)
+    [[ckernel]] = utils.kernels.build_kernels(1,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL, M = -1,0,+1
     CR = np.array([[1.0j,0.0,1.0j],
@@ -62,7 +62,7 @@ elif (lval==1):
 
 elif (lval==2):
 
-    [[ckernel]] = utils.kernels.build_kernels(2,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers)
+    [[ckernel]] = utils.kernels.build_kernels(2,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL M = -2,-1,0,+1,+2 
     CR = np.array([[1.0j,0.0,0.0,0.0,-1.0j],
@@ -88,7 +88,7 @@ elif (lval==2):
 
 elif (lval==3):
 
-    [[ckernel]] = utils.kernels.build_kernels(3,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers)
+    [[ckernel]] = utils.kernels.build_kernels(3,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL M = -3,-2,-1,0,+1,+2,+3
     CR =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],
