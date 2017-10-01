@@ -141,15 +141,42 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
             kernel[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
         kernel[i,j] /= float(nat[i]*nat[j])
+
+    # Have we asked for different values of n?
+    if (nlist != [0]):
+        # Compute the common element.
+        skernelsq = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
+        skerneln = np.zeros((npoints,npoints,natmax,natmas,2*lval+1,2*lval+1),  complex)
+        for i,j in product(xrange(npoints),xrange(npoints)):
+            for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                skernelsq[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
+        for n in nlist:
+            if n!=0:
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                        skerneln[i,j,ii,jj,:,:] = skernel[i,j,ii,jj,:,:]
+                for i in xrange(1,n):
+                    for i,j in product(xrange(npoints),xrange(npoints)):
+                        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                            skerneln[i,j,ii,jj,:,:] = np.dot(skerneln[i,j,ii,jj,:,:],skernelsq[i,j,ii,jj,:,:])
+                for i in xrange(npoints):
+                    for ii in xrange(nat[i]):
+                        norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skerneln[i,i,ii,ii,:,:]))
+                # Compute the nth kernel.
+                kerneln = np.zeros((npoints,npoints,2*lval+1,2*lval+1),dtype=complex)
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                        kerneln[i,j,:,:] += skerneln[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj]
+                    kerneln[i,j] /= float(nat[i]*nat[j])
     
-    # compute normalization factors
-    for i,j in product(xrange(npoints),xrange(npoints)):
-        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-            skernel[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:],np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
+#    # compute normalization factors
+#    for i,j in product(xrange(npoints),xrange(npoints)):
+#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+#            skernel[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:],np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
             
-    for i in xrange(npoints):
-        for ii in xrange(nat[i]):
-            norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
+#    for i in xrange(npoints):
+#        for ii in xrange(nat[i]):
+#            norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
 
     # compute the kernel
     kernel3 = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
