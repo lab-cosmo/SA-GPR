@@ -9,7 +9,7 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-lval", "--lvalue", help="Order of the spherical tensor")
     parser.add_argument("-f", "--features",help="File containing atomic fingerprints (coordinates)")
     parser.add_argument("-sg", "--sigma", type=float, help="Sigma for SOAP kernels")
-    parser.add_argument("-lc", "--lcut", type=float, help="lcut for SOAP kernels")
+    parser.add_argument("-lc", "--lcut", type=int, help="lcut for SOAP kernels")
     parser.add_argument("-c", "--cell",help="File containing cell vectors")
     parser.add_argument("-rc", "--rcut", type=float,help="Cutoff value for bulk systems as a fraction of the box length")
     parser.add_argument("-cw", "--cweight", type=float,help="Central atom weight")
@@ -18,6 +18,7 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-per","--periodic",type=bool, help="Call for periodic systems")
     parser.add_argument("-sub", "--subset", type=float, help="Fraction of the input data set")
     parser.add_argument("-cen", "--center", nargs='+', help="List of atoms to center on (default all)")
+    parser.add_argument("-n",   "--nlist", nargs='+', help="List of n values for kernel calculation")
     args = parser.parse_args()
     return args
 
@@ -86,7 +87,20 @@ def set_variable_values_tenskernel(args):
         # If we are considering gas-phase systems, we don't need the unit cell.
         vcell = []
 
-    print rc
+    if args.nlist:
+        nls = args.nlist
+        if sum([nls.count(',') for i in xrange(len(nls))]) > 0:
+            for j in xrange(len(nls)):
+                nls[j] = nls[j].split(',')
+            nls = np.concatenate(nls)
+        nlist = []
+        for i in xrange(len(nls)):
+            nlist.append(int(nls[i]))
+    else:
+        nlist = [0]
+
+    print nlist
+
     return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen]
 
 
