@@ -57,6 +57,34 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     kernel[i,j] += kloc[i,j,ii,jj] 
             kernel[i,j] /= float(nat[i]*nat[j])
 
+    # Have we asked for different values of n?
+    if (nlist != [0]):
+        # Compute the common element.
+        skernelsq = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
+        skerneln  = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
+        for i,j in product(xrange(npoints),xrange(npoints)):
+            for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                skernelsq[i,j,ii,jj] = skernel[i,j,ii,jj]*skernel[i,j,ii,jj]
+        for n in nlist:
+            if n!=0:
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                        skerneln[i,j,ii,jj] = skernel[i,j,ii,jj]
+                for m in xrange(1,n):
+                    for i,j in product(xrange(npoints),xrange(npoints)):
+                        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                            skerneln[i,j,ii,jj] = skerneln[i,j,ii,jj]*skernelsq[i,j,ii,jj]
+                # Compute the nth kernel.
+                kerneln = np.zeros((npoints,npoints),dtype=float)
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                        kerneln[i,j] += skerneln[i,j,ii,jj] / np.sqrt(skerneln[i,i,ii,ii]*skerneln[j,j,jj,jj])
+            else:
+                kerneln = np.zeros((npoints,npoints),dtype=float)
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+                        kerneln[i,j] = kernel[i,j]
+
 #    env = open("env01_kernel.txt","w")
 #    for ii in range(nat[0]):
 #        for jj in range(nat[1]):
@@ -146,16 +174,16 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     if (nlist != [0]):
         # Compute the common element.
         skernelsq = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
-        skerneln = np.zeros((npoints,npoints,natmax,natmas,2*lval+1,2*lval+1),  complex)
+        skerneln = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),  complex)
         for i,j in product(xrange(npoints),xrange(npoints)):
             for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-                skernelsq[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
+                skernelsq[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:])
         for n in nlist:
             if n!=0:
                 for i,j in product(xrange(npoints),xrange(npoints)):
                     for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
                         skerneln[i,j,ii,jj,:,:] = skernel[i,j,ii,jj,:,:]
-                for i in xrange(1,n):
+                for m in xrange(1,n):
                     for i,j in product(xrange(npoints),xrange(npoints)):
                         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
                             skerneln[i,j,ii,jj,:,:] = np.dot(skerneln[i,j,ii,jj,:,:],skernelsq[i,j,ii,jj,:,:])
@@ -168,6 +196,10 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                     for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
                         kerneln[i,j,:,:] += skerneln[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj]
                     kerneln[i,j] /= float(nat[i]*nat[j])
+            else:
+                kerneln = np.zeros((npoints,npoints,2*lval+1,2*lval+1),dtype=complex)
+                for i,j in product(xrange(npoints),xrange(npoints)):
+                    kerneln[i,j,:,:] = kernel[i,j,:,:]
     
 #    # compute normalization factors
 #    for i,j in product(xrange(npoints),xrange(npoints)):
@@ -178,12 +210,12 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
 #        for ii in xrange(nat[i]):
 #            norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
 
-    # compute the kernel
-    kernel3 = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
-    for i,j in product(xrange(npoints),xrange(npoints)):
-        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-            kernel3[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
-        kernel3[i,j] /= float(nat[i]*nat[j])
+#    # compute the kernel
+#    kernel3 = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
+#    for i,j in product(xrange(npoints),xrange(npoints)):
+#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
+#            kernel3[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
+#        kernel3[i,j] /= float(nat[i]*nat[j])
     
     print "FINISHED ", time()-start, kernel.sum()
         
