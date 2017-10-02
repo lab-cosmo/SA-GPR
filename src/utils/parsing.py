@@ -89,7 +89,7 @@ def set_variable_values_tenskernel(args):
 
     if args.nlist:
         nls = args.nlist
-        if sum([nls.count(',') for i in xrange(len(nls))]) > 0:
+        if sum([nls[i].count(',') for i in xrange(len(nls))]) > 0:
             for j in xrange(len(nls)):
                 nls[j] = nls[j].split(',')
             nls = np.concatenate(nls)
@@ -97,7 +97,7 @@ def set_variable_values_tenskernel(args):
         for i in xrange(len(nls)):
             nlist.append(int(nls[i]))
         nlist.append(0)
-        nlist = set(nlist)
+        nlist = list(set(nlist))
     else:
         nlist = [0]
 
