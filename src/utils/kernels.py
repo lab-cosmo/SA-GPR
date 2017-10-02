@@ -182,7 +182,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         skerneln = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),  complex)
         for i,j in product(xrange(npoints),xrange(npoints)):
             for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-                skernelsq[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:])
+                skernelsq[i,j,ii,jj,:,:] = np.dot(np.conj(skernel[i,j,ii,jj,:,:].T),skernel[i,j,ii,jj,:,:])
         for n in nlist:
             if n!=0:
                 for i,j in product(xrange(npoints),xrange(npoints)):

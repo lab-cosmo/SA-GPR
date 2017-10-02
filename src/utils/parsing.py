@@ -99,8 +99,6 @@ def set_variable_values_tenskernel(args):
     else:
         nlist = [0]
 
-    print nlist
-
     return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen,nlist]
 
 
