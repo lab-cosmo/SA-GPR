@@ -96,6 +96,8 @@ def set_variable_values_tenskernel(args):
         nlist = []
         for i in xrange(len(nls)):
             nlist.append(int(nls[i]))
+        nlist.append(0)
+        nlist = set(nlist)
     else:
         nlist = [0]
 

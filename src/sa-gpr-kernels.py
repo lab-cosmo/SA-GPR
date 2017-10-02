@@ -39,10 +39,6 @@ for i,j in product(xrange(npoints),xrange(npoints)):
 kernel_file = open("kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
 for i,j in product(xrange(npoints),xrange(npoints)):
     for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
-#for i in xrange(npoints):
-#    for j in xrange(npoints):
-#        for iim in xrange(2*lval+1):
-#            for jjm in xrange(2*lval+1):
         print >> kernel_file,kernel[i,j,iim,jjm]
 kernel_file.close()
 
@@ -58,43 +54,3 @@ if (nlist != [0]):
             for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
                 print >> kernel_file,kernel[i,j,iim,jjm]
         kernel_file.close()
-
-#if (lval==0):
-#
-#    [kernels] = utils.kernels.build_kernels(lval,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
-#
-#    CR = utils.kern_utils.complex_to_real_transformation([2*lval+1])[0]
-#    CC = np.conj(CR)
-#    CT = np.transpose(CR)
-#    kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1),dtype=float)
-#    for i in xrange(npoints):
-#        for j in xrange(npoints):
-#            kernel[i,j] = np.real(np.dot(np.dot(CC,kernels[0][i,j]),CT))
-#    # Save kernel.
-#    kernel_file = open("kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
-#    for i in xrange(npoints):
-#        for j in xrange(npoints):
-#            for iim in xrange(2*lval+1):
-#                for jjm in xrange(2*lval+1):
-#                    print >> kernel_file,kernel[i,j,iim,jjm] #kernels[0][i,j]
-#    kernel_file.close()
-#
-#else:
-#
-#    [kernels] = utils.kernels.build_kernels(lval,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
-#
-#    CR = utils.kern_utils.complex_to_real_transformation([2*lval+1])[0]
-#    CC = np.conj(CR)
-#    CT = np.transpose(CR)
-#    kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1),dtype=float)
-#    for i in xrange(npoints):
-#        for j in xrange(npoints):
-#            kernel[i,j] = np.real(np.dot(np.dot(CC,kernels[0][i,j]),CT))
-#    # Save kernel.
-#    kernel_file = open("kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
-#    for i in xrange(npoints):
-#        for j in xrange(npoints):
-#            for iim in xrange(2*lval+1):
-#                for jjm in xrange(2*lval+1):
-#                    print >> kernel_file, kernel[i,j,iim,jjm]
-#    kernel_file.close()
