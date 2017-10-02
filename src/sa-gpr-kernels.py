@@ -27,13 +27,14 @@ print ""
 
 if (lval==0):
 
-    [[kernel]] = utils.kernels.build_kernels(0,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+#    [[kernel]] = utils.kernels.build_kernels(0,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+    [kernels] = utils.kernels.build_kernels(0,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # Save the kernel
     kernel_file = open("kernel0_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
     for i in xrange(npoints):
         for j in xrange(npoints):
-            print >> kernel_file, kernel[i,j]
+            print >> kernel_file, kernels[0][i,j]
     kernel_file.close()
 
 elif (lval==1):

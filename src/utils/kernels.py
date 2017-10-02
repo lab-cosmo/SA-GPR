@@ -57,6 +57,8 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     kernel[i,j] += kloc[i,j,ii,jj] 
             kernel[i,j] /= float(nat[i]*nat[j])
 
+    kernels = [kernel]
+
     # Have we asked for different values of n?
     if (nlist != [0]):
         # Compute the common element.
@@ -84,6 +86,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                 for i,j in product(xrange(npoints),xrange(npoints)):
                     for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
                         kerneln[i,j] = kernel[i,j]
+            kernels.append(kerneln)
 
 #    env = open("env01_kernel.txt","w")
 #    for ii in range(nat[0]):
@@ -91,7 +94,8 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 #            print >> env, kloc[0,1,ii,jj]
 #    env.close()
 
-    return [kernel]
+#    return [kernel]
+    return kernels
 
 #########################################################################################
 
@@ -169,6 +173,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
             kernel[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
         kernel[i,j] /= float(nat[i]*nat[j])
+    kernels = [kernel]
 
     # Have we asked for different values of n?
     if (nlist != [0]):
@@ -200,6 +205,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                 kerneln = np.zeros((npoints,npoints,2*lval+1,2*lval+1),dtype=complex)
                 for i,j in product(xrange(npoints),xrange(npoints)):
                     kerneln[i,j,:,:] = kernel[i,j,:,:]
+            kernels.append(kerneln)
     
 #    # compute normalization factors
 #    for i,j in product(xrange(npoints),xrange(npoints)):
@@ -219,7 +225,8 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     
     print "FINISHED ", time()-start, kernel.sum()
         
-    return [kernel]
+#    return [kernel]
+    return kernels
  
 #########################################################################################
 
