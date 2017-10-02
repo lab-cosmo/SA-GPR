@@ -39,7 +39,8 @@ if (lval==0):
 
 elif (lval==1):
 
-    [[ckernel]] = utils.kernels.build_kernels(1,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+#    [[ckernel]] = utils.kernels.build_kernels(1,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+    [ckernels] = utils.kernels.build_kernels(1,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL, M = -1,0,+1
     CR = np.array([[1.0j,0.0,1.0j],
@@ -50,7 +51,7 @@ elif (lval==1):
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=float)
     for i in xrange(npoints):
         for j in xrange(npoints):
-            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernel[i,j]),CT))
+            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernels[0][i,j]),CT))
 
     # Save the kernel
     kernel_file = open("kernel1_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
@@ -63,7 +64,8 @@ elif (lval==1):
 
 elif (lval==2):
 
-    [[ckernel]] = utils.kernels.build_kernels(2,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+#    [[ckernel]] = utils.kernels.build_kernels(2,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+    [ckernels] = utils.kernels.build_kernels(2,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL M = -2,-1,0,+1,+2 
     CR = np.array([[1.0j,0.0,0.0,0.0,-1.0j],
@@ -76,7 +78,7 @@ elif (lval==2):
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=float)
     for i in xrange(npoints):
         for j in xrange(npoints):
-            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernel[i,j]),CT))
+            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernels[0][i,j]),CT))
 
     # Save the kernel
     kernel_file = open("kernel2_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
@@ -89,7 +91,8 @@ elif (lval==2):
 
 elif (lval==3):
 
-    [[ckernel]] = utils.kernels.build_kernels(3,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+#    [[ckernel]] = utils.kernels.build_kernels(3,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
+    [ckernels] = utils.kernels.build_kernels(3,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
     # From COMPLEX to REAL M = -3,-2,-1,0,+1,+2,+3
     CR =np.array([[1.0j,0.0,0.0,0.0,0.0,0.0,1.0j],
@@ -104,7 +107,7 @@ elif (lval==3):
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=float)
     for i in xrange(npoints):
         for j in xrange(npoints):
-            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernel[i,j]),CT))
+            kernel[i,j] = np.real(np.dot(np.dot(CC,ckernels[0][i,j]),CT))
 
     # Save the kernel
     kernel_file = open("kernel3_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt","w")
