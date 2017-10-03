@@ -22,7 +22,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 
     sph_i6 = np.zeros((npoints,natmax,nspecies,nnmax,lcut+1,mcut), dtype=complex)
     for i in xrange(npoints):                          # over configurations
-        for ii in xrange(nat[i]):                      # over all the atoms' centers of that configuration 
+        for ii in xrange(nat[i]):                      # over all the atomic centers of that configuration 
             for ix in xrange(nspecies):                # over all the different kind of species 
                 for iii in xrange(nneigh[i,ii,ix]):    # over the neighbors of that specie around that center of that configuration 
                     for l in xrange(lcut+1):           # over angular momentum   
@@ -174,7 +174,6 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
             skernelsq[i,j,ii,jj,:,:] = np.dot(np.conj(skernel[i,j,ii,jj,:,:].T),skernel[i,j,ii,jj,:,:])
     for n in nlist:
         if n!=0:
-            print "WE ARE HERE!",n
             for i,j in product(xrange(npoints),xrange(npoints)):
                 for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
                     skerneln[i,j,ii,jj,:,:] = skernel[i,j,ii,jj,:,:]
