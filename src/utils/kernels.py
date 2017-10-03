@@ -59,8 +59,6 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 
     kernels = [kernel]
 
-#    # Have we asked for different values of n?
-#    if (nlist != [0]):
     # Compute product kernels.
     skernelsq = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
     skerneln  = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
@@ -88,13 +86,6 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     kerneln[i,j] = kernel[i,j]
         kernels.append(kerneln)
 
-#    env = open("env01_kernel.txt","w")
-#    for ii in range(nat[0]):
-#        for jj in range(nat[1]):
-#            print >> env, kloc[0,1,ii,jj]
-#    env.close()
-
-#    return [kernel]
     return kernels
 
 #########################################################################################
@@ -175,10 +166,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         kernel[i,j] /= float(nat[i]*nat[j])
     kernels = [kernel]
 
-#    # Have we asked for different values of n?
-#    if (nlist != [0]):
     # Compute product kernels.
-#        # Compute the common element.
     skernelsq = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
     skerneln = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),  complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
@@ -209,25 +197,8 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                 kerneln[i,j,:,:] = kernel[i,j,:,:]
         kernels.append(kerneln)
     
-#    # compute normalization factors
-#    for i,j in product(xrange(npoints),xrange(npoints)):
-#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-#            skernel[i,j,ii,jj,:,:] = np.dot(skernel[i,j,ii,jj,:,:],np.dot(skernel[i,j,ii,jj,:,:].T,skernel[i,j,ii,jj,:,:]))
-            
-#    for i in xrange(npoints):
-#        for ii in xrange(nat[i]):
-#            norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
-
-#    # compute the kernel
-#    kernel3 = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
-#    for i,j in product(xrange(npoints),xrange(npoints)):
-#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-#            kernel3[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
-#        kernel3[i,j] /= float(nat[i]*nat[j])
-    
     print "FINISHED ", time()-start, kernel.sum()
         
-#    return [kernel]
     return kernels
  
 #########################################################################################
