@@ -127,19 +127,19 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     # compute local tensorial kernels
     
     skernel = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
-    einpath = None
+#    skernel2 = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
+#    einpath = None
     listl = np.asarray(xrange(lcut+1))            
     ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)    
     for i in xrange(npoints):
       for j in xrange(i+1):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):  
-#            ISOAP[:] = 0.0
-#            for ix in xrange(nspecies):
-#                ISOAP[ix,:,:,:] = pow_spec.fill_isoap(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,mcut,efact[i,ii,ix,0:nneigh[i,ii,ix]],efact[j,jj,ix,0:nneigh[j,jj,ix]],sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:],sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:],length[i,ii,ix,:nneigh[i,ii,ix]],length[j,jj,ix,:nneigh[j,jj,ix]])
-
             ISOAP = pow_spec.fill_isoap_array(nnmax,nspecies,nneigh[i,ii,:],nneigh[j,jj,:],lcut,mcut,efact[i,ii,:,:],efact[j,jj,:,:],sph_i6[i,ii,:,:,:,:],sph_j6[j,jj,:,:,:,:],length[i,ii,:,:],length[j,jj,:,:])
 
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
+
+#            skernel[i,j,ii,jj,:,:] = pow_spec.get_spectra(lval,lcut,mcut,nspecies,CG2,nnmax,nneigh[i,ii,:],nneigh[j,jj,:],efact[i,ii,:,:],efact[j,jj,:,:],sph_i6[i,ii,:,:,:,:],sph_j6[j,jj,:,:,:,:],length[i,ii,:,:],length[j,jj,:,:])
+
             if not j == i : 
                 skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)
             

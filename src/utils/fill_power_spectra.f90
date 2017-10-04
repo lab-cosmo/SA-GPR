@@ -38,6 +38,28 @@ implicit none
    enddo
 end subroutine
 
+subroutine get_spectra(lval,lcut,mcut,nspecies,CG2,maxsize,nneigh1,nneigh2,efact1,efact2,sph_i6,sph_j6,length1,length2,skernel)
+implicit none
+
+ integer lval,lcut,mcut,nspecies,maxsize,nneigh1(nspecies),nneigh2(nspecies)
+ real*8 CG2(lcut+1,lcut+1,mcut,mcut,2*lval+1,2*lval+1),efact1(nspecies,maxsize),efact2(nspecies,maxsize)
+ real*8 length1(nspecies,maxsize),length2(nspecies,maxsize)
+ complex*16 ISOAP(nspecies,0:lcut,mcut,mcut),sph_i6(nspecies,maxsize,0:lcut,2*lcut+1)
+ complex*16 sph_j6(nspecies,maxsize,0:lcut,2*lcut+1),skernel(2*lval+1,2*lval+1)
+
+!f2py intent(in) lval,lcut,mcut,nspecies,CG2,maxsize,nneigh1,nneigh2,efact1,efact2,sph_i6,sph_j6,length1,length2
+!f2py intent(out) skernel
+!f2py depend(lval) CG2,skernel
+!f2py depend(lcut) ISOAP,CG2,sph_i6,sph_j6
+!f2py depend(mcut) CG2,skernel,ISOAP
+!f2py depend(nspecies) nneigh1,nneigh2,efact1,efact2,length1,length2,sph_i6,sph_j6,ISOAP
+!f2py depend(maxsize) efact1,efact2,length1,length2,sph_i6,sph_j6,ISOAP
+
+ call fill_ISOAP_array(maxsize,nspecies,nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2,ISOAP)
+ call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel)
+
+end subroutine
+
 subroutine fill_ISOAP_array(maxsize,nspecies,nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2,ISOAP)
 implicit none
 
