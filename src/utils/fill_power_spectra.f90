@@ -38,6 +38,79 @@ implicit none
    enddo
 end subroutine
 
+subroutine fill_ISOAP_array(maxsize,nspecies,nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2,ISOAP)
+implicit none
+
+ integer nspecies,nneigh1(nspecies),nneigh2(nspecies),lcut,mcut,maxsize,l,m1,m2,ii,jj,ix
+ real*8 efact1(nspecies,maxsize),efact2(nspecies,maxsize),sph_in(maxsize,maxsize,0:lcut)
+ real*8 length1(nspecies,maxsize),length2(nspecies,maxsize)
+ complex*16 ISOAP(nspecies,0:lcut,mcut,mcut),sph_i6(nspecies,maxsize,0:lcut,2*lcut+1)
+ complex*16 sph_j6(nspecies,maxsize,0:lcut,2*lcut+1)
+
+!f2py intent(in) maxsize,nspecies,nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2
+!f2py intent(out) ISOAP
+!f2py depend(maxsize) efact1,efact2,sph_in,length1,length2,sph_i6,sph_j6
+!f2py depend(nspecies) nneigh1,nneigh2,efact1,efact2,length1,length2,ISOAP,sph_i6,sph_j6
+!f2py depend(lcut) sph_in,ISOAP,sph_i6,sph_j6
+!f2py depend(mcut) ISOAP
+
+ ISOAP(:,:,:,:) = 0.d0
+
+ do ix=0,nspecies-1
+  ! Calculate spherical Bessel functions.
+  call fill_bessel_functions(nneigh1(ix+1),nneigh2(ix+1),lcut,length1(ix+1,1:nneigh1(ix+1)), &
+     &     length2(ix+1,1:nneigh2(ix+1)),sph_in(1:nneigh1(ix+1),1:nneigh2(ix+1),:))
+
+  do l=0,lcut
+   do m1=0,2*lcut
+    do m2=0,2*lcut
+     do ii=0,nneigh1(ix+1)-1
+      do jj=0,nneigh2(ix+1)-1
+       ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + &
+     &     efact1(ix+1,ii+1)*efact2(ix+1,jj+1)*sph_in(ii+1,jj+1,l)*sph_i6(ix+1,ii+1,l,m1+1)*sph_j6(ix+1,jj+1,l,m2+1)
+      enddo
+     enddo
+    enddo
+   enddo
+  enddo
+ enddo
+
+end subroutine
+
+subroutine fill_ISOAP(nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2,ISOAP)
+implicit none
+
+ integer lcut,mcut,nneigh1,nneigh2,l,m1,m2,ii,jj
+ real*8 efact1(nneigh1),efact2(nneigh2),sph_in(nneigh1,nneigh2,0:lcut),length1(nneigh1),length2(nneigh2)
+ complex*16 ISOAP(0:lcut,mcut,mcut),sph_i6(nneigh1,0:lcut,2*lcut+1),sph_j6(nneigh2,0:lcut,2*lcut+1)
+
+!f2py intent(in) nneigh1,nneigh2,efact1,efact2,lcut,mcut,sph_i6,sph_j6,length1,length2
+!f2py intent(out) ISOAP
+!f2py depend(nneigh1) efact1,sph_in,sph_i6,length1
+!f2py depend(nneigh2) efact2,sph_in,sph_j6,length2
+!f2py depend(lcut) sph_in,sph_i6,sph_j6,ISOAP
+!f2py depend(mcut) ISOAP
+
+ ISOAP(:,:,:) = 0.d0
+
+ ! Calculate spherical Bessel functions.
+ call fill_bessel_functions(nneigh1,nneigh2,lcut,length1,length2,sph_in)
+
+ do l=0,lcut
+  do m1=0,2*lcut
+   do m2=0,2*lcut
+    do ii=0,nneigh1-1
+     do jj=0,nneigh2-1
+      ISOAP(l,m1+1,m2+1) = ISOAP(l,m1+1,m2+1) + &
+     &     efact1(ii+1)*efact2(jj+1)*sph_in(ii+1,jj+1,l)*sph_i6(ii+1,l,m1+1)*sph_j6(jj+1,l,m2+1)
+     enddo
+    enddo
+   enddo
+  enddo
+ enddo
+
+end subroutine
+
 ! FILL BESSEL FUNCTION ARRAY
 
 subroutine fill_bessel_functions(nneigh1,nneigh2,lcut,length1,length2,sph_in)
@@ -59,42 +132,6 @@ implicit none
    sph_in(iii+1,jjj+1,:) = si(:)
   enddo
  enddo
-
-end subroutine
-
-subroutine fill_ISOAP(nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_in,sph_i6,sph_j6,ISOAP)
-implicit none
-
- integer lcut,mcut,nneigh1,nneigh2,l,m1,m2,ii,jj
- real*8 efact1(nneigh1),efact2(nneigh2),sph_in(nneigh1,nneigh2,0:lcut)
- complex*16 ISOAP(0:lcut,mcut,mcut),sph_i6(nneigh1,0:lcut,2*lcut+1),sph_j6(nneigh2,0:lcut,2*lcut+1)
-
-!f2py intent(in) nneigh1,nneigh2,efact1,efact2,sph_in,lcut,mcut,sph_i6,sph_j6
-!f2py intent(out) ISOAP
-!f2py depend(nneigh1) efact1,sph_in,sph_i6
-!f2py depend(nneigh2) efact2,sph_in,sph_j6
-!f2py depend(lcut) sph_in,sph_i6,sph_j6,ISOAP
-!f2py depend(mcut) ISOAP
-
- ISOAP(:,:,:) = 0.d0
-
- do l=0,lcut
-  do m1=0,2*lcut
-   do m2=0,2*lcut
-    do ii=0,nneigh1-1
-     do jj=0,nneigh2-1
-      ISOAP(l,m1+1,m2+1) = ISOAP(l,m1+1,m2+1) + &
-     &     efact1(ii+1)*efact2(jj+1)*sph_in(ii+1,jj+1,l)*sph_i6(ii+1,l,m1+1)*sph_j6(jj+1,l,m2+1)
-     enddo
-    enddo
-   enddo
-  enddo
- enddo
-
-!                ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
-!                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-!                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
-!                ISOAP2 = pow_spec.fill_isoap(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,mcut,efact[i,ii,ix,0:nneigh[i,ii,ix]],efact[j,jj,ix,0:nneigh[j,jj,ix]],sph_in,sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:],sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:])
 
 end subroutine
 
