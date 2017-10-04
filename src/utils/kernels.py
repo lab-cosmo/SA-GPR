@@ -135,22 +135,21 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):  
             ISOAP[:] = 0.0
             for ix in xrange(nspecies):
-#                sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
-#                for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):
-#                    sph_in[iii,jjj,:] = special.spherical_in(listl, length[i,ii,ix,iii]*length[j,jj,ix,jjj])
-#                sph_in2= np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
                 sph_in = pow_spec.fill_bessel_functions(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,length[i,ii,ix,:nneigh[i,ii,ix]],length[j,jj,ix,:nneigh[j,jj,ix]])
-#                print np.linalg.norm(sph_in - sph_in2)
-#                print
-#                sph_in = sph_in2
                     
-                if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
-                    einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
-                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='optimal' )[0]
-                ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
-                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
+#                if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
+#                    einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
+#                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
+#                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='optimal' )[0]
+#                ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
+#                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
+#                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
+#                ISOAP2 = pow_spec.fill_isoap(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,mcut,efact[i,ii,ix,0:nneigh[i,ii,ix]],efact[j,jj,ix,0:nneigh[j,jj,ix]],sph_in,sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:],sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:])
+
+#                print ISOAP[ix,0,0,0],ISOAP2[0,0,0]
+#                print
+                ISOAP[ix,:,:,:] = pow_spec.fill_isoap(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,mcut,efact[i,ii,ix,0:nneigh[i,ii,ix]],efact[j,jj,ix,0:nneigh[j,jj,ix]],sph_in,sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:],sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:])
+
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
             if not j == i : 
                 skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)

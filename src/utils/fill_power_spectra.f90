@@ -43,7 +43,7 @@ end subroutine
 subroutine fill_bessel_functions(nneigh1,nneigh2,lcut,length1,length2,sph_in)
 implicit none
 
- integer iii,jjj,lcut,nneigh1,nneigh2,nm,l
+ integer iii,jjj,lcut,nneigh1,nneigh2,nm
  real*8 length1(nneigh1),length2(nneigh2),sph_in(nneigh1,nneigh2,0:lcut)
  real*8 si(0:lcut),di(0:lcut)
 
@@ -55,19 +55,46 @@ implicit none
 
  do iii=0,nneigh1-1
   do jjj=0,nneigh2-1
-!   write(*,*) length1(iii+1)*length2(jjj+1)
    call sphi(lcut,length1(iii+1)*length2(jjj+1),nm,si,di)
-!write(*,*) 'here 3',iii,nneigh1-1,jjj,nneigh2-1
-!   write(*,*) si
    sph_in(iii+1,jjj+1,:) = si(:)
-!   do l=0,lcut+1
-!    call sphi(l,length1(iii)*length2(jjj),nm,si,di)
-!    sph_in(iii+1,jjj+1,l) = si(l)
-!    !TODO: This can be made better!
-!   enddo
   enddo
  enddo
-! write(*,*)
+
+end subroutine
+
+subroutine fill_ISOAP(nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_in,sph_i6,sph_j6,ISOAP)
+implicit none
+
+ integer lcut,mcut,nneigh1,nneigh2,l,m1,m2,ii,jj
+ real*8 efact1(nneigh1),efact2(nneigh2),sph_in(nneigh1,nneigh2,0:lcut)
+ complex*16 ISOAP(0:lcut,mcut,mcut),sph_i6(nneigh1,0:lcut,2*lcut+1),sph_j6(nneigh2,0:lcut,2*lcut+1)
+
+!f2py intent(in) nneigh1,nneigh2,efact1,efact2,sph_in,lcut,mcut,sph_i6,sph_j6
+!f2py intent(out) ISOAP
+!f2py depend(nneigh1) efact1,sph_in,sph_i6
+!f2py depend(nneigh2) efact2,sph_in,sph_j6
+!f2py depend(lcut) sph_in,sph_i6,sph_j6,ISOAP
+!f2py depend(mcut) ISOAP
+
+ ISOAP(:,:,:) = 0.d0
+
+ do l=0,lcut
+  do m1=0,2*lcut
+   do m2=0,2*lcut
+    do ii=0,nneigh1-1
+     do jj=0,nneigh2-1
+      ISOAP(l,m1+1,m2+1) = ISOAP(l,m1+1,m2+1) + &
+     &     efact1(ii+1)*efact2(jj+1)*sph_in(ii+1,jj+1,l)*sph_i6(ii+1,l,m1+1)*sph_j6(jj+1,l,m2+1)
+     enddo
+    enddo
+   enddo
+  enddo
+ enddo
+
+!                ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
+!                                efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
+!                                sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
+!                ISOAP2 = pow_spec.fill_isoap(nneigh[i,ii,ix],nneigh[j,jj,ix],lcut,mcut,efact[i,ii,ix,0:nneigh[i,ii,ix]],efact[j,jj,ix,0:nneigh[j,jj,ix]],sph_in,sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:],sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:])
 
 end subroutine
 
