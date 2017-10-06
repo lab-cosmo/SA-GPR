@@ -38,7 +38,7 @@ implicit none
    enddo
 end subroutine
 
-subroutine get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat,skernel)
+subroutine get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,sph_i6,length,nat,skernel)
 implicit none
 
  integer lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh(npoints,natmax,nspecies),nat(npoints)
@@ -62,15 +62,15 @@ implicit none
  skernel(:,:,:,:,:,:) = 0.d0
 
  ! Pre-multiply the spherical harmonics by exponential factors.
- do i=0,npoints-1
-  do ii=0,nat(i+1)-1
-   do ix=0,nspecies-1
-    do iii=0,nneigh(i+1,ii+1,ix+1)-1
-     sph_i6(i+1,ii+1,ix+1,iii+1,:,:) = sph_i6(i+1,ii+1,ix+1,iii+1,:,:) * efact(i+1,ii+1,ix+1,iii+1)
-    enddo
-   enddo
-  enddo
- enddo
+! do i=0,npoints-1
+!  do ii=0,nat(i+1)-1
+!   do ix=0,nspecies-1
+!    do iii=0,nneigh(i+1,ii+1,ix+1)-1
+!     sph_i6(i+1,ii+1,ix+1,iii+1,:,:) = sph_i6(i+1,ii+1,ix+1,iii+1,:,:) * efact(i+1,ii+1,ix+1,iii+1)
+!    enddo
+!   enddo
+!  enddo
+! enddo
  sph_j6 = dconjg(sph_i6)
 
  do i=0,npoints-1

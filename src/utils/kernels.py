@@ -110,7 +110,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
 
     print "CG done", time()-start, CG2.sum()
     start=time()
-    # compute spherical harmonics
+    # compute spherical harmonics; pre-multiply them by the exponential factors.
     sph_i6 = np.zeros((npoints,natmax,nspecies,nnmax,lcut+1,2*lcut+1),dtype=complex)
     for i in xrange(npoints):
         for ii in xrange(nat[i]):
@@ -119,13 +119,13 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                     for l in xrange(lcut+1):
                         for im in xrange(2*l+1):
                             m = im-l
-                            sph_i6[i,ii,ix,iii,l,im] = special.sph_harm(m,l,phi[i,ii,ix,iii],theta[i,ii,ix,iii])
-#    sph_j6 = conj(sph_i6)
+                            sph_i6[i,ii,ix,iii,l,im] = special.sph_harm(m,l,phi[i,ii,ix,iii],theta[i,ii,ix,iii])*efact[i,ii,ix,iii]
+
     print "SPH done", time()-start, sph_i6.sum()
     start=time()
 
     # compute local tensorial kernels.
-    skernel = pow_spec.get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat)
+    skernel = pow_spec.get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,sph_i6,length,nat)
           
     print "KERNEL DONE", time()-start, skernel.sum()
     start= time()
