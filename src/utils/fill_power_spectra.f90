@@ -45,21 +45,33 @@ implicit none
  integer i,j,nm,ii,jj,iii,jjj,ix,l,m1,m2
  real*8 CG2(lcut+1,lcut+1,mcut,mcut,2*lval+1,2*lval+1),efact(npoints,natmax,nspecies,nnmax)
  real*8 length(npoints,natmax,nspecies,nnmax)
- real*8 di(0:lcut),sph_in(nnmax,nnmax,0:lcut)
- complex*16 sph_i6(npoints,natmax,nspecies,nnmax,0:lcut,2*lcut+1)
+ real*8 di(0:lcut),sph_in(nnmax,nnmax,0:lcut),start,finish
+ complex*16 sph_i6(npoints,natmax,nspecies,nnmax,0:lcut,2*lcut+1),sph_j6(npoints,natmax,nspecies,nnmax,0:lcut,2*lcut+1)
  complex*16 skernel(npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),ISOAP(nspecies,0:lcut,mcut,mcut)
 
 !f2py intent(in) lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat
 !f2py intent(out) skernel
-!f2py depend(lcut) CG2,sph_i6,ISOAP
+!f2py depend(lcut) CG2,sph_i6,sph_j6,ISOAP
 !f2py depend(mcut) CG2,ISOAP
 !f2py depend(lval) CG2,skernel
-!f2py depend(natmax) nneigh,efact,sph_i6,length,skernel
-!f2py depend(nspecies) nneigh,efact,sph_i6,length,ISOAP
-!f2py depend(nnmax) efact,sph_i6,length
-!f2py depend(npoints) nneigh,efact,sph_i6,length,nat,skernel
+!f2py depend(natmax) nneigh,efact,sph_i6,sph_j6,length,skernel
+!f2py depend(nspecies) nneigh,efact,sph_i6,sph_j6,length,ISOAP
+!f2py depend(nnmax) efact,sph_i6,sph_j6,length
+!f2py depend(npoints) nneigh,efact,sph_i6,sph_j6,length,nat,skernel
 
  skernel(:,:,:,:,:,:) = 0.d0
+
+ ! Pre-multiply the spherical harmonics by exponential factors.
+ do i=0,npoints-1
+  do ii=0,nat(i+1)-1
+   do ix=0,nspecies-1
+    do iii=0,nneigh(i+1,ii+1,ix+1)-1
+     sph_i6(i+1,ii+1,ix+1,iii+1,:,:) = sph_i6(i+1,ii+1,ix+1,iii+1,:,:) * efact(i+1,ii+1,ix+1,iii+1)
+    enddo
+   enddo
+  enddo
+ enddo
+ sph_j6 = dconjg(sph_i6)
 
  do i=0,npoints-1
   do j=0,i
@@ -79,16 +91,17 @@ implicit none
         do m2=0,2*lcut
          do iii=0,nneigh(i+1,ii+1,ix+1)-1
           do jjj=0,nneigh(j+1,jj+1,ix+1)-1
-           ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + &
-     &      efact(i+1,ii+1,ix+1,iii+1)*efact(j+1,jj+1,ix+1,jjj+1)*sph_in(iii+1,jjj+1,l)* &
-     &      sph_i6(i+1,ii+1,ix+1,iii+1,l,m1+1)*dconjg(sph_i6(j+1,jj+1,ix+1,jjj+1,l,m2+1))
+           ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + sph_in(iii+1,jjj+1,l)* &
+     &      sph_i6(i+1,ii+1,ix+1,iii+1,l,m1+1)*sph_j6(j+1,jj+1,ix+1,jjj+1,l,m2+1)
           enddo
          enddo
         enddo
        enddo
       enddo
      enddo
+     ! Fill power spectrum.
      call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel(i+1,j+1,ii+1,jj+1,:,:))
+     ! Apply Hermiticity.
      if (i.ne.j) skernel(j+1,i+1,jj+1,ii+1,:,:) = dconjg(transpose(skernel(i+1,j+1,ii+1,jj+1,:,:)))
     enddo
    enddo
