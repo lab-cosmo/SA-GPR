@@ -125,27 +125,10 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     start=time()
 
     # compute local tensorial kernels
-    
-#    skernel = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
-#    einpath = None
-    listl = np.asarray(xrange(lcut+1))           
-#    for i in xrange(npoints):
-#      for j in xrange(i+1):
-#        skernel[i,j,:,:,:,:] = pow_spec.get_skernel_configs(lval,lcut,mcut,nspecies,nnmax,natmax,nneigh[i,:,:],nneigh[j,:,:],CG2,efact[i,:,:],efact[j,:,:],sph_i6[i,:,:,:,:,:],sph_j6[j,:,:,:,:,:],length[i,:,:,:],length[j,:,:,:],nat[i],nat[j])
-#
-#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-#            if not j == i : 
-#                skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)
 
     skernel = pow_spec.get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat)
-
-#    for i in xrange(npoints):
-#      for j in xrange(i+1):
-#        for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-#            if not j == i : 
-#                skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)
-           
-    print "KERNEL DONE", time()-start#, ISOAP.sum(), skernel.sum()
+          
+    print "KERNEL DONE", time()-start, skernel.sum()
     start= time()
     # compute normalization factors
     norm = np.zeros((npoints,natmax), dtype=float)
