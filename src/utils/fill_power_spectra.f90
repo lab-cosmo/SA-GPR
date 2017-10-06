@@ -38,6 +38,94 @@ implicit none
    enddo
 end subroutine
 
+subroutine get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat,skernel)
+implicit none
+
+ integer lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh(npoints,natmax,nspecies),nat(npoints)
+ integer i,j,nm,ii,jj,iii,jjj,ix,l,m1,m2
+ real*8 CG2(lcut+1,lcut+1,mcut,mcut,2*lval+1,2*lval+1),efact(npoints,natmax,nspecies,nnmax)
+ real*8 length(npoints,natmax,nspecies,nnmax)
+ real*8 di(0:lcut),sph_in(nnmax,nnmax,0:lcut)
+ complex*16 sph_i6(npoints,natmax,nspecies,nnmax,0:lcut,2*lcut+1)
+ complex*16 skernel(npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),ISOAP(nspecies,0:lcut,mcut,mcut)
+
+!f2py intent(in) lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat
+!f2py intent(out) skernel
+!f2py depend(lcut) CG2,sph_i6,ISOAP
+!f2py depend(mcut) CG2,ISOAP
+!f2py depend(lval) CG2,skernel
+!f2py depend(natmax) nneigh,efact,sph_i6,length,skernel
+!f2py depend(nspecies) nneigh,efact,sph_i6,length,ISOAP
+!f2py depend(nnmax) efact,sph_i6,length
+!f2py depend(npoints) nneigh,efact,sph_i6,length,nat,skernel
+
+ skernel(:,:,:,:,:,:) = 0.d0
+
+ do i=0,npoints-1
+  do j=0,i
+   do ii=0,nat(i+1)-1
+    do jj=0,nat(j+1)-1
+     ISOAP(:,:,:,:) = 0.d0
+     do ix=0,nspecies-1
+      ! Calculate spherical Bessel functions.
+      do iii=0,nneigh(i+1,ii+1,ix+1)-1
+       do jjj=0,nneigh(j+1,jj+1,ix+1)-1
+        call sphi(lcut,length(i+1,ii+1,ix+1,iii+1)*length(j+1,jj+1,ix+1,jjj+1),nm,sph_in(iii+1,jjj+1,:),di)
+       enddo
+      enddo
+      ! Fill ISOAP array.
+      do l=0,lcut
+       do m1=0,2*lcut
+        do m2=0,2*lcut
+         do iii=0,nneigh(i+1,ii+1,ix+1)-1
+          do jjj=0,nneigh(j+1,jj+1,ix+1)-1
+           ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + &
+     &      efact(i+1,ii+1,ix+1,iii+1)*efact(j+1,jj+1,ix+1,jjj+1)*sph_in(iii+1,jjj+1,l)* &
+     &      sph_i6(i+1,ii+1,ix+1,iii+1,l,m1+1)*dconjg(sph_i6(j+1,jj+1,ix+1,jjj+1,l,m2+1))
+          enddo
+         enddo
+        enddo
+       enddo
+      enddo
+     enddo
+     call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel(i+1,j+1,ii+1,jj+1,:,:))
+     if (i.ne.j) skernel(j+1,i+1,jj+1,ii+1,:,:) = dconjg(transpose(skernel(i+1,j+1,ii+1,jj+1,:,:)))
+    enddo
+   enddo
+  enddo
+ enddo
+
+! do ii=0,nat1-1
+!  do jj=0,nat2-1
+!    ISOAP(:,:,:,:) = 0.d0
+!    do ix=0,nspecies-1
+!     ! Calculate spherical Bessel functions.
+!     do iii=0,nneigh1(ii+1,ix+1)-1
+!      do jjj=0,nneigh2(jj+1,ix+1)-1
+!       call sphi(lcut,length1(ii+1,ix+1,iii+1)*length2(jj+1,ix+1,jjj+1),nm,sph_in(iii+1,jjj+1,:),di)
+!      enddo
+!     enddo
+!     do l=0,lcut
+!      do m1=0,2*lcut
+!       do m2=0,2*lcut
+!        do iii=0,nneigh1(ii+1,ix+1)-1
+!         do jjj=0,nneigh2(jj+1,ix+1)-1
+!          ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + &
+!     &     efact1(ii+1,ix+1,iii+1)*efact2(jj+1,ix+1,jjj+1)*sph_in(iii+1,jjj+1,l)* &
+!     &     sph_i6(ii+1,ix+1,iii+1,l,m1+1)*sph_j6(jj+1,ix+1,jjj+1,l,m2+1)
+!         enddo
+!        enddo
+!       enddo
+!      enddo
+!     enddo
+!    enddo
+!   call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel(ii+1,jj+1,:,:))
+!  enddo
+! enddo
+
+end subroutine
+
+
 subroutine get_skernel_configs(lval,lcut,mcut,nspecies,nnmax,natmax,nneigh1,nneigh2,CG2,efact1, &
      &     efact2,sph_i6,sph_j6,length1,length2,nat1,nat2,skernel)
 implicit none
@@ -46,7 +134,7 @@ implicit none
  integer ii,jj,ix,l,m1,m2,iii,jjj,nm
  real*8 CG2(lcut+1,lcut+1,mcut,mcut,2*lval+1,2*lval+1),efact1(natmax,nspecies,nnmax),efact2(natmax,nspecies,nnmax)
  real*8 length1(natmax,nspecies,nnmax),length2(natmax,nspecies,nnmax),sph_in(nnmax,nnmax,0:lcut)
- real*8 si(0:lcut),di(0:lcut)
+ real*8 di(0:lcut)
  complex*16 sph_i6(natmax,nspecies,nnmax,0:lcut,2*lcut+1),sph_j6(natmax,nspecies,nnmax,0:lcut,2*lcut+1)
  complex*16 skernel(natmax,natmax,2*lval+1,2*lval+1),ISOAP(nspecies,0:lcut,mcut,mcut)
 
@@ -90,7 +178,6 @@ implicit none
       enddo
      enddo
     enddo
-!    write(*,*) ISOAP(1,1,1,1),ISOAP(4,1,2,1)
    call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel(ii+1,jj+1,:,:))
   enddo
  enddo
@@ -114,22 +201,7 @@ implicit none
 !f2py depend(nspecies) nneigh1,nneigh2,efact1,efact2,length1,length2,sph_i6,sph_j6,ISOAP
 !f2py depend(maxsize) efact1,efact2,length1,length2,sph_i6,sph_j6,ISOAP
 
-! write(*,*) maxsize
-! write(*,*) nspecies
-! write(*,*) nneigh1
-! write(*,*) nneigh2
-! write(*,*) lcut
-! write(*,*) mcut
-! write(*,*) efact1
-! write(*,*) efact2
-! write(*,*) sph_i6
-! write(*,*) sph_j6
-! write(*,*) length1
-! write(*,*) length2
-! stop
-
  call fill_ISOAP_array(maxsize,nspecies,nneigh1,nneigh2,lcut,mcut,efact1,efact2,sph_i6,sph_j6,length1,length2,ISOAP)
-! write(*,*) ISOAP(1,1,1,1),ISOAP(4,1,2,1)
  call fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2,skernel)
 
 end subroutine
@@ -156,17 +228,12 @@ implicit none
   ! Calculate spherical Bessel functions.
   call fill_bessel_functions(nneigh1(ix+1),nneigh2(ix+1),lcut,length1(ix+1,1:nneigh1(ix+1)), &
      &     length2(ix+1,1:nneigh2(ix+1)),sph_in(1:nneigh1(ix+1),1:nneigh2(ix+1),:))
-!  write(*,*) sph_in(1:nneigh1(ix+1),1:nneigh2(ix+1),:)
 
   do l=0,lcut
    do m1=0,2*lcut
     do m2=0,2*lcut
      do ii=0,nneigh1(ix+1)-1
       do jj=0,nneigh2(ix+1)-1
-
-!          write(*,*) 'BBB','II','JJ',ix,l,m1,m2,ii,jj,efact1(ix+1,ii+1),efact2(ix+1,jj+1),sph_in(ii+1,jj+1,l), &
-!     &     sph_i6(ix+1,ii+1,l,m1+1),sph_j6(ix+1,jj+1,l,m2+1)
-
        ISOAP(ix+1,l,m1+1,m2+1) = ISOAP(ix+1,l,m1+1,m2+1) + &
      &     efact1(ix+1,ii+1)*efact2(ix+1,jj+1)*sph_in(ii+1,jj+1,l)*sph_i6(ix+1,ii+1,l,m1+1)*sph_j6(ix+1,jj+1,l,m2+1)
       enddo
