@@ -124,19 +124,19 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     print "SPH done", time()-start, sph_i6.sum()
     start=time()
 
-    # compute local tensorial kernels
-
+    # compute local tensorial kernels.
     skernel = pow_spec.get_skernel(lval,lcut,mcut,nspecies,nnmax,natmax,npoints,nneigh,CG2,efact,sph_i6,length,nat)
           
     print "KERNEL DONE", time()-start, skernel.sum()
     start= time()
-    # compute normalization factors
+
+    # compute normalization factors.
     norm = np.zeros((npoints,natmax), dtype=float)
     for i in xrange(npoints):
         for ii in xrange(nat[i]):
             norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
 
-    # compute the kernel
+    # normalize the kernel.
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
