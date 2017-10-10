@@ -61,16 +61,6 @@ implicit none
 
  skernel(:,:,:,:,:,:) = 0.d0
 
- ! Pre-multiply the spherical harmonics by exponential factors.
-! do i=0,npoints-1
-!  do ii=0,nat(i+1)-1
-!   do ix=0,nspecies-1
-!    do iii=0,nneigh(i+1,ii+1,ix+1)-1
-!     sph_i6(i+1,ii+1,ix+1,iii+1,:,:) = sph_i6(i+1,ii+1,ix+1,iii+1,:,:) * efact(i+1,ii+1,ix+1,iii+1)
-!    enddo
-!   enddo
-!  enddo
-! enddo
  sph_j6 = dconjg(sph_i6)
 
  do i=0,npoints-1
