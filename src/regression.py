@@ -152,3 +152,24 @@ for nc in xrange(ncycles):
         print >> outfile, "Weights:"
         for i in xrange(len(invktrvec)):
             print >> outfile, invktrvec[i]
+        outfile.close()
+
+
+        outfile = open(ofile + "." + "tensors." + str(nc),"w")
+        ltr = len(trrange)
+        lte = len(terange)
+        lto = ltr + lte
+        dg  = 2*lval+1
+        out_tensors = np.zeros((lto,dg),dtype=float)
+        outv_tr = np.dot(ktrainpred,invktrvec)
+        outv_te = np.dot(ktest,invktrvec)
+        for i in xrange(ltr):
+            out_tensors[trrange[i]] = outv_tr[dg*i:dg*(i+1)]
+        for i in xrange(lte):
+            out_tensors[terange[i]] = outv_te[dg*i:dg*(i+1)]
+#        print >> outfile, "Tensors"
+        for i in xrange(lto):
+            if dg==1:
+                print >> outfile, str(out_tensors[i][0])
+            else:
+                print >> outfile, (", ".join([str(k) for k in out_tensors[i]]))

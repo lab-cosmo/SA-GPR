@@ -93,6 +93,60 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
         print "ABS RSME", abs_error[i]
         print "RMSE = %.4f %%"%intrins_error[i]
 
+    # Print out the Cartesian prediction.
+    outfile = open("tensors." + str(ic),"w")
+    ntot = nt + ns
+    nel = 3**rank
+    out_tensors = np.zeros((ntot,nel),dtype=float)
+#    outv_tr = [np.dot(ktrainpred[i],invktrvec[i]) for i in xrange(len(degen))]
+    outv_tr = [np.dot(ktrainpred[i],invktrvec[i]) for i in xrange(len(degen))]
+    outv_te = [np.dot(ktest[i],invktrvec[i]) for i in xrange(len(degen))]
+    for i in xrange(len(degen)):
+        if degen[i]==1:
+            outv_tr[i] += meantrain[i]
+            outv_te[i] += meantrain[i]
+
+    outv_tr = utils.kern_utils.spherical_to_cartesian(outv_tr,degen,nt,CR,CS,mask1,mask2)
+    outv_te = utils.kern_utils.spherical_to_cartesian(outv_te,degen,ns,CR,CS,mask1,mask2)
+    for i in xrange(nt):
+        out_tensors[trrange[i]] = outv_tr[nel*i:nel*(i+1)]
+    for i in xrange(ns):
+        out_tensors[terange[i]] = outv_te[nel*i:nel*(i+1)]
+    for i in xrange(ntot):
+        if nel==1:
+            print >> outfile, str(out_tensors[i][0])
+        else:
+            print >> outfile, (" ".join([str(k) for k in out_tensors[i]]))
+    outfile.close()
+
+    # Print out the training set.
+    outfile = open("training_set." + str(ic),"w")
+    for i in xrange(len(trrange)):
+        print >> outfile, str(trrange[i])
+    outfile.close()
+    
+
+
+
+#       ltr = len(trrange)
+#        lte = len(terange)
+#        lto = ltr + lte
+#        dg  = 2*lval+1
+#        out_tensors = np.zeros((lto,dg),dtype=float)
+#        outv_tr = np.dot(ktrainpred,invktrvec)
+#        outv_te = np.dot(ktest,invktrvec)
+#        for i in xrange(ltr):
+#            out_tensors[trrange[i]] = outv_tr[dg*i:dg*(i+1)]
+#        for i in xrange(lte):
+#            out_tensors[terange[i]] = outv_te[dg*i:dg*(i+1)]
+##        print >> outfile, "Tensors"
+#        for i in xrange(lto):
+#            if dg==1:
+#                print >> outfile, str(out_tensors[i][0])
+#            else:
+#                print >> outfile, (", ".join([str(k) for k in out_tensors[i]]))
+
+
 ###############################################################################################################################
 
 # This is a wrapper that calls python scripts to do SA-GPR with pre-built L-SOAP kernels.
