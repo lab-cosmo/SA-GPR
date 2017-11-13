@@ -57,7 +57,7 @@ The regression is performed for a rank-0 tensor, using the kernel file we produc
 2. Zundel Cation
 ----------------
 
-### Learning all components of the hyperpolarizability tensor at once
+**Learning all components of the hyperpolarizability tensor at once**
 
 Here, we learn the hyperpolarizabilities of the Zundel cation. Because the calculation of the full kernel matrix is quite expensive, we will split this problem up into the calculation of several sub-blocks of the matrix. In :code:`example/water_zundel`, run:
 
@@ -76,10 +76,10 @@ This will create two kernel files in each folder, one for L=1 and one for L=3 (a
 
 ::
 
-  $ 
-  $ 
+  $ rebuild_kernel.py -l 1 -ns 1000 -nb 10 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
+  $ rebuild_kernel.py -l 3 -ns 1000 -nb 10 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
 
-This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt` and :code:`kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`, which can be used to perform the regression:
+This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt` and :code:`kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`. The Block subfolders can now be deleted. These kernels can be used to perform the regression:
 
 ::
 
@@ -87,7 +87,7 @@ This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweigh
 
 This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
 
-### Learning the dipole moment
+**Learning the dipole moment**
 
 The dipole moment is an L=1 tensor, and so the kernel we have already calculated allows us to learn this tensor "for free":
 
@@ -97,7 +97,7 @@ The dipole moment is an L=1 tensor, and so the kernel we have already calculated
 
 Users are encouraged to experiment with the size of the training set and the regularization parameter. In the example on bulk water, we will show how to produce a learning curve.
 
-### Learning the hyperpolarizability components separately
+**Learning the hyperpolarizability components separately**
 
 Instead of learning the L=1 and L=3 components of the hyperpolarizability at the same time, we might want to learn them separately. For this, we first need to split the tensor into its spherical components:
 
@@ -109,7 +109,7 @@ This will produce two files, :code:`beta_1000.in:L1` and :code:`beta_1000.in:L3`
 
 ::
 
-  $ 
+  $ regression.py -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L1 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o output.out 
 
 To perform regression on the L=3 component, run the command:
 
@@ -117,12 +117,14 @@ To perform regression on the L=3 component, run the command:
 
  $ 
 
+In these examples, we loop over 5 random selections of the training set. There will be 5 output files printed out, each of which gives the members of the training set for this selection, along with the regression errors and the SA-GPR weights.
+
 3. Bulk water
 -------------
 
-### Learning of the polarizability
+**Learning the polarizability**
 
-### Learning curves
+**Learning curves**
 
 Contact
 =======
