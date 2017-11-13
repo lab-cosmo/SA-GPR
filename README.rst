@@ -34,7 +34,7 @@ Examples
 
 The example/ directory contains four sub-directories, with data for the dielectric tensors of water monomers, water dimers, the Zundel cation and boxes of 32 bulk water molecules. Using the water monomer, Zundel cation and bulk water directories, we illustrate three examples of how to use SA-GPR.
 
-Before starting, source the environment settings file :code `env.sh` using :code `$ source env.sh`.
+Before starting, source the environment settings file :code:`env.sh` using :code:`$ source env.sh`.
 
 1. Water Monomer
 ----------------
@@ -46,29 +46,83 @@ Here, we learn the energy of the water monomer. The energy only has a scalar (L=
   $ cd example/water_monomers
   $ sa-gpr-kernels.py -lval 0 -f coords_1000.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
-This will create an L=0 kernel file, using the coordinates in coords_1000.in, with Gaussian width 0.3 Angstrom, an angular cutoff of l=6, a radial cutoff of 4 Angstrom, central atom weighting of 1.0, and with centering on oxygen atoms (atomic number 8). The kernel file, :code `kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt`, can now be used to perform the regression:
+This will create an L=0 kernel file, using the coordinates in coords_1000.in, with Gaussian width 0.3 Angstrom, an angular cutoff of l=6, a radial cutoff of 4 Angstrom, central atom weighting of 1.0, and with centering on oxygen atoms (atomic number 8). The kernel file, :code:`kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`, can now be used to perform the regression:
 
 ::
 
   $ sa-gpr-apply.py -r 0 -k 0 kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t energy_1000.in -lm 0 1e-8
 
-The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code `energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization of 1e-8. By varying the value of the :code `ftr` variable, it is possible to create a learning curve.
+The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization of 1e-8. By varying the value of the :code:`ftr` variable, it is possible to create a learning curve.
 
 2. Zundel Cation
 ----------------
 
-(a) Learning all components of the hyperpolarizability tensor at once
+### Learning all components of the hyperpolarizability tensor at once
 
-Here, we learn the hyperpolarizabilities of the Zundel cation. Because the calculation of the full kernel matrix is quite expensive, we will split this problem up into the calculation of several sub-blocks of the matrix. In example/zundel, run:
+Here, we learn the hyperpolarizabilities of the Zundel cation. Because the calculation of the full kernel matrix is quite expensive, we will split this problem up into the calculation of several sub-blocks of the matrix. In :code:`example/water_zundel`, run:
 
-(b) Learning the components separately
+::
+
+  $ mkblocks_nocell.sh coords_1000.in 100
+
+This will create 55 `Block` folders, each of which contains a subset of the coordinates. In each of these folders, run the commands:
+
+::
+
+  $ sa-gpr-kernels.py -lval 1 -f coords.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 3 -f coords.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+
+This will create two kernel files in each folder, one for L=1 and one for L=3 (a symmetric, rank-3 hyperpolarizability tensor can be split up into these two components). Having created these sub-kernels, the next step is to put these back together into a full kernel tensor. To do this, run:
+
+::
+
+  $ 
+  $ 
+
+This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt` and :code:`kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`, which can be used to perform the regression:
+
+::
+
+  $ sa-gpr-apply.py -r 3 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 3 kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1 1e-3 3 1e-3
+
+This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
+
+### Learning the dipole moment
+
+The dipole moment is an L=1 tensor, and so the kernel we have already calculated allows us to learn this tensor "for free":
+
+::
+
+  $ sa-gpr-apply.py -r 1 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t dipole_1000.in -lm 1 1e-3
+
+Users are encouraged to experiment with the size of the training set and the regularization parameter. In the example on bulk water, we will show how to produce a learning curve.
+
+### Learning the hyperpolarizability components separately
+
+Instead of learning the L=1 and L=3 components of the hyperpolarizability at the same time, we might want to learn them separately. For this, we first need to split the tensor into its spherical components:
+
+::
+
+  $ cartesian_to_spherical.py -f beta_1000.in
+
+This will produce two files, :code:`beta_1000.in:L1` and :code:`beta_1000.in:L3`, which are the L=1 and L=3 (real) spherical components respectively. To perform regression on the L=1 component, run the command:
+
+::
+
+  $ 
+
+To perform regression on the L=3 component, run the command:
+
+::
+
+ $ 
 
 3. Bulk water
 -------------
 
-(a) Learning of the polarizability
+### Learning of the polarizability
 
-(b) Learning curves
+### Learning curves
 
 Contact
 =======
