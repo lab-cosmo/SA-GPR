@@ -128,7 +128,7 @@ Here we consider the case of liquid water as an example of a condansed-phase (in
 
   $ cd example/water_bulk/
 
-The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures represented by 32 water molecules conatined in periodic boxes of different shapes.
+The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures represented by 32 water molecules contained in periodic boxes of different shapes.
 In the directory you also find two different kinds of properties associated to those structures: 
 
 - the infinite-frequency static dielectric response tensors (:code:`epsilon_1000.in` ) 
@@ -151,7 +151,7 @@ Then, in each of the `Block` folders generated, run the following commands:
 
 This time, :code:`-per` is needed to specify that you are dealing with a periodic system, together with the cell vectors file. 
 
-Finally, the kernel reconstruction and the regression procedure follows straightforwardly what already explained in the case of the Zundel cation, with the only difference that you have to replace the $l$ values involved with the proper spherical components. 
+Finally, the kernel reconstruction and the regression procedure follows straightforwardly what already explained in the case of the Zundel cation, with the only difference that you have to replace the L values involved with the proper spherical components. 
 
 Contact
 =======
