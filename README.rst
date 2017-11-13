@@ -74,4 +74,5 @@ Contact
 =======
 
 david.wilkins@epfl.ch
+
 andrea.grisafi@epfl.ch
