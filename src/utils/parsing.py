@@ -15,7 +15,7 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-cw", "--cweight", type=float,help="Central atom weight")
     parser.add_argument("-fw", "--fwidth", type=float,help="Width of the radial filtering to atomic densities")
     parser.add_argument("-vr", "--verbose", action='store_true', help="Verbose mode")
-    parser.add_argument("-per","--periodic",type=bool, help="Call for periodic systems")
+    parser.add_argument("-per","--periodic",action='store_true', help="Call for periodic systems")
     parser.add_argument("-sub", "--subset", type=float, help="Fraction of the input data set")
     parser.add_argument("-cen", "--center", nargs='+', help="List of atoms to center on (default all)")
     parser.add_argument("-n",   "--nlist", nargs='+', help="List of n values for kernel calculation")
@@ -31,7 +31,6 @@ def set_variable_values_tenskernel(args):
     rc = 3.0
     cw = 1.0
     fw = 1e-10
-    per = False
     sub = 1.0
     cen = []
 
@@ -41,9 +40,6 @@ def set_variable_values_tenskernel(args):
     else:
         print "Spherical tensor order must be specified!"
         sys.exit(0)
-
-    if args.periodic:
-        per = True
 
     if args.sigma:
         sg = args.sigma
@@ -101,7 +97,7 @@ def set_variable_values_tenskernel(args):
     else:
         nlist = [0]
 
-    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,per,cen,nlist]
+    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,args.periodic,cen,nlist]
 
 
 ###############################################################################################################################
