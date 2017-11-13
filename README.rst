@@ -52,7 +52,7 @@ This will create an L=0 kernel file, using the coordinates in coords_1000.in, wi
 
   $ sa-gpr-apply.py -r 0 -k 0 kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t energy_1000.in -lm 0 1e-8
 
-The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable, from 0 to 1, it is possible to create a learning curve from the case of no-example to the full training data set.
+The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable from 0 to 1, it is possible to create a learning curve which spans a range of training examples from 0 to the full data set.
 
 2. Zundel Cation
 ----------------
@@ -122,38 +122,36 @@ In these examples, we loop over 5 random selections of the training set. There w
 3. Bulk water
 -------------
 
-Here we consider the case of liquid water as an example of a condansed-phase (infinite) system. First of all move to the example directory: 
+Here we consider the case of liquid water as an example of a condansed-phase (infinite) system. First of all, go to the example directory: 
 
 ::
 
   $ cd example/water_bulk/
 
-The files :code:`coords_1000.in` and :code:`cell_1000.in` contain respectively the coordinates and the cell vectors of 1000 structures represented by 32 water molecules in a periodic box.
-The example also contains two kind of properties associated to those structures, namely, the infinite-frequency static dielectric response tensors (:code:`epsilon_1000.in` ) and an effective representation of the molecular polarizabilities (:code:`alpha_1000.in`) obtained by applying the Clausius-Mossotti relationship of the dielectric tensors.
+The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures represented by 32 water molecules conatined in periodic boxes of different shapes.
+In the directory you also find two different kinds of properties associated to those structures: 
+
+- the infinite-frequency static dielectric response tensors (:code:`epsilon_1000.in` ) 
+- an effective representation of the molecular polarizabilities (:code:`alpha_1000.in`)
 
 **Learning the dielectric tensor**
 
-The dielectric response of the system is represented by a rank-2 tensor having an irreducible representation which involves the L=0 and L=2 spherical components. To compute the corresponding tensorial kernels we can follow almost the same procedure of the Zundel cation. First of all we need to split the data set in several tiny sub-blocks. To split into blocks of dimension 10, you can run:
+The dielectric response of the system is represented by a rank-2 tensor which can be decomposed by virtue of the L=0 and L=2 spherical components. To compute the corresponding tensorial kernels you can follow almost the same procedure of the Zundel cation. Since the system in now much larger, you might want split the data set even further. For instnace, to split the problem into blocks of dimension 10 you can run:
 
 ::
 
-  $ mkblocks_cell.sh coords_1000.in cell_1000.in 10
+  $ mkblocks.sh coords_1000.in cell_1000.in 10
 
-Then, in each of the `Block` folders generated, run the command for calculation of the kernels:
+Then, in each of the `Block` folders generated, run the following commands:
 
 ::
 
   $ sa-gpr-kernels.py -lval 0 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
   $ sa-gpr-kernels.py -lval 2 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
-This time, :code:`-per` is needed to specify that you are dealing with a periodic system, together with the file of cell vectors. 
+This time, :code:`-per` is needed to specify that you are dealing with a periodic system, together with the cell vectors file. 
 
-Finally, the kernel reconstruction and the regression procedure is identical to what explained in the case of the Zundel cation. 
-
-
-**Learning curves**
-
-
+Finally, the kernel reconstruction and the regression procedure follows straightforwardly what already explained in the case of the Zundel cation, with the only difference that you have to replace the $l$ values involved with the proper spherical components. 
 
 Contact
 =======
