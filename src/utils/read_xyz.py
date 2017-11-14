@@ -46,7 +46,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
        centers = all_species
 
     # initialize the variables needed
-    nnmax = 256 # maximum number of neighbors
+    nnmax = 40 # maximum number of neighbors
     coords = np.zeros((npoints,natmax,3),             dtype=float)
     nneigh = np.zeros((npoints,natmax,nspecies),      dtype=int  )
     length = np.zeros((npoints,natmax,nspecies,nnmax),dtype=float)
