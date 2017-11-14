@@ -83,7 +83,7 @@ This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweigh
 
 ::
 
-  $ sa-gpr-apply.py -r 3 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 3 kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1 1e-3 3 1e-3
+  $ sa-gpr-apply.py -r 3 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 3 kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1 1e-6 3 1e-3
 
 This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
 
@@ -105,38 +105,37 @@ Instead of learning the L=1 and L=3 components of the hyperpolarizability at the
 
   $ cartesian_to_spherical.py -f beta_1000.in
 
-This will produce two files, :code:`beta_1000.in:L1` and :code:`beta_1000.in:L3`, which are the L=1 and L=3 (real) spherical components respectively. To perform regression on the L=1 component, run the command:
+This will produce two files, :code:`beta_1000.in.L1` and :code:`beta_1000.in.L3`, which are the L=1 and L=3 (real) spherical components respectively. To perform regression on the L=1 component, run the command:
 
 ::
 
-  $ regression.py -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L1 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o output.out 
+  $ regression.py -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L1 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL1.out
 
 To perform regression on the L=3 component, run the command:
 
 ::
 
-  $ regression.py -k kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L3 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o output.out 
+  $ regression.py -k kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L3 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL3.out 
 
 In these examples, we loop over 5 random selections of the training set. There will be 5 output files printed out, each of which gives the members of the training set for this selection, along with the regression errors and the SA-GPR weights.
 
 3. Bulk water
 -------------
 
-Here we consider the case of liquid water as an example of a condansed-phase (infinite) system. First of all, go to the example directory: 
+Here we consider the case of liquid water as an example of a condensed-phase system. First of all, go to the example directory:
 
 ::
 
   $ cd example/water_bulk/
 
-The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures represented by 32 water molecules contained in periodic boxes of different shapes.
-In the directory you also find two different kinds of properties associated to those structures: 
+The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures containing 32 water molecules in periodic boxes of different shapes. In the directory you also find two different kinds of properties associated with these structures: 
 
 - the infinite-frequency static dielectric response tensors (:code:`epsilon_1000.in` ) 
 - an effective representation of the molecular polarizabilities (:code:`alpha_1000.in`)
 
-**Learning the dielectric tensor**
+**Learning the Dielectric Tensor**
 
-The dielectric response of the system is represented by a rank-2 tensor which can be decomposed by virtue of the L=0 and L=2 spherical components. To compute the corresponding tensorial kernels you can follow almost the same procedure of the Zundel cation. Since the system in now much larger, you might want split the data set even further. For instnace, to split the problem into blocks of dimension 10 you can run:
+The dielectric response of the system is represented by a rank-2 tensor which can be decomposed into L=0 and L=2 spherical components. To compute the corresponding tensorial kernels, a procedure similar to that of the Zundel cation is followed. As the system is now much larger, it is better to split the kernel calculation into blocks of even smaller size. For instance, to split it into blocks of dimension 10:
 
 ::
 
@@ -149,9 +148,15 @@ Then, in each of the `Block` folders generated, run the following commands:
   $ sa-gpr-kernels.py -lval 0 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
   $ sa-gpr-kernels.py -lval 2 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
-This time, :code:`-per` is needed to specify that you are dealing with a periodic system, together with the cell vectors file. 
+The flag :code:`-per` is used here to specify that we are dealing with a periodic system; we also include the cell vector file.
 
-Finally, the kernel reconstruction and the regression procedure follows straightforwardly what already explained in the case of the Zundel cation, with the only difference that you have to replace the L values involved with the proper spherical components. 
+Finally, the kernel is reconstructed and regression is carried out as earlier:
+
+::
+
+  $ rebuild_kernel.py -l 0 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
+  $ rebuild_kernel.py -l 2 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
+  $ sa-gpr-apply.py -r 2 -k 0 kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 2 kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t epsilon_1000.in -lm 0 1e-4 2 1e-4
 
 Contact
 =======
