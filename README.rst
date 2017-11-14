@@ -105,7 +105,7 @@ Instead of learning the L=1 and L=3 components of the hyperpolarizability at the
 
   $ cartesian_to_spherical.py -f beta_1000.in
 
-This will produce two files, :code:`beta_1000.in:L1` and :code:`beta_1000.in:L3`, which are the L=1 and L=3 (real) spherical components respectively. To perform regression on the L=1 component, run the command:
+This will produce two files, :code:`beta_1000.in.L1` and :code:`beta_1000.in.L3`, which are the L=1 and L=3 (real) spherical components respectively. To perform regression on the L=1 component, run the command:
 
 ::
 
