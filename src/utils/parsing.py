@@ -3,6 +3,7 @@ import argparse
 import sys
 import numpy as np
 
+###############################################################################################################################
 
 def add_command_line_arguments_tenskernel(parsetext):
     parser = argparse.ArgumentParser(description=parsetext)
@@ -17,88 +18,40 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-vr",   "--verbose",               action='store_true',             help="Verbose mode")
     parser.add_argument("-per",  "--periodic",              action='store_true',             help="Call for periodic systems")
     parser.add_argument("-sub",  "--subset",    type=float, default=1.0,                     help="Fraction of the input data set")
-    parser.add_argument("-cen",  "--center",    type=str,   required=True,       nargs='+',  help="List of atoms to center on (default all)")
-    parser.add_argument("-n",    "--nlist",                                      nargs='+',  help="List of n values for kernel calculation")
+    parser.add_argument("-cen",  "--center",    type=int,   required=True,       nargs='+',  help="List of atoms to center on (default all)")
+    parser.add_argument("-n",    "--nlist",     type=int,   default=[0],         nargs='+',  help="List of n values for kernel calculation")
     args = parser.parse_args()
     return args
 
+###############################################################################################################################
 
 def set_variable_values_tenskernel(args):
 
-    # Set defaults
-#    sg = 0.3
-#    lc = 6
-#    rc = 3.0
-#    cw = 1.0
-#    fw = 1e-10
-#    sub = 1.0
-    cen = []
-
     # Use command-line arguments to set the values of important variables
-#    if args.lvalue:
     lval = int(args.lvalue)
-#    else:
-#        print "Spherical tensor order must be specified!"
-#        sys.exit(0)
-
-#    if args.sigma:
     sg = args.sigma
-
-#    if args.lcut:
     lc = args.lcut
-
-#    if args.cweight:
     cw = args.cweight
-
-#    if args.fwidth:
     fw = args.fwidth
-
-#    if args.rcut:
     rc = args.rcut
-
-#    if args.subset:
     sub = args.subset
-
-#    if args.center:
-    cent = args.center
-    for i in range(len(cent)):
-        cen.append(int(cent[i]))
-
-#    if args.features:
-    ffile = args.features
-#    else:
-#        print "Features file must be specified!"
-#        sys.exit(0)
+    cen = args.center
+    nlist = args.nlist
 
     # Read in features
+    ffile = args.features
     ftrs=[line.rstrip('\n') for line in open(ffile)]
-
     npoints = int(sub*len(ftrs))
 
+    # Optionally, read in unit cell
     if args.cell:
-        cfile = args.cell
-        # Read in unit cell
-        vcell=[line.rstrip('\n') for line in open(cfile)]
+        # For a condensed-phase system, this is specified
+        vcell=[line.rstrip('\n') for line in open(args.cell)]
     else:
-        # If we are considering gas-phase systems, we don't need the unit cell.
+        # If we are considering gas-phase systems, we don't need the unit cell
         vcell = []
 
-    if args.nlist:
-        nls = args.nlist
-        if sum([nls[i].count(',') for i in xrange(len(nls))]) > 0:
-            for j in xrange(len(nls)):
-                nls[j] = nls[j].split(',')
-            nls = np.concatenate(nls)
-        nlist = []
-        for i in xrange(len(nls)):
-            nlist.append(int(nls[i]))
-        nlist.append(0)
-        nlist = list(set(nlist))
-    else:
-        nlist = [0]
-
     return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,args.periodic,cen,nlist]
-
 
 ###############################################################################################################################
 
