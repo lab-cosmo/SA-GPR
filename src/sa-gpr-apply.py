@@ -97,29 +97,31 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
 # This is a wrapper that calls python scripts to do SA-GPR with pre-built L-SOAP kernels.
 
-# Parse input arguments.
+# Parse input arguments
 args = utils.parsing.add_command_line_arguments_learn("SA-GPR")
-[lm,fractrain,tens,kernels,sel,rdm,rank,ncycles] = utils.parsing.set_variable_values_learn(args)
+[lvals,lm,fractrain,tens,kernels,sel,rdm,rank,ncycles] = utils.parsing.set_variable_values_learn(args)
 
-# Read-in kernels.
+# Read-in kernels
 print "Loading kernel matrices..."
-kernel = []
-for k in xrange(len(kernels)):
-    if (kernels[k]!=''):
-        kernel.append(np.loadtxt(kernels[k],dtype=float))
-    else:
-        kernel.append(0)
+#kernel = []
+#for k in xrange(len(kernels)):
+#    if (kernels[k]!=''):
+#    kernel.append(np.loadtxt(kernels[k],dtype=float))
+#    else:
+#        kernel.append(0)
+kernel = [np.loadtxt(kernels[k],dtype=float) for k in xrange(len(kernels))]
+print "...Kernels loaded."
 
-# Get list of l values.
-lvals = []
-if (rank%2 == 0):
-    # Even L
-    lvals = [l for l in xrange(0,rank+1,2)]
-else:
-    # Odd L
-    lvals = [l for l in xrange(1,rank+1,2)]
+## Get list of l values
+#lvals = []
+#if (rank%2 == 0):
+#    # Even L
+#    lvals = [l for l in xrange(0,rank+1,2)]
+#else:
+#    # Odd L
+#    lvals = [l for l in xrange(1,rank+1,2)]
+#
+#lms     = [lm[i]     for i in lvals]
+#kernels = [kernel[i] for i in lvals]
 
-lms     = [lm[i]     for i in lvals]
-kernels = [kernel[i] for i in lvals]
-
-do_sagpr(lvals,lms,fractrain,tens,kernels,sel,rdm,rank,ncycles)
+do_sagpr(lvals,lm,fractrain,tens,kernel,sel,rdm,rank,ncycles)
