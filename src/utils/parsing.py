@@ -93,11 +93,10 @@ def set_variable_values_learn(args):
     kernels = args.kernel
 
     # If a selection is given for the training set, read it in
-    if args.select:
-        sel = args.select
-        if (len(sel)!=2):
-            print "Beginning and end of selection must be specified!"
-            sys.exit(0)
+    sel = args.select
+    if (len(sel)!=2):
+        print "Beginning and end of selection must be specified!"
+        sys.exit(0)
 
     rdm = args.random
     ncycles = args.ncycles
