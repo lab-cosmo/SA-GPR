@@ -8,9 +8,9 @@ import sys
 import numpy as np
 from itertools import product
 
-# This is a wrapper that calls python scripts to build L-SOAP kernels.
+# THIS IS A WRAPPER THAT CALLS PYTHON SCRIPTS TO BUILD L-SOAP KERNELS.
 
-# INPUT ARGUMENTS
+# Get command-line arguments.
 args = utils.parsing.add_command_line_arguments_tenskernel("Tensorial kernel")
 [ftrs,vcell,npoints,lval,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist] = utils.parsing.set_variable_values_tenskernel(args)
 
@@ -27,8 +27,10 @@ print "Central atom weight =", cweight
 print "Filtering width =", fwidth
 print ""
 
+# Build kernels.
 [kernels] = utils.kernels.build_kernels(lval,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist)
 
+# Transformation matrices to real spherical harmonics.
 CR = utils.kern_utils.complex_to_real_transformation([2*lval+1])[0]
 CC = np.conj(CR)
 CT = np.transpose(CR)
