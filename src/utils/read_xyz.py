@@ -79,13 +79,13 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
             # over species to center on
             for k in centers:
                 nat[i] += len(atom_indexes[i][k])
-                # over centers of that specie
+                # over centers of that species
                 for l in atom_indexes[i][k]:
                     # over all the spcecies to use as neighbours 
                     ispe = 0
                     for ix in all_species:
                         n = 0
-                        # over neighbours of that specie
+                        # over neighbours of that species
                         for m in atom_indexes[i][ix]:
                             rr  = coords[i,m] - coords[i,l] # folds atoms in the unit cell
                             # apply pbc 
@@ -131,13 +131,13 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
             # over species to center on
             for k in centers:
                 nat[i] += len(atom_indexes[i][k])
-                # over centers of that specie
+                # over centers of that species
                 for l in atom_indexes[i][k]:
                     # over all the spcecies to use as neighbours 
                     ispe = 0
                     for ix in all_species:
                         n = 0
-                        # over neighbours of that specie
+                        # over neighbours of that species
                         for m in atom_indexes[i][ix]:
                             rrm = coords[i,m] 
                             rr  = rrm - coords[i,l]
