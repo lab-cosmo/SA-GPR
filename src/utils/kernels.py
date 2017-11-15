@@ -15,7 +15,7 @@ from time import time
 ##########################################################################################################
 
 def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist):
-    """Compute the L=0 SOAP kernel using the power-spectrum I(x,x') defined in Ref. Phys. Rev. B 87, 184115 (2013)"""
+    """Compute the L=0 SOAP kernel according to Eqns.(33-34) of Ref. Phys. Rev. B 87, 184115 (2013)"""
 
     mcut = 2*lcut+1
     divfac = np.array([1.0/float(2*l+1) for l in xrange(lcut+1)])
@@ -101,7 +101,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 #############################################################################################################
 
 def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist):
-    """Compute spherical tensor SOAP kernel of order lval>0 according to the Suppl. Info. of Ref. arXiv:1709.06757 (2017)"""
+    """Compute spherical tensor SOAP kernel of order lval>0 according to Eqns.(S15-S16) of the Suppl. Info. of Ref. arXiv:1709.06757 (2017)"""
 
     mcut = 2*lcut+1
     divfac = np.array([np.sqrt(1.0/float(2*l + 1)) for l in xrange(lcut+1)])
@@ -211,6 +211,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
 #########################################################################################
 
 def build_kernels(n,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist):
+    """Wrapper for kernel computation."""
 
     # Interpret the coordinate file
     [coords,cell,all_names] = utils.read_xyz.readftrs(ftrs,vcell)
