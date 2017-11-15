@@ -2,9 +2,8 @@ import sys
 import numpy as np
 from time import time
 
-# Function which returns atom-centered environment parameters for all the species 
-
 def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,centers):
+    """Do neighbour list and return the environment variables needed for the computation of SOAP power spectrum"""
 
     start = time()
     nsmax = 26 # max number of species (up to iron)
@@ -60,7 +59,11 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
             for j in xrange(3):
                 coords[i,k,j] = coord[i][k][j]
 
+<<<<<<< HEAD
+    # Are we considering a condensed phase or a molecular cluster ?
+=======
     # Are we considering a bulk system or a cluster?
+>>>>>>> 0be674770c7db99d3d035b69d1965927595cf8f0
     if periodic == True:
         # Bulk system
 
