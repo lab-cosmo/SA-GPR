@@ -50,7 +50,7 @@ This will create an L=0 kernel file, using the coordinates in coords_1000.in, wi
 
 ::
 
-  $ sa-gpr-apply.py -r 0 -k 0 kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t energy_1000.in -lm 0 1e-8
+  $ sa-gpr-apply.py -r 0 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t energy_1000.in -lm 1e-8
 
 The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable from 0 to 1, it is possible to create a learning curve which spans a range of training examples from 0 to the full data set.
 
@@ -83,7 +83,7 @@ This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweigh
 
 ::
 
-  $ sa-gpr-apply.py -r 3 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 3 kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1 1e-6 3 1e-3
+  $ sa-gpr-apply.py -r 3 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1e-6 1e-3
 
 This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
 
@@ -93,7 +93,7 @@ The dipole moment is an L=1 tensor, and so the kernel we have already calculated
 
 ::
 
-  $ sa-gpr-apply.py -r 1 -k 1 kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t dipole_1000.in -lm 1 1e-3
+  $ sa-gpr-apply.py -r 1 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t dipole_1000.in -lm 1e-3
 
 Users are encouraged to experiment with the size of the training set and the regularization parameter. In the example on bulk water, we will show how to produce a learning curve.
 
@@ -156,7 +156,7 @@ Finally, the kernel is reconstructed and regression is carried out as earlier:
 
   $ rebuild_kernel.py -l 0 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
   $ rebuild_kernel.py -l 2 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
-  $ sa-gpr-apply.py -r 2 -k 0 kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt 2 kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t epsilon_1000.in -lm 0 1e-4 2 1e-4
+  $ sa-gpr-apply.py -r 2 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t epsilon_1000.in -lm 1e-4 1e-4
 
 Contact
 =======

@@ -5,29 +5,31 @@ import sys
 import numpy as np
 import utils.kern_utils
 
-parser = argparse.ArgumentParser(description="Convert Cartesian to spherical tensors.")
-parser.add_argument("-f", "--files",nargs='+',help="Files to convert.")
+parser = argparse.ArgumentParser(description="Convert Cartesian to spherical tensors")
+parser.add_argument("-f", "--files", required=True, nargs='+', help="Files to convert")
 args = parser.parse_args()
 
-if args.files:
-    filelist = args.files
-else:
-    print "Files for transformation must be specified!"
-    sys.exit(0)
+filelist = args.files
 
 for fl in filelist:
     print "Converting %s"%fl
+
+    # Read in tensor file
     tens=[line.rstrip('\n') for line in open(fl)]
     ndata = len(tens)
     num_elem = len(tens[0].split())
     data = [tens[i] for i in xrange(len(tens))]
     tens = np.array([i.split() for i in data]).astype(float)
+
+    # Calculate rank of tensor
     rank = int(np.log(float(num_elem)) / np.log(3.0))
     if num_elem != 3**rank:
         print "Number of tensor elements is incorrect!"
         sys.exit(0)
-    # Now transform the tensor into its spherical components.
-    # List degeneracies
+
+    # Now transform the tensor into its spherical components
+
+    # Get list of degeneracies for these components
     if (rank%2 == 0):
         # Even L
         lvals = [l for l in xrange(0,rank+1,2)]
@@ -36,7 +38,9 @@ for fl in filelist:
         lvals = [l for l in xrange(1,rank+1,2)]
     degen = [2*l + 1 for l in lvals]
 
-    # Extract the non-equivalent components, including degeneracy.
+    # Extract the non-equivalent components, including degeneracy; put these into two new arrays,
+    # with_degen, which contains the non-equivalent (Cartesian) components of the tensor, weighted
+    # by their degeneracy, and mask_out1, which contains the degeneracies
     labels = []
     labels.append(np.zeros(rank,dtype=int))
     for i in xrange(1,len(tens[0])):
@@ -51,11 +55,11 @@ for fl in filelist:
     mask2 = [ [] for i in xrange(len(tens[0]))]
     for i in xrange(len(tens[0])):
         lb1 = sorted(labels[i])
-        # Compare this with all previous labels, and see if it's the same within permutation.
+        # Compare this with all previous labels, and see if it's the same within permutation
         unique = True
         for j in xrange(0,i-1):
             if ((lb1 == sorted(labels[j])) & (unique==True)):
-                # They are the same.
+                # They are the same
                 unique = False
                 masks[j] += 1
                 mask2[j].append(i)
@@ -77,12 +81,12 @@ for fl in filelist:
                 mask_out1[k] = np.sqrt(float(masks[j]))
                 k += 1
 
-    # Find the unitary transformation from Cartesian to spherical tensors.
+    # Find the unitary transformation from Cartesian to spherical tensors
     CS = utils.kern_utils.get_CS_matrix(rank,mask_out1,mask_out2)
-    # Find the transformation matrix from complex to real spherical harmonics.
+    # Find the transformation matrix from complex to real spherical harmonics
     CR = utils.kern_utils.complex_to_real_transformation(degen)
 
-    # Get the real spherical harmonics of the tensors.
+    # Get the real spherical harmonics of the tensors by using these transformation matrices
     vout = []
     for i in xrange(len(lvals)):
         if (degen[i]==1):
@@ -106,7 +110,7 @@ for fl in filelist:
         else:
             vout_real.append(np.concatenate(np.array([np.real(np.dot(CR[i],vout[i][j])) for j in xrange(ndata)],dtype=float)).astype(float))
 
-    # Now print out these components to files.
+    # Print out these components to files
     for i in xrange(len(lvals)):
         outfile = fl + ".L" + str(lvals[i])
         print "  Outputting to ",outfile
@@ -117,9 +121,3 @@ for fl in filelist:
             else:
                 to_print = (", ".join([str(k) for k in vout_real[i][j*degen[i]:(j+1)*degen[i]]]))
             print >> file_out, to_print
-#            if (degen[i]==1):
-#                to_print = str(vout_real[i])
-#            else:
-#                to_print = (", ".join([str(k) for k in vout_real[i][j*degen[i]:(j+1)*degen[i]]]))
-#            print to_print
-#            print >> file_out, vout_real[i][j]

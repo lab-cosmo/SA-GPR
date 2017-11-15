@@ -33,7 +33,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
     for i in xrange(npoints):
         nat[i] = len(names[i])
 
-    # List indexes for atom of the same specie for each configuration
+    # List indices for atom of the same species for each configuration
     atom_indexes = [[[] for j in range(nsmax)] for i in range(npoints)]
     for i in xrange(npoints):
         for ii in xrange(nat[i]):
@@ -46,12 +46,12 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
 
     # initialize the variables needed
     nnmax = 40 # maximum number of neighbors
-    coords = np.zeros((npoints,natmax,3),             dtype=float)
-    nneigh = np.zeros((npoints,natmax,nspecies),      dtype=int  )
-    length = np.zeros((npoints,natmax,nspecies,nnmax),dtype=float)
-    theta  = np.zeros((npoints,natmax,nspecies,nnmax),dtype=float)
-    phi    = np.zeros((npoints,natmax,nspecies,nnmax),dtype=float)
-    efact  = np.zeros((npoints,natmax,nspecies,nnmax),dtype=float)
+    coords = np.zeros((npoints,natmax,3),              dtype=float)
+    nneigh = np.zeros((npoints,natmax,nspecies),       dtype=int  )
+    length = np.zeros((npoints,natmax,nspecies,nnmax), dtype=float)
+    theta  = np.zeros((npoints,natmax,nspecies,nnmax), dtype=float)
+    phi    = np.zeros((npoints,natmax,nspecies,nnmax), dtype=float)
+    efact  = np.zeros((npoints,natmax,nspecies,nnmax), dtype=float)
 
     # initialize coordinates
     for i in xrange(npoints):
@@ -59,48 +59,53 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
             for j in xrange(3):
                 coords[i,k,j] = coord[i][k][j]
 
+<<<<<<< HEAD
     # Are we considering a condensed phase or a molecular cluster ?
+=======
+    # Are we considering a bulk system or a cluster?
+>>>>>>> 0be674770c7db99d3d035b69d1965927595cf8f0
     if periodic == True:
+        # Bulk system
 
         nat = np.zeros(npoints,dtype=int)
         ncell = 2  # maximum repetition along the cell vectors
         cell   = np.zeros((npoints,3,3), dtype=float)
-        # over configurations
+        # Loop over configurations
         for i in xrange(npoints):
             for k in xrange(3):
                 for j in xrange(3):
                     cell[i,k,j] = cel[i,k,j]
-            # compute cell and inverse to apply PBC further down
+            # Compute cell and inverse to apply PBC further down
             h = cell[i]
             ih = np.linalg.inv(h)
             
             iat = 0
-            # over species to center on
+            # Loop over species to center on
             for k in centers:
                 nat[i] += len(atom_indexes[i][k])
-                # over centers of that specie
+                # Loop over centers of that species
                 for l in atom_indexes[i][k]:
-                    # over all the spcecies to use as neighbours 
+                    # Loop over all the species to use as neighbours 
                     ispe = 0
                     for ix in all_species:
                         n = 0
-                        # over neighbours of that specie
+                        # Loop over neighbours of that species
                         for m in atom_indexes[i][ix]:
                             rr  = coords[i,m] - coords[i,l] # folds atoms in the unit cell
-                            # apply pbc 
+                            # Apply PBC
                             sr = np.dot(ih, rr)
                             sr -= np.round(sr)                                                                    
                             rml = np.dot(h, sr)
                             for ia in xrange(-ncell,ncell+1):
                                 for ib in xrange(-ncell,ncell+1):
                                     for ic in xrange(-ncell,ncell+1):
-                                        # automatically build replicated cells
+                                        # Automatically build replicated cells
                                         rr = rml + ia*cell[i,0] + ib*cell[i,1] + ic*cell[i,2]
 
-                                        # is it the neighbour within the spherical cutoff ?
+                                        # Is it a neighbour within the spherical cutoff?
                                         if np.linalg.norm(rr) <= rcut:
                                             rr /= (np.sqrt(2.0)*sg)
-                                            # central atom ?
+                                            # Do central atom?
                                             if ia==0 and ib==0 and ic==0 and m==l:
                                                 nneigh[i,iat,ispe]      = nneigh[i,iat,ispe] + 1
                                                 length[i,iat,ispe,n]    = 0.0                    
@@ -122,28 +127,29 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
         return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies]
 
     else:
+        # Cluster
 
         nat = np.zeros(npoints,dtype=int)
-        # over configurations
+        # Loop over configurations
         for i in xrange(npoints):
             iat = 0
-            # over species to center on
+            # Loop over species to center on
             for k in centers:
                 nat[i] += len(atom_indexes[i][k])
-                # over centers of that specie
+                # Loop over centers of that species
                 for l in atom_indexes[i][k]:
-                    # over all the spcecies to use as neighbours 
+                    # Loop over all the spcecies to use as neighbours 
                     ispe = 0
                     for ix in all_species:
                         n = 0
-                        # over neighbours of that specie
+                        # Loop over neighbours of that species
                         for m in atom_indexes[i][ix]:
                             rrm = coords[i,m] 
                             rr  = rrm - coords[i,l]
-                            # is it the neighbour within the spherical cutoff ?
+                            # Is it a neighbour within the spherical cutoff?
                             if np.linalg.norm(rr) <= rcut:
                                 rr /= (np.sqrt(2.0)*sg)
-                                # central atom ?
+                                # Do central atom?
                                 if m==l:
                                     nneigh[i,iat,ispe]      = nneigh[i,iat,ispe] + 1
                                     length[i,iat,ispe,n]    = 0.0                    
@@ -173,6 +179,7 @@ def readftrs(ftrs,vcell):
     coords = []
     cell = []
 
+    # Read in coordinates file
     for i in range(nf):
         xyz = []
         names = []
@@ -186,6 +193,7 @@ def readftrs(ftrs,vcell):
         all_names.append(names)
         coords.append(xyz)
 
+    # If applicable, read in cell vector file
     if (len(vcell)>0):
         for i in range(nf):
             ln = vcell[i].split()
