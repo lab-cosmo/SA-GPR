@@ -2,7 +2,7 @@
 
 file=$1
 cell=$2
-nstruct=$(wc -l $1)
+nstruct=$(wc -l $1 | awk '{print $1}')
 blocksize=$3
 ((nblocks=nstruct/blocksize))
 
