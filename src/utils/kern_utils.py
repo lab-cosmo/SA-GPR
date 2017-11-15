@@ -7,6 +7,7 @@ from random import shuffle
 ###############################################################################################################################
 
 def shuffle_data(ndata,sel,rdm,fractrain):
+    # Populate arrays for training and testing set
 
     if rdm == 0:
         trrangemax = np.asarray(range(sel[0],sel[1]),int)
@@ -27,6 +28,7 @@ def shuffle_data(ndata,sel,rdm,fractrain):
 
 def unflatten_kernel(ndata,size,kernel_flatten):
     # Unpack kernel into the desired format for the code
+
     if size>1:
         kernel = np.zeros((ndata,ndata,size,size),dtype=float)
         k=0
@@ -50,6 +52,7 @@ def unflatten_kernel(ndata,size,kernel_flatten):
 
 def unflatten_kernel0(ndata,kernel_flatten):
     # Unpack kernel into the desired format for the code
+
     kernel = np.zeros((ndata,ndata),dtype=float)
     k=0
     for i in xrange(ndata):
@@ -63,6 +66,7 @@ def unflatten_kernel0(ndata,kernel_flatten):
 
 def build_training_kernel(nt,size,ktr,lm):
     # Build training kernel
+
     if size>1:
         ktrain = np.zeros((size*nt,size*nt),dtype=float)
         ktrainpred = np.zeros((size*nt,size*nt),dtype=float)
@@ -85,6 +89,7 @@ def build_training_kernel(nt,size,ktr,lm):
 
 def build_testing_kernel(ns,nt,size,kte):
     # Build testing kernel
+
     if size>1:
         ktest = np.zeros((size*ns,size*nt),dtype=float)
         for i in xrange(ns):
@@ -103,7 +108,8 @@ def build_testing_kernel(ns,nt,size,kte):
 ###############################################################################################################################
 
 def partition_spherical_components(train,test,CS,CR,sizes,ns,nt):
-    # Extract the complex spherical components of the tensors.
+    # Extract the complex spherical components of the tensors
+
     vtrain = []
     vtest = []
     for i in xrange(len(sizes)):
@@ -132,7 +138,7 @@ def partition_spherical_components(train,test,CS,CR,sizes,ns,nt):
         for i in xrange(ns):
             vtest[0][i]  = np.dot(test[i],CS)
 
-    # Convert the complex spherical components into real spherical components.
+    # Convert the complex spherical components into real spherical components
     vtrain_out = []
     vtest_out = []
     for i in xrange(len(vtrain)):
@@ -148,7 +154,8 @@ def partition_spherical_components(train,test,CS,CR,sizes,ns,nt):
 ###############################################################################################################################
 
 def get_non_equivalent_components(train,test):
-    # Get the non-equivalent components for a tensor, along with their degeneracies.
+    # Get the non-equivalent components for a tensor, along with their degeneracies
+
     nt = len(train)
     ns = len(test)
     rank = int(np.log(len(train[0])) / np.log(3.0))
@@ -212,7 +219,7 @@ def get_non_equivalent_components(train,test):
 ###############################################################################################################################
 
 def complex_to_real_transformation(sizes):
-    # Transformation matrix from complex to real spherical harmonics.
+    # Transformation matrix from complex to real spherical harmonics
 
     matrices = []
     for i in xrange(len(sizes)):
@@ -234,7 +241,8 @@ def complex_to_real_transformation(sizes):
 ###############################################################################################################################
 
 def partition_kernels_properties(data,kernels,trrange,terange):
-    # Partition kernels and properties for training and testing.
+    # Partition kernels and properties for training and testing
+
     train  = [data[i] for i in trrange]
     test   = [data[i] for i in terange]
     vtrain = np.array([i.split() for i in train]).astype(float)
@@ -252,7 +260,8 @@ def partition_kernels_properties(data,kernels,trrange,terange):
 ###############################################################################################################################
 
 def partition_properties(data,trrange,terange):
-    # Partition properties for training and testing.
+    # Partition properties for training and testing
+
     train  = [data[i] for i in trrange]
     test   = [data[i] for i in terange]
     vtrain = np.array([i.split() for i in train]).astype(float)
@@ -263,7 +272,7 @@ def partition_properties(data,trrange,terange):
 ###############################################################################################################################
 
 def spherical_to_cartesian(outvec,sizes,ns,CR,CS,mask1,mask2):
-    # Convert the spherical tensor representation back to Cartesian.
+    # Convert the spherical tensor representation back to Cartesian, by multiplication with transformation matrices
 
     outvecs = []
     outsphr = []
@@ -292,11 +301,9 @@ def spherical_to_cartesian(outvec,sizes,ns,CR,CS,mask1,mask2):
 ###############################################################################################################################
 
 def get_CS_matrix(rank,mask1,mask2):
-    # Get Cartesian to spherical tensor transformation matrix.
+    # Get Cartesian to spherical tensor transformation matrix
     if (rank==0):
         CS = np.array([1.0],dtype=complex)
-#        for i in xrange(1):
-#            CS[i] = CS[i] * mask1[i]
     elif (rank==1):
         CS = np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0)
     elif (rank==2):
@@ -304,65 +311,63 @@ def get_CS_matrix(rank,mask1,mask2):
     elif (rank==3):
         CS = np.array([[-3.0/np.sqrt(30.0),0.0,3.0/np.sqrt(30.0),1.0/np.sqrt(8.0),0.0,-3.0/np.sqrt(120.0),0.0,3.0/np.sqrt(120.0),0.0,-1.0/np.sqrt(8.0)],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),-1.0j/np.sqrt(8.0),0.0,1.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(120.0),0.0,-1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,1.0/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),-1.0/np.sqrt(8.0),0.0,-1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(120.0),0.0,1.0/np.sqrt(8.0)],[0.0,0.0,0.0,0.0,-1.0j/np.sqrt(12.0),0.0,0.0,0.0,1.0j/np.sqrt(12.0),0.0],[-1.0/np.sqrt(30.0),0.0,1.0/np.sqrt(30.0),0.0,0.0,4.0/np.sqrt(120.0),0.0,-4.0/np.sqrt(120.0),0.0,0.0],[3.0j/np.sqrt(30.0),0.0,3.0j/np.sqrt(30.0),1.0j/np.sqrt(8.0),0.0,3.0j/np.sqrt(120.0),0.0,3.0j/np.sqrt(120.0),0.0,1.0j/np.sqrt(8.0)],[0.0,-1.0/np.sqrt(15.0),0.0,0.0,-1.0/np.sqrt(12.0),0.0,-1.0/np.sqrt(10.0),0.0,-1.0/np.sqrt(12.0),0.0],[1.0j/np.sqrt(30.0),0.0,1.0j/np.sqrt(30.0),0.0,0.0,-4.0j/np.sqrt(120),0.0,-4.0j/np.sqrt(120),0.0,0.0],[0.0,-3.0/np.sqrt(15.0),0.0,0.0,0.0,0.0,2.0/np.sqrt(10.0),0.0,0.0,0.0]],dtype=complex)
     else:
-        print "This L value is not yet accounted for!"
+        print "This L value is not yet covered by get_CS_matrix!"
         sys.exit(0)
     for i in xrange(len(mask1)):
         CS[i] = CS[i] * mask1[i]
 
     return CS
-    #TODO: The code below is in progress. It could perhaps be done iteratively.
-        
 
-    if (rank==0):
-        CS = np.array([1.0],dtype=complex)
-        for i in xrange(1):
-            CS[i] = CS[i] * mask1[i]
-    else:
-        # One way to do this is to build it up from the L=1 rank to the appropriate one.
-        # This may or may not be the most efficient way, but it might be the easiest to code for now.
-        cmatr = []
-        cmatr.append(np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0))
-        if (rank>1):
-            for i in xrange(2,rank+1):
-                # Generate the next transformation matrix by using the previous one.
-                cs_new = np.zeros((3**rank,sum(get_degen(rank))),dtype=complex)
-                # Work out the row and column labels for the new transformation matrix.
-                # The row labels are easy, as these are just the Cartesian axes.
-                row_labels = []
-                row_labels.append(np.zeros(rank,dtype=int))
-                for i in xrange(1,3**rank):
-                    lbl = list(row_labels[i-1])
-                    lbl[rank-1] += 1
-                    for j in xrange(rank-1,-1,-1):
-                        if (lbl[j] > 2):
-                            lbl[j] = 0
-                            lbl[j-1] += 1
-                    row_labels.append(np.array(lbl))
-                # The column labels are trickier; these are based on l and m values.
-#                for l in xrange(rank+1):
-#                    for m in xrange(-l,l+1):
-#                lvals = get_lvals(rank)
-#                for l in lvals:
-#                    for m in xrange(-l,l+1):
-                        
-                print "here"
-        CS = cmatr[-1]
-        if (rank>1):
-            # Take care of degeneracies.
-            print "here"
-
-    for i in xrange(1):
-        CS[i] = CS[i] * mask1[i]
-
-    return CS
-
+###############################################################################################################################
+##  #TODO: The code below is in progress. It could perhaps be done iteratively.
+##      
+##
+##  if (rank==0):
+##      CS = np.array([1.0],dtype=complex)
+##      for i in xrange(1):
+##          CS[i] = CS[i] * mask1[i]
+##  else:
+##      # One way to do this is to build it up from the L=1 rank to the appropriate one.
+##      # This may or may not be the most efficient way, but it might be the easiest to code for now.
+##      cmatr = []
+##      cmatr.append(np.array([[1.0,0.0,-1.0],[-1.0j,0.0,-1.0j],[0.0,np.sqrt(2.0),0.0]],dtype = complex) / np.sqrt(2.0))
+##      if (rank>1):
+##          for i in xrange(2,rank+1):
+##              # Generate the next transformation matrix by using the previous one.
+##              cs_new = np.zeros((3**rank,sum(get_degen(rank))),dtype=complex)
+##              # Work out the row and column labels for the new transformation matrix.
+##              # The row labels are easy, as these are just the Cartesian axes.
+##              row_labels = []
+##              row_labels.append(np.zeros(rank,dtype=int))
+##              for i in xrange(1,3**rank):
+##                  lbl = list(row_labels[i-1])
+##                  lbl[rank-1] += 1
+##                  for j in xrange(rank-1,-1,-1):
+##                      if (lbl[j] > 2):
+##                          lbl[j] = 0
+##                          lbl[j-1] += 1
+##                  row_labels.append(np.array(lbl))
+##              # The column labels are trickier; these are based on l and m values.
+##                      
+##              print "here"
+##      CS = cmatr[-1]
+##      if (rank>1):
+##          # Take care of degeneracies.
+##          print "here"
+##
+##  for i in xrange(1):
+##      CS[i] = CS[i] * mask1[i]
+##
+##  return CS
+###############################################################################################################################
 
 ###############################################################################################################################
 
 def get_lvals(rank):
-    # Get the lvals for a given rank.
+    # Get the lvals for a given rank
 
     if (rank%2 == 0):
+        # Even L
         lvals = [l for l in xrange(0,rank+1,2)]
     else:
         # Odd L
@@ -373,7 +378,7 @@ def get_lvals(rank):
 ###############################################################################################################################
 
 def get_degen(rank):
-    # Get the degeneracies for a given rank.
+    # Get the degeneracies for a given rank
 
     lvals = get_lvals(rank)
     return [2*l+1 for l in lvals]

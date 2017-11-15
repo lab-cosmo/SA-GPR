@@ -20,19 +20,19 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
     mcut = 2*lcut+1
     divfac = np.array([1.0/float(2*l+1) for l in xrange(lcut+1)])
 
-    # Precompute spherical harmonics evaluated at the direction of atomic positions.
+    # Precompute spherical harmonics evaluated at the direction of atomic positions
     sph_i6 = np.zeros((npoints,natmax,nspecies,nnmax,lcut+1,mcut), dtype=complex)
-    for i in xrange(npoints):                                    # over configurations
-        for ii in xrange(nat[i]):                                # over all the atomic centers of that configuration 
-            for ix in xrange(nspecies):                          # over all the different kind of species 
-                for iii in xrange(nneigh[i,ii,ix]):              # over the neighbors of that specie around that center of that configuration 
-                    for l in xrange(lcut+1):                     # over angular momentum channels   
-                        for im in xrange(2*l+1):                 # over the 2*l+1 components of the l subspace
+    for i in xrange(npoints):                                    # Loop over configurations
+        for ii in xrange(nat[i]):                                # Loop over all the atomic centers of that configuration 
+            for ix in xrange(nspecies):                          # Loop over all the different kind of species 
+                for iii in xrange(nneigh[i,ii,ix]):              # Loop over the neighbors of that species around that center of that configuration 
+                    for l in xrange(lcut+1):                     # Loop over angular momentum channels   
+                        for im in xrange(2*l+1):                 # Loop over the 2*l+1 components of the l subspace
                             m = im-l
                             sph_i6[i,ii,ix,iii,l,im] = special.sph_harm(m,l,phi[i,ii,ix,iii],theta[i,ii,ix,iii])
     sph_j6 = np.conj(sph_i6)
 
-    # Precompute the kernel of local environments considering each atom species as independent from each other
+    # Precompute the kernel of local environments considering each atom species to be independent from each other
     skernel = np.zeros((npoints,npoints,natmax,natmax), dtype=float)
     for i in xrange(npoints):
         for j in xrange(npoints):
@@ -41,19 +41,22 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     # Compute power spectrum I(x,x') for each atomic species 
                     ISOAP = np.zeros((nspecies,lcut+1,mcut,mcut),dtype=complex)
                     for ix in xrange(nspecies):
+
                         # Precompute modified spherical Bessel functions of the first kind
                         sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=complex)
                         for iii in xrange(nneigh[i,ii,ix]):
                              for jjj in xrange(nneigh[j,jj,ix]):
-                                 sph_in[iii,jjj,:] = special.sph_in(lcut,length[i,ii,ix,iii]*length[j,jj,ix,jjj])[0]  
-                        # Perform contraction over neighbours indexes  
+                                 sph_in[iii,jjj,:] = special.sph_in(lcut,length[i,ii,ix,iii]*length[j,jj,ix,jjj])[0] 
+ 
+                        # Perform contraction over neighbour indexes
                         ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                          efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                         sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:]     ) 
-                    # Compute the dot product of power spectra contracting over l,m,k and summing over all couples of atomic species a,b
+                                         sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:]     
+) 
+                    # Compute the dot product of power spectra contracted over l,m,k and summing over all pairs of atomic species a,b
                     skernel[i,j,ii,jj] = np.sum(np.real(np.einsum('almk,blmk,l->ab', np.conj(ISOAP[:,:,:,:]), ISOAP[:,:,:,:], divfac[:])))
 
-    # Compute global kernel between structures averaging over all the (normalized) kernels of local environments
+    # Compute global kernel between structures, averaging over all the (normalized) kernels of local environments
     kernel = np.zeros((npoints,npoints),dtype=float)
     kloc = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
     for i in xrange(npoints):
@@ -66,7 +69,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
 
     kernels = [kernel]
 
-    # If needed, compute kernels which arise from exponentiation to a power n of the local environment kernels
+    # If needed, compute kernels which arise from exponentiation of the local environment kernels to a power n
     skernelsq = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
     skerneln  = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
     for i,j in product(xrange(npoints),xrange(npoints)):
@@ -103,7 +106,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
     mcut = 2*lcut+1
     divfac = np.array([np.sqrt(1.0/float(2*l + 1)) for l in xrange(lcut+1)])
 
-    # Precompute the Clebsch-Gordan coefficients needed to endow the kernel with the tensorial character
+    # Precompute the Clebsch-Gordan coefficients
     CG1 = np.zeros((lcut+1,lcut+1,mcut,2*lval+1),dtype=float)
     for l,l1 in product(xrange(lcut+1),xrange(lcut+1)):
         for im,iim in product(xrange(2*l+1), xrange(2*lval+1)):
@@ -114,7 +117,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for im,ik,iim,iik in product(xrange(2*l+1),xrange(2*l+1),xrange(2*lval+1),xrange(2*lval+1)):
             CG2[l,l1,im,ik,iim,iik] = CG1[l,l1,im,iim] * CG1[l,l1,ik,iik] * divfac[l] * divfac[l]
 
-    # Precompute spherical harmonics evaluated at the direction of atomic positions.
+    # Precompute spherical harmonics evaluated at the direction of atomic positions
     sph_i6 = np.zeros((npoints,natmax,nspecies,nnmax,lcut+1,2*lcut+1),dtype=complex)
     for i in xrange(npoints):
         for ii in xrange(nat[i]):
@@ -126,7 +129,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                             sph_i6[i,ii,ix,iii,l,im] = special.sph_harm(m,l,phi[i,ii,ix,iii],theta[i,ii,ix,iii])
     sph_j6 = conj(sph_i6)
 
-    # Precompute the tensorial kernel of local environments considering each atom species as independent from each other
+    # Precompute the tensorial kernel of local environments considering each atom species to be independent from each other
     skernel = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
     einpath = None
     listl = np.asarray(xrange(lcut+1))            
@@ -136,21 +139,26 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):  
             ISOAP[:] = 0.0          
             for ix in xrange(nspecies):
+
                 # Precompute modified spherical Bessel functions of the first kind
                 sph_in = np.zeros((nneigh[i,ii,ix],nneigh[j,jj,ix],lcut+1),dtype=float)
                 for iii,jjj in product(xrange(nneigh[i,ii,ix]),xrange(nneigh[j,jj,ix])):                    
                     sph_in[iii,jjj,:] = special.spherical_in(listl, length[i,ii,ix,iii]*length[j,jj,ix,jjj])
-                if einpath is None: # only computes einpath once - assuming number of neighbors is about constant
+
+                if einpath is None: # only computes einpath once - assuming number of neighbors is roughly constant
                     einpath = np.einsum_path('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
                                 sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize='optimal' )[0]
-                # Perform contraction over neighbours indexes using the optimized path for Einstein summations
+
+                # Perform contraction over neighbour indexes using the optimized path for Einstein summations
                 ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
                                 sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], optimize=einpath )
-            # Make use of a fortran95 subroutine to suitably combine the power spectra and the CG coefficients
+
+            # Make use of a Fortran 90 subroutine to combine the power spectra and the CG coefficients
             skernel[i,j,ii,jj,:,:] = pow_spec.fill_spectra(lval,lcut,mcut,nspecies,ISOAP,CG2)
-            # Exploit Hermitianity
+
+            # Exploit Hermiticity
             if not j == i : 
                 skernel[j,i,jj,ii,:,:] = np.conj(skernel[i,j,ii,jj,:,:].T)
             
@@ -160,7 +168,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii in xrange(nat[i]):
             norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
 
-    # Compute global kernel between structures averaging over all the (normalized) kernels of local environments
+    # Compute global kernel between structures, averaging over all the (normalized) kernels of local environments
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
@@ -168,7 +176,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         kernel[i,j] /= float(nat[i]*nat[j])
     kernels = [kernel]
 
-    # If needed, compute kernels which arise from exponentiation to a power n of the local environment kernels
+    # If needed, compute kernels which arise from exponentiation of the local environment kernels to a power n
     skernelsq = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
     skerneln = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),  complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
@@ -204,7 +212,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
 
 def build_kernels(n,ftrs,vcell,npoints,sg,lc,rcut,cweight,fwidth,vrb,periodic,centers,nlist):
 
-    # Interpret the coordinate file.
+    # Interpret the coordinate file
     [coords,cell,all_names] = utils.read_xyz.readftrs(ftrs,vcell)
     # Do neighbour list and precompute variables for SOAP power spectrum
     [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies] = utils.read_xyz.find_neighbours(all_names,coords,cell,rcut,cweight,fwidth,npoints,sg,periodic,centers)
