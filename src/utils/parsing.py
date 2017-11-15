@@ -72,17 +72,8 @@ def add_command_line_arguments_learn(parsetext):
 
 def set_variable_values_learn(args):
 
-    # default values
-    lm0 = 0.001
-    ftr = 1
-
-#    if args.rank:
-#        rank = int(args.rank)
-#    else:
-#        print "Rank of tensor must be specified!"
-#        sys.exit(0)
-
     rank = int(args.rank)
+    ftr = args.ftrain 
     # Get list of l values
     if (rank%2 == 0):
         # Even L
@@ -95,66 +86,21 @@ def set_variable_values_learn(args):
         print "Number of regularization parameters must equal number of L values!"
         sys.exit(0)
  
-#    lm = [lm0 for l in xrange(rank+1)]
-#    if args.lmda:
-#        lmlist = args.lmda
-#        if sum([lmlist[i].count(',') for i in xrange(len(lmlist))]) > 0:
-#            for i in xrange(len(lmlist)):
-#                lmlist[i] = lmlist[i].split(',')
-#            lmlist = np.concatenate(lmlist)
-#        if (len(lmlist)%2 != 0):
-#            print "Error: list of lambdas must have the format n,lambda[n],m,lambda[m],..."
-#            sys.exit(0)
-#        for i in xrange(len(lmlist)/2):
-#            nval = int(lmlist[2*i])
-#            lmval = float(lmlist[2*i+1])
-#            lm[nval] = lmval
-
-#    if args.ftrain:
-    ftr = args.ftrain 
-#    if args.tensors:
-    tfile = args.tensors
-#    else:
-#        print "Features file must be specified!"
-#        sys.exit(0)
     # Read in features
+    tfile = args.tensors
     tens=[line.rstrip('\n') for line in open(tfile)]
 
     kernels = args.kernel
 
-#    kernels = ["","","",""]
-#    if args.kernel:
-#        krlist = args.kernel
-#        if sum([krlist[i].count(',') for i in xrange(len(krlist))]) > 0:
-#            for i in xrange(len(krlist)):
-#                krlist[i] = krlist[i].split(',')
-#            krlist = np.concatenate(krlist)
-#        if (len(krlist)%2 != 0):
-#            print "Error: list of kernels must have the format n,kernel[n],m,kernel[m],..."
-#            sys.exit(0)
-#        for i in xrange(len(krlist)/2):
-#            nval = int(krlist[2*i])
-#            krval = str(krlist[2*i + 1])
-#            kernels[nval] = krval
-
-    beg = 0
-    end = int(len(tens)/2)
-    sel = [beg,end]
+    # If a selection is given for the training set, read it in
     if args.select:
-        sellist = args.select
-        for i in xrange(len(sellist)):
-            sel[0] = int(sellist[0])
-            sel[1] = int(sellist[1])
+        sel = args.select
+        if (len(sel)!=2):
+            print "Beginning and end of selection must be specified!"
+            sys.exit(0)
 
-#    rdm = 0
-#    if args.random:
     rdm = args.random
     ncycles = args.ncycles
-
-#    if args.ncycles:
-#        ncycles = args.ncycles
-#    else:
-#        ncycles = 1
 
     return [lvals,lm,ftr,tens,kernels,sel,rdm,rank,ncycles]
 ###############################################################################################################################

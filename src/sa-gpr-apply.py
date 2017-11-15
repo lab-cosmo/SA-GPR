@@ -17,7 +17,8 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
     intrins_error = np.zeros(len(lvals),dtype=float)
     abs_error     = np.zeros(len(lvals),dtype=float)
 
-    print "Results averaged over "+str(ncycles)+" cycles"
+    if ncycles > 1:
+        print "Results averaged over "+str(ncycles)+" cycles"
 
     for ic in range(ncycles):
 
@@ -103,25 +104,7 @@ args = utils.parsing.add_command_line_arguments_learn("SA-GPR")
 
 # Read-in kernels
 print "Loading kernel matrices..."
-#kernel = []
-#for k in xrange(len(kernels)):
-#    if (kernels[k]!=''):
-#    kernel.append(np.loadtxt(kernels[k],dtype=float))
-#    else:
-#        kernel.append(0)
 kernel = [np.loadtxt(kernels[k],dtype=float) for k in xrange(len(kernels))]
 print "...Kernels loaded."
-
-## Get list of l values
-#lvals = []
-#if (rank%2 == 0):
-#    # Even L
-#    lvals = [l for l in xrange(0,rank+1,2)]
-#else:
-#    # Odd L
-#    lvals = [l for l in xrange(1,rank+1,2)]
-#
-#lms     = [lm[i]     for i in lvals]
-#kernels = [kernel[i] for i in lvals]
 
 do_sagpr(lvals,lm,fractrain,tens,kernel,sel,rdm,rank,ncycles)
