@@ -5,6 +5,8 @@ This repository contains a Python code for carrying out Symmetry-Adapted Gaussia
 
 <https://arxiv.org/abs/1709.06757>
 
+**NOTE: This implementation is intended only to serve as a proof-of-principle of the SA-GPR method. It has not yet been thoroughly tested, and is very slow.**
+
 Requirements
 ============
 
@@ -33,6 +35,8 @@ Examples
 ========
 
 The example/ directory contains four sub-directories, with data for the dielectric tensors of water monomers, water dimers, the Zundel cation and boxes of 32 bulk water molecules. Using the water monomer, Zundel cation and bulk water directories, we illustrate three examples of how to use SA-GPR.
+
+**NOTE: As described above, this implementation is very slow, and may be very memory-intensive.**
 
 Before starting, source the environment settings file :code:`env.sh` using :code:`$ source env.sh`.
 
