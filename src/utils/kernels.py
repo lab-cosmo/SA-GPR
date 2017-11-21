@@ -210,13 +210,13 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
  
 #########################################################################################
 
-def build_kernels(n,ftrs,npoints,sg,lc,rcut,cweight,fwidth,vrb,centers,nlist):
+def build_kernels(n,ftrs,npoints,sg,lc,rcut,cweight,vrb,centers,nlist):
     """Wrapper for kernel computation."""
 
     # Interpret the coordinate file
     [coords,cell,all_names] = utils.read_xyz.readftrs(ftrs)
     # Do neighbour list and precompute variables for SOAP power spectrum
-    [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies] = utils.read_xyz.find_neighbours(all_names,coords,cell,rcut,cweight,fwidth,npoints,sg,centers)
+    [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies] = utils.read_xyz.find_neighbours(all_names,coords,cell,rcut,cweight,npoints,sg,centers)
 
     kernels = []
     

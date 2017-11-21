@@ -12,7 +12,7 @@ from itertools import product
 
 # Get command-line arguments.
 args = utils.parsing.add_command_line_arguments_tenskernel("Tensorial kernel")
-[ftrs,npoints,lval,sg,lc,rcut,cweight,fwidth,vrb,centers,nlist] = utils.parsing.set_variable_values_tenskernel(args)
+[ftrs,npoints,lval,sg,lc,rcut,cweight,vrb,centers,nlist] = utils.parsing.set_variable_values_tenskernel(args)
 
 print ""
 print "NUMBER OF CONFIGURATIONS =", npoints
@@ -24,11 +24,10 @@ print "Gaussian width =", sg
 print "Angular cutoff =", lc
 print "Environment cutoff =", rcut
 print "Central atom weight =", cweight 
-print "Filtering width =", fwidth
 print ""
 
 # Build kernels.
-[kernels] = utils.kernels.build_kernels(lval,ftrs,npoints,sg,lc,rcut,cweight,fwidth,vrb,centers,nlist)
+[kernels] = utils.kernels.build_kernels(lval,ftrs,npoints,sg,lc,rcut,cweight,vrb,centers,nlist)
 
 # Transformation matrices to real spherical harmonics.
 CR = utils.kern_utils.complex_to_real_transformation([2*lval+1])[0]

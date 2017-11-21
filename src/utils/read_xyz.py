@@ -2,17 +2,17 @@ import sys
 import numpy as np
 from time import time
 
-def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,centers):
+def find_neighbours(names,coord,cel,rcut,cweight,npoints,sg,centers):
     """Do neighbour list and return the environment variables needed for the computation of SOAP power spectrum"""
 
     start = time()
     nsmax = 26 # max number of species (up to iron)
 
     # Define a dictionary of atomic valence
-    atom_valence =  {"H": 1,"He": 2,"Li": 3,"Be": 4,"B": 5,"C": 6,"N": 7,"O": 8,"F": 9,"Ne": 10,"Na": 11,"Mg": 12,"Al": 13,"Si": 14,"P": 15,"S": 16,"Cl": 17,"Ar": 18,"K": 19,"Ca": 20,"Sc": 21,"Ti": 22,"V": 23,"Cr": 24,"Mn": 25,"Fe": 26} 
+    atom_valence =  {"H": 1,"He": 2,"Li": 3,"Be": 4,"B": 5,"C": 6,"N": 7,"O": 8,"F": 9,"Ne": 10,"Na": 11,"Mg": 12,"Al": 13,"Si": 14,"P": 15,"S": 16,"Cl": 17,"Ar": 18,"K": 19,"Ca": 20,"Sc": 21,"Ti": 22,"V": 23,"Cr": 24,"Mn": 25,"Fe": 26,"Co": 27,"Ni": 28,"Cu": 29,"Zn": 30} 
 
     # Define a dictionary of atomic symbols
-    atom_symbols = {1: 'H', 2: 'He', 3: 'Li', 4: 'Be', 5: 'B', 6: 'C', 7: 'N', 8: 'O', 9: 'F', 10: 'Ne', 11: 'Na', 12: 'Mg', 13: 'Al', 14: 'Si', 15: 'P', 16: 'S', 17: 'Cl', 18: 'Ar', 19: 'K', 20: 'Ca', 21: 'Sc', 22: 'Ti', 23: 'V', 24: 'Cr', 25: 'Mn', 26: 'Fe'}
+    atom_symbols = {1: 'H', 2: 'He', 3: 'Li', 4: 'Be', 5: 'B', 6: 'C', 7: 'N', 8: 'O', 9: 'F', 10: 'Ne', 11: 'Na', 12: 'Mg', 13: 'Al', 14: 'Si', 15: 'P', 16: 'S', 17: 'Cl', 18: 'Ar', 19: 'K', 20: 'Ca', 21: 'Sc', 22: 'Ti', 23: 'V', 24: 'Cr', 25: 'Mn', 26: 'Fe', 27: 'Co', 28: 'Ni', 29: 'Cu', 30: 'Zn'}
 
     # Process input names
     full_names_list = [name for sublist in names for name in sublist]
@@ -20,7 +20,8 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,centers):
     nspecies = len(unique_names)
 
     print "ATOMIC IDENTITIES:", unique_names
-    print "SELECTED  CENTERS:", [atom_symbols[i] for i in centers]
+#    print "SELECTED  CENTERS:", [atom_symbols[i] for i in centers]
+    print "SELECTED  CENTRES:",centers
 
     # List all species according to their valence
     all_species = []
@@ -42,7 +43,9 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,centers):
                    atom_indexes[i][j].append(ii)
 
     if len(centers)==0:
-       centers = all_species
+        centers = all_species
+    else:
+        centers = [atom_valence[i] for i in centers]
 
     # initialize the variables needed
     nnmax = 40 # maximum number of neighbors

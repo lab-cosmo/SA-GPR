@@ -48,7 +48,7 @@ Here, we learn the energy of the water monomer. The energy only has a scalar (L=
 ::
 
   $ cd example/water_monomers
-  $ sa-gpr-kernels.py -lval 0 -f coords_1000.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 0 -f coords_1000.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen O
 
 This will create an L=0 kernel file, using the coordinates in coords_1000.in, with Gaussian width 0.3 Angstrom, an angular cutoff of l=6, a radial cutoff of 4 Angstrom, central atom weighting of 1.0, and with centering the environment on oxygen atoms (atomic number 8). The kernel file, :code:`kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`, can now be used to perform the regression:
 
@@ -57,6 +57,8 @@ This will create an L=0 kernel file, using the coordinates in coords_1000.in, wi
   $ sa-gpr-apply.py -r 0 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -p "potential" -lm 1e-8
 
 The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`coords_1000.xyz` contains the energies of the 1000 coordinates under the heading "potential", and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable from 0 to 1, it is possible to create a learning curve which spans a range of training examples from 0 to the full data set.
+
+**NOTE: For gas-phase clusters, the cell vectors should be such that the cell volume is zero.**
 
 2. Zundel Cation
 ----------------
@@ -73,8 +75,8 @@ This will create 55 `Block` folders, each of which contains a subset of the coor
 
 ::
 
-  $ sa-gpr-kernels.py -lval 1 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
-  $ sa-gpr-kernels.py -lval 3 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 1 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen O
+  $ sa-gpr-kernels.py -lval 3 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen O
 
 This will create two kernel files in each folder, one for L=1 and one for L=3 (a symmetric, rank-3 hyperpolarizability tensor can be split up into these two components). Having created these sub-kernels, the next step is to put these back together into a full kernel tensor. To do this, run:
 
@@ -147,8 +149,8 @@ Then, in each of the `Block` folders generated, run the following commands:
 
 ::
 
-  $ sa-gpr-kernels.py -lval 0 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
-  $ sa-gpr-kernels.py -lval 2 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 0 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen O
+  $ sa-gpr-kernels.py -lval 2 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen O
 
 Finally, the kernel is reconstructed and regression is carried out as earlier:
 

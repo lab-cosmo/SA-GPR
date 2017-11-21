@@ -14,10 +14,9 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-lc",   "--lcut",      type=int,   default=6,                       help="lcut for SOAP kernels")
     parser.add_argument("-rc",   "--rcut",      type=float, default=3.0,                     help="Cutoff value for bulk systems as a fraction of the box length")
     parser.add_argument("-cw",   "--cweight",   type=float, default=1.0,                     help="Central atom weight")
-    parser.add_argument("-fw",   "--fwidth",    type=float, default=1e-10,                   help="Width of the radial filtering to atomic densities")
     parser.add_argument("-vr",   "--verbose",               action='store_true',             help="Verbose mode")
     parser.add_argument("-sub",  "--subset",    type=float, default=1.0,                     help="Fraction of the input data set")
-    parser.add_argument("-cen",  "--center",    type=int,   required=True,       nargs='+',  help="List of atoms to center on (default all)")
+    parser.add_argument("-cen",  "--center",    type=str,   default='',          nargs='+',  help="List of atoms to center on (default all)")
     parser.add_argument("-n",    "--nlist",     type=int,   default=[0],         nargs='+',  help="List of n values for kernel calculation")
     args = parser.parse_args()
     return args
@@ -31,7 +30,6 @@ def set_variable_values_tenskernel(args):
     sg = args.sigma
     lc = args.lcut
     cw = args.cweight
-    fw = args.fwidth
     rc = args.rcut
     sub = args.subset
     cen = args.center
@@ -42,7 +40,7 @@ def set_variable_values_tenskernel(args):
     ftrs = read(ffile,':')
     npoints = int(sub*len(ftrs))
 
-    return [ftrs,npoints,lval,sg,lc,rc,cw,fw,args.verbose,cen,nlist]
+    return [ftrs,npoints,lval,sg,lc,rc,cw,args.verbose,cen,nlist]
 
 ###############################################################################################################################
 
