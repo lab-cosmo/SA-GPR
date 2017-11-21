@@ -67,7 +67,7 @@ Here, we learn the hyperpolarizabilities of the Zundel cation. Because the calcu
 
 ::
 
-  $ mkblocks_nocell.sh coords_1000.xyz 100
+  $ mkblocks.sh coords_1000.xyz 100
 
 This will create 55 `Block` folders, each of which contains a subset of the coordinates. In each of these folders, run the commands:
 
@@ -87,7 +87,7 @@ This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweigh
 
 ::
 
-  $ sa-gpr-apply.py -r 3 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1e-6 1e-3
+  $ sa-gpr-apply.py -r 3 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -p "beta" -lm 1e-6 1e-3
 
 This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
 
@@ -140,7 +140,7 @@ The dielectric response of the system is represented by a rank-2 tensor which ca
 
 ::
 
-  $ mkblocks_nocell.sh coords_1000.xyz 10
+  $ mkblocks.sh coords_1000.xyz 10
 
 Then, in each of the `Block` folders generated, run the following commands:
 
