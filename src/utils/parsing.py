@@ -12,12 +12,10 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-f",    "--features",  type=str,   required=True,                   help="File containing atomic coordinates")
     parser.add_argument("-sg",   "--sigma",     type=float, default=0.3,                     help="Sigma for SOAP kernels")
     parser.add_argument("-lc",   "--lcut",      type=int,   default=6,                       help="lcut for SOAP kernels")
-#    parser.add_argument("-c",    "--cell",      type=str,                                    help="File containing cell vectors")
     parser.add_argument("-rc",   "--rcut",      type=float, default=3.0,                     help="Cutoff value for bulk systems as a fraction of the box length")
     parser.add_argument("-cw",   "--cweight",   type=float, default=1.0,                     help="Central atom weight")
     parser.add_argument("-fw",   "--fwidth",    type=float, default=1e-10,                   help="Width of the radial filtering to atomic densities")
     parser.add_argument("-vr",   "--verbose",               action='store_true',             help="Verbose mode")
-#    parser.add_argument("-per",  "--periodic",              action='store_true',             help="Call for periodic systems") #TODO: DECIDE THIS FOR OURSELVES!
     parser.add_argument("-sub",  "--subset",    type=float, default=1.0,                     help="Fraction of the input data set")
     parser.add_argument("-cen",  "--center",    type=int,   required=True,       nargs='+',  help="List of atoms to center on (default all)")
     parser.add_argument("-n",    "--nlist",     type=int,   default=[0],         nargs='+',  help="List of n values for kernel calculation")
@@ -41,17 +39,8 @@ def set_variable_values_tenskernel(args):
 
     # Read in features
     ffile = args.features
-#    ftrs=[line.rstrip('\n') for line in open(ffile)]
     ftrs = read(ffile,':')
     npoints = int(sub*len(ftrs))
-
-#    # Optionally, read in unit cell
-#    if args.cell:
-#        # For a condensed-phase system, this is specified
-#        vcell=[line.rstrip('\n') for line in open(args.cell)]
-#    else:
-#        # If we are considering gas-phase systems, we don't need the unit cell
-#        vcell = []
 
     return [ftrs,npoints,lval,sg,lc,rc,cw,fw,args.verbose,cen,nlist]
 
@@ -91,12 +80,13 @@ def set_variable_values_learn(args):
  
     # Read in features
     ftrs = read(args.features,':')
+
     if rank == 0:
         tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
     elif rank == 2:
         tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
     else:
-        [', '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+        tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
 
     kernels = args.kernel
 

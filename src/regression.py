@@ -7,19 +7,23 @@ import utils.kern_utils
 import scipy.linalg
 import sys
 import numpy as np
+from ase.io import read
 
 # This script takes a spherical tensor component and carries out regression on it.
 
 # Command-line arguments.
 parser = argparse.ArgumentParser(description="SA-GPR Regression")
-parser.add_argument("-lm",  "--lmda",    type=float, required=True,                   help="Lambda value for KRR calculation")
-parser.add_argument("-ftr", "--ftrain",  type=float, default=1.0,                     help="Fraction of data points used for testing")
-parser.add_argument("-t",   "--tensors", type=str,   required=True,                   help="File containing tensors")
-parser.add_argument("-k",   "--kernel",  type=str,   required=True,                   help="File containing kernel")
-parser.add_argument("-sel", "--select",  type=int,   default=[0,100],      nargs='+', help="Select maximum training partition")
-parser.add_argument("-rdm", "--random",  type=int,   default=0,                       help="Number of random training points")
-parser.add_argument("-nc",  "--ncycles", type=int,   default=1,                       help="Number of cycles for regression with random selection")
-parser.add_argument("-o",   "--ofile",   type=str,   default='output.out',            help="Output file for weights")
+parser.add_argument("-lm",  "--lmda",     type=float, required=True,                   help="Lambda value for KRR calculation")
+parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                     help="Fraction of data points used for testing")
+parser.add_argument("-t",   "--tensors",  type=str,   required=True,                   help="File containing tensors")
+parser.add_argument("-f",   "--features", type=str,   required=True,                   help="File containing atomic coordinates")
+parser.add_argument("-p",   "--property", type=str,   required=True,                   help="Property to be learned")
+parser.add_argument("-l",   "--lval",     type=int,   required=True,                   help="l value of tensor")
+parser.add_argument("-k",   "--kernel",   type=str,   required=True,                   help="File containing kernel")
+parser.add_argument("-sel", "--select",   type=int,   default=[0,100],      nargs='+', help="Select maximum training partition")
+parser.add_argument("-rdm", "--random",   type=int,   default=0,                       help="Number of random training points")
+parser.add_argument("-nc",  "--ncycles",  type=int,   default=1,                       help="Number of cycles for regression with random selection")
+parser.add_argument("-o",   "--ofile",    type=str,   default='output.out',            help="Output file for weights")
 args = parser.parse_args()
 
 # Parse command-line arguments
@@ -34,10 +38,17 @@ if (len(sel)!=2):
     sys.exit(0)
 
 # Read in tensor
-tfile = args.tensors
-tens = [line.rstrip('\n') for line in open(tfile)]
-all_data = np.array([i.split(',') for i in tens]).astype(float)
-lval = (len(all_data[0])-1)/2
+ftrs = read(args.features,':')
+lval = args.lval
+
+if lval == 0:
+    tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+elif lval == 2:
+    tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+else:
+    tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+
+all_data = np.array([i.split(' ') for i in tens]).astype(float)
 
 print
 print "Doing regression with L=%i"%lval
@@ -108,7 +119,7 @@ for nc in xrange(ncycles):
         outfile = open(ofile + "." + str(nc),"w")
         print >> outfile, "Regression for L = %i"%lval
         print >> outfile, "Tensor file:"
-        print >> outfile, tfile
+        print >> outfile, args.features
         print >> outfile, "Kernel file:"
         print >> outfile, args.kernel
         print >> outfile, "Training set:"
