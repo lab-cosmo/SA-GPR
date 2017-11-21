@@ -62,7 +62,6 @@ def add_command_line_arguments_learn(parsetext):
     parser.add_argument("-r",   "--rank",     type=int,   required=True,              help="Rank of tensor to learn")
     parser.add_argument("-lm",  "--lmda",     type=float, required=True,  nargs='+',  help="Lambda values list for KRR calculation")
     parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                 help="Fraction of data points used for testing")
-    parser.add_argument("-t",   "--tensors",  type=str,   required=True,              help="File containing tensors")
     parser.add_argument("-f",   "--features", type=str,   required=True,              help="File containing atomic coordinates")
     parser.add_argument("-p",   "--property", type=str,   required=True,              help="Property to be learned")
     parser.add_argument("-k",   "--kernel",   type=str,   required=True,  nargs='+',  help="Files containing kernels")
@@ -91,8 +90,6 @@ def set_variable_values_learn(args):
         sys.exit(0)
  
     # Read in features
-#    tfile = args.tensors
-#    tens=[line.rstrip('\n') for line in open(tfile)]
     ftrs = read(args.features,':')
     if rank == 0:
         tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
@@ -100,20 +97,6 @@ def set_variable_values_learn(args):
         tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
     else:
         [', '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
-
-#    print len(tens),len(ftrs)
-##
-#
-#    tens = ', ',join(str(ftrs[i].info[args.property])) for i in xrange(len(ftrs))]
-#    print tens
-#    ftrs = read(args.features,':')
-#    all_props = [np.array(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
-#    if rank != 0:
-#        tens = np.concatenate(all_props)
-#    else:
-#        tens = all_props
-#    print tens
-#    sys.exit(0)
 
     kernels = args.kernel
 
