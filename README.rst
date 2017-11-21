@@ -10,7 +10,7 @@ This repository contains a Python code for carrying out Symmetry-Adapted Gaussia
 Requirements
 ============
 
-The Python packages scipy and sympy are required to run the SA-GPR code.
+The Python packages ase, scipy and sympy are required to run the SA-GPR code.
 
 Installation
 ============
@@ -156,7 +156,7 @@ Finally, the kernel is reconstructed and regression is carried out as earlier:
 
   $ rebuild_kernel.py -l 0 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
   $ rebuild_kernel.py -l 2 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
-  $ sa-gpr-apply.py -r 2 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -per "epsilon" -lm 1e-4 1e-4
+  $ sa-gpr-apply.py -r 2 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz "epsilon" -lm 1e-4 1e-4
 
 Contact
 =======
