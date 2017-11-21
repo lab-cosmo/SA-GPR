@@ -48,15 +48,15 @@ Here, we learn the energy of the water monomer. The energy only has a scalar (L=
 ::
 
   $ cd example/water_monomers
-  $ sa-gpr-kernels.py -lval 0 -f coords_1000.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 0 -f coords_1000.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
 This will create an L=0 kernel file, using the coordinates in coords_1000.in, with Gaussian width 0.3 Angstrom, an angular cutoff of l=6, a radial cutoff of 4 Angstrom, central atom weighting of 1.0, and with centering the environment on oxygen atoms (atomic number 8). The kernel file, :code:`kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`, can now be used to perform the regression:
 
 ::
 
-  $ sa-gpr-apply.py -r 0 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t energy_1000.in -lm 1e-8
+  $ sa-gpr-apply.py -r 0 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -p "potential" -lm 1e-8
 
-The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`energy_1000.in` contains the energies of the 1000 coordinates, and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable from 0 to 1, it is possible to create a learning curve which spans a range of training examples from 0 to the full data set.
+The regression is performed for a rank-0 tensor, using the kernel file we produced, with a training set containing 200 randomly selected configurations, of which all are used for training. The file :code:`coords_1000.xyz` contains the energies of the 1000 coordinates under the heading "potential", and we use a regularization parameter of 1e-8. By varying the value of the :code:`ftr` variable from 0 to 1, it is possible to create a learning curve which spans a range of training examples from 0 to the full data set.
 
 2. Zundel Cation
 ----------------
@@ -67,14 +67,14 @@ Here, we learn the hyperpolarizabilities of the Zundel cation. Because the calcu
 
 ::
 
-  $ mkblocks_nocell.sh coords_1000.in 100
+  $ mkblocks_nocell.sh coords_1000.xyz 100
 
 This will create 55 `Block` folders, each of which contains a subset of the coordinates. In each of these folders, run the commands:
 
 ::
 
-  $ sa-gpr-kernels.py -lval 1 -f coords.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
-  $ sa-gpr-kernels.py -lval 3 -f coords.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 1 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 3 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
 This will create two kernel files in each folder, one for L=1 and one for L=3 (a symmetric, rank-3 hyperpolarizability tensor can be split up into these two components). Having created these sub-kernels, the next step is to put these back together into a full kernel tensor. To do this, run:
 
@@ -83,11 +83,11 @@ This will create two kernel files in each folder, one for L=1 and one for L=3 (a
   $ rebuild_kernel.py -l 1 -ns 1000 -nb 10 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
   $ rebuild_kernel.py -l 3 -ns 1000 -nb 10 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
 
-This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt` and :code:`kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt`. The Block subfolders can now be deleted. These kernels can be used to perform the regression:
+This will produce two files, :code:`kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt` and :code:`kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt`. The Block subfolders can now be deleted. These kernels can be used to perform the regression:
 
 ::
 
-  $ sa-gpr-apply.py -r 3 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1e-6 1e-3
+  $ sa-gpr-apply.py -r 3 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -rdm 200 -ftr 1.0 -t beta_1000.in -lm 1e-6 1e-3
 
 This command is similar to the one used to perform the regression on the water monomer, except that now we specify a rank-3 tensor, and give as input two kernels (one with L=1 and one with L=3), and two regularization parameters.
 
@@ -97,7 +97,7 @@ The dipole moment is an L=1 tensor, and so the kernel we have already calculated
 
 ::
 
-  $ sa-gpr-apply.py -r 1 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t dipole_1000.in -lm 1e-3
+  $ sa-gpr-apply.py -r 1 -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -p "mu" -lm 1e-3
 
 Users are encouraged to experiment with the size of the training set and the regularization parameter. In the example on bulk water, we will show how to produce a learning curve.
 
@@ -132,10 +132,7 @@ Here we consider the case of liquid water as an example of a condensed-phase sys
 
   $ cd example/water_bulk/
 
-The files :code:`coords_1000.in` and :code:`cell_1000.in` contain the coordinates and the cell vectors of 1000 structures containing 32 water molecules in periodic boxes of different shapes. In the directory you also find two different kinds of properties associated with these structures: 
-
-- the infinite-frequency static dielectric response tensors (:code:`epsilon_1000.in` ) 
-- an effective representation of the molecular polarizabilities (:code:`alpha_1000.in`)
+The file :code:`coords_1000.xyz` contains the coordinates and the cell vectors of 1000 structures of 32 water molecules in periodic boxes of different shapes. This file also includes the infinite-frequency static dielectric response tensors ("epsilon") and an effective representation of the molecular polarizabilities ("alpha").
 
 **Learning the Dielectric Tensor**
 
@@ -143,16 +140,14 @@ The dielectric response of the system is represented by a rank-2 tensor which ca
 
 ::
 
-  $ mkblocks.sh coords_1000.in cell_1000.in 10
+  $ mkblocks_nocell.sh coords_1000.xyz 10
 
 Then, in each of the `Block` folders generated, run the following commands:
 
 ::
 
-  $ sa-gpr-kernels.py -lval 0 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
-  $ sa-gpr-kernels.py -lval 2 -f coords.in -per -c cell.in -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
-
-The flag :code:`-per` is used here to specify that we are dealing with a periodic system; we also include the cell vector file.
+  $ sa-gpr-kernels.py -lval 0 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
+  $ sa-gpr-kernels.py -lval 2 -f coords.xyz -sg 0.3 -lc 6 -rc 4.0 -cw 1.0 -cen 8
 
 Finally, the kernel is reconstructed and regression is carried out as earlier:
 
@@ -160,7 +155,7 @@ Finally, the kernel is reconstructed and regression is carried out as earlier:
 
   $ rebuild_kernel.py -l 0 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
   $ rebuild_kernel.py -l 2 -ns 1000 -nb 100 -rc 4.0 -lc 6 -sg 0.3 -cw 1.0
-  $ sa-gpr-apply.py -r 2 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -t epsilon_1000.in -lm 1e-4 1e-4
+  $ sa-gpr-apply.py -r 2 -k kernel0_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt kernel2_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0_n0.txt -rdm 200 -ftr 1.0 -f coords_1000.xyz -per "epsilon" -lm 1e-4 1e-4
 
 Contact
 =======

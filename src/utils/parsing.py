@@ -2,21 +2,22 @@
 import argparse
 import sys
 import numpy as np
+from ase.io import read
 
 ###############################################################################################################################
 
 def add_command_line_arguments_tenskernel(parsetext):
     parser = argparse.ArgumentParser(description=parsetext)
     parser.add_argument("-lval", "--lvalue",    type=int,   required=True,                   help="Order of the spherical tensor")
-    parser.add_argument("-f",    "--features",  type=str,   required=True,                   help="File containing atomic fingerprints (coordinates)")
+    parser.add_argument("-f",    "--features",  type=str,   required=True,                   help="File containing atomic coordinates")
     parser.add_argument("-sg",   "--sigma",     type=float, default=0.3,                     help="Sigma for SOAP kernels")
     parser.add_argument("-lc",   "--lcut",      type=int,   default=6,                       help="lcut for SOAP kernels")
-    parser.add_argument("-c",    "--cell",      type=str,                                    help="File containing cell vectors")
+#    parser.add_argument("-c",    "--cell",      type=str,                                    help="File containing cell vectors")
     parser.add_argument("-rc",   "--rcut",      type=float, default=3.0,                     help="Cutoff value for bulk systems as a fraction of the box length")
     parser.add_argument("-cw",   "--cweight",   type=float, default=1.0,                     help="Central atom weight")
     parser.add_argument("-fw",   "--fwidth",    type=float, default=1e-10,                   help="Width of the radial filtering to atomic densities")
     parser.add_argument("-vr",   "--verbose",               action='store_true',             help="Verbose mode")
-    parser.add_argument("-per",  "--periodic",              action='store_true',             help="Call for periodic systems")
+#    parser.add_argument("-per",  "--periodic",              action='store_true',             help="Call for periodic systems") #TODO: DECIDE THIS FOR OURSELVES!
     parser.add_argument("-sub",  "--subset",    type=float, default=1.0,                     help="Fraction of the input data set")
     parser.add_argument("-cen",  "--center",    type=int,   required=True,       nargs='+',  help="List of atoms to center on (default all)")
     parser.add_argument("-n",    "--nlist",     type=int,   default=[0],         nargs='+',  help="List of n values for kernel calculation")
@@ -40,31 +41,34 @@ def set_variable_values_tenskernel(args):
 
     # Read in features
     ffile = args.features
-    ftrs=[line.rstrip('\n') for line in open(ffile)]
+#    ftrs=[line.rstrip('\n') for line in open(ffile)]
+    ftrs = read(ffile,':')
     npoints = int(sub*len(ftrs))
 
-    # Optionally, read in unit cell
-    if args.cell:
-        # For a condensed-phase system, this is specified
-        vcell=[line.rstrip('\n') for line in open(args.cell)]
-    else:
-        # If we are considering gas-phase systems, we don't need the unit cell
-        vcell = []
+#    # Optionally, read in unit cell
+#    if args.cell:
+#        # For a condensed-phase system, this is specified
+#        vcell=[line.rstrip('\n') for line in open(args.cell)]
+#    else:
+#        # If we are considering gas-phase systems, we don't need the unit cell
+#        vcell = []
 
-    return [ftrs,vcell,npoints,lval,sg,lc,rc,cw,fw,args.verbose,args.periodic,cen,nlist]
+    return [ftrs,npoints,lval,sg,lc,rc,cw,fw,args.verbose,cen,nlist]
 
 ###############################################################################################################################
 
 def add_command_line_arguments_learn(parsetext):
     parser = argparse.ArgumentParser(description=parsetext)
-    parser.add_argument("-r",   "--rank",    type=int,   required=True,              help="Rank of tensor to learn")
-    parser.add_argument("-lm",  "--lmda",    type=float, required=True,  nargs='+',  help="Lambda values list for KRR calculation")
-    parser.add_argument("-ftr", "--ftrain",  type=float, default=1.0,                 help="Fraction of data points used for testing")
-    parser.add_argument("-t",   "--tensors", type=str,   required=True,              help="File containing tensors")
-    parser.add_argument("-k",   "--kernel",  type=str,   required=True,  nargs='+',  help="Files containing kernels")
-    parser.add_argument("-sel", "--select",  type=int,                   nargs='+',  help="Select maximum training partition")
-    parser.add_argument("-rdm", "--random",  type=int,   default=0,                  help="Number of random training points")
-    parser.add_argument("-nc",  "--ncycles", type=int,   default=1,                  help="Number of cycles for regression with random selection")
+    parser.add_argument("-r",   "--rank",     type=int,   required=True,              help="Rank of tensor to learn")
+    parser.add_argument("-lm",  "--lmda",     type=float, required=True,  nargs='+',  help="Lambda values list for KRR calculation")
+    parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                 help="Fraction of data points used for testing")
+    parser.add_argument("-t",   "--tensors",  type=str,   required=True,              help="File containing tensors")
+    parser.add_argument("-f",   "--features", type=str,   required=True,              help="File containing atomic coordinates")
+    parser.add_argument("-p",   "--property", type=str,   required=True,              help="Property to be learned")
+    parser.add_argument("-k",   "--kernel",   type=str,   required=True,  nargs='+',  help="Files containing kernels")
+    parser.add_argument("-sel", "--select",   type=int,   default=[],     nargs='+',  help="Select maximum training partition")
+    parser.add_argument("-rdm", "--random",   type=int,   default=0,                  help="Number of random training points")
+    parser.add_argument("-nc",  "--ncycles",  type=int,   default=1,                  help="Number of cycles for regression with random selection")
     args = parser.parse_args()
     return args
 
@@ -87,14 +91,35 @@ def set_variable_values_learn(args):
         sys.exit(0)
  
     # Read in features
-    tfile = args.tensors
-    tens=[line.rstrip('\n') for line in open(tfile)]
+#    tfile = args.tensors
+#    tens=[line.rstrip('\n') for line in open(tfile)]
+    ftrs = read(args.features,':')
+    if rank == 0:
+        tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+    elif rank == 2:
+        tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+    else:
+        [', '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+
+#    print len(tens),len(ftrs)
+##
+#
+#    tens = ', ',join(str(ftrs[i].info[args.property])) for i in xrange(len(ftrs))]
+#    print tens
+#    ftrs = read(args.features,':')
+#    all_props = [np.array(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+#    if rank != 0:
+#        tens = np.concatenate(all_props)
+#    else:
+#        tens = all_props
+#    print tens
+#    sys.exit(0)
 
     kernels = args.kernel
 
     # If a selection is given for the training set, read it in
     sel = args.select
-    if (len(sel)!=2):
+    if (len(sel)!=2 & len(sel)!=0):
         print "Beginning and end of selection must be specified!"
         sys.exit(0)
 

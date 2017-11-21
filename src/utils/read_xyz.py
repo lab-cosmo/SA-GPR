@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from time import time
 
-def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,centers):
+def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,centers):
     """Do neighbour list and return the environment variables needed for the computation of SOAP power spectrum"""
 
     start = time()
@@ -59,12 +59,9 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
             for j in xrange(3):
                 coords[i,k,j] = coord[i][k][j]
 
-<<<<<<< HEAD
-    # Are we considering a condensed phase or a molecular cluster ?
-=======
     # Are we considering a bulk system or a cluster?
->>>>>>> 0be674770c7db99d3d035b69d1965927595cf8f0
-    if periodic == True:
+
+    if cel != []:
         # Bulk system
 
         nat = np.zeros(npoints,dtype=int)
@@ -172,38 +169,55 @@ def find_neighbours(names,coord,cel,rcut,cweight,fwidth,npoints,sg,periodic,cent
 
 ########################################################################################################################
 
-def readftrs(ftrs,vcell):
+def readftrs(ftrs):
 
     nf = len(ftrs)
-    all_names = []
-    coords = []
+#    all_names = []
+#    coords = []
     cell = []
 
-    # Read in coordinates file
-    for i in range(nf):
-        xyz = []
-        names = []
-        ln = ftrs[i].split()
-        if (len(ln)%4 != 0):
-            print "Coordinates file incorrectly formatted at line %i!"%i
-            sys.exit(0)
-        for j in range(len(ln)/4):
-            names.append(ln[4*j])
-            xyz.append([float(ln[4*j+1]),float(ln[4*j+2]),float(ln[4*j+3])])
-        all_names.append(names)
-        coords.append(xyz)
+    # Read in coordinate file
+    all_names = [ftrs[i].get_chemical_symbols() for i in xrange(nf)]
+    coords = [ftrs[i].get_positions() for i in xrange(nf)]
 
-    # If applicable, read in cell vector file
-    if (len(vcell)>0):
-        for i in range(nf):
-            ln = vcell[i].split()
-            if (len(ln)%3 != 0):
-                print "Cell vectors file incorrectly formatted at line %i!"%i
-                sys.exit(0)
-            a = np.array([float(ln[0]),float(ln[1]),float(ln[2])])
-            b = np.array([float(ln[3]),float(ln[4]),float(ln[5])])
-            c = np.array([float(ln[6]),float(ln[7]),float(ln[8])])
-            cell.append([a,b,c])
-     
+#    print [ftrs[i].get_chemical_symbols() for i in xrange(nf)]
+#    print [ftrs[i].get_positions() for i in xrange(nf)][0][0][0]
+#    sys.exit(0)
+#    for i in xrange(nf):
+#        xyz = []
+#        names = []
+
+    # If the cell vectors are non-zero, also read them in
+    if (np.linalg.norm(np.array(ftrs[0].get_cell())) > 0.0):
+        cell = [ftrs[i].get_cell() for i in xrange(nf)]
+#    cell_vol = np.linalg.det(np.array(ftrs[0].get_cell()))
+#    if cell_vol != 0:
+#        print "Cell information needed!"
+
+#    # Read in coordinates file
+#    for i in range(nf):
+#        xyz = []
+#        names = []
+#        ln = ftrs[i].split()
+#        if (len(ln)%4 != 0):
+#            print "Coordinates file incorrectly formatted at line %i!"%i
+#            sys.exit(0)
+#        for j in range(len(ln)/4):
+#            names.append(ln[4*j])
+#            xyz.append([float(ln[4*j+1]),float(ln[4*j+2]),float(ln[4*j+3])])
+#        all_names.append(names)
+#        coords.append(xyz)
+
+#    # If applicable, read in cell vector file
+#    if (len(vcell)>0):
+#        for i in range(nf):
+#            ln = vcell[i].split()
+#            if (len(ln)%3 != 0):
+#                print "Cell vectors file incorrectly formatted at line %i!"%i
+#                sys.exit(0)
+#            a = np.array([float(ln[0]),float(ln[1]),float(ln[2])])
+#            b = np.array([float(ln[3]),float(ln[4]),float(ln[5])])
+#            c = np.array([float(ln[6]),float(ln[7]),float(ln[8])])
+#            cell.append([a,b,c])   
 
     return [np.array(coords),np.array(cell),all_names]
