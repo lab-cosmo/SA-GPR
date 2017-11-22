@@ -19,10 +19,6 @@ def find_neighbours(names,coord,cel,rcut,cweight,npoints,sg,centers):
     unique_names = list(set(full_names_list))
     nspecies = len(unique_names)
 
-    print "ATOMIC IDENTITIES:", unique_names
-#    print "SELECTED  CENTERS:", [atom_symbols[i] for i in centers]
-    print "SELECTED  CENTRES:",centers
-
     # List all species according to their valence
     all_species = []
     for k in unique_names:
@@ -46,6 +42,9 @@ def find_neighbours(names,coord,cel,rcut,cweight,npoints,sg,centers):
         centers = all_species
     else:
         centers = [atom_valence[i] for i in centers]
+
+    print "ATOMIC IDENTITIES:", unique_names
+    print "SELECTED  CENTRES:",[atom_symbols[i] for i in centers]
 
     # initialize the variables needed
     nnmax = 40 # maximum number of neighbors
