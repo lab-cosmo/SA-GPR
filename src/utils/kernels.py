@@ -67,7 +67,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     kernel[i,j] += kloc[i,j,ii,jj] 
             kernel[i,j] /= float(nat[i]*nat[j])
 
-    kernels = [kernel]
+    kernels = [kloc,kernel]
 
     # If needed, compute kernels which arise from exponentiation of the local environment kernels to a power n
     skernelsq = np.zeros((npoints,npoints,natmax,natmax),dtype=float)
@@ -96,7 +96,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                     kerneln[i,j] = kernel[i,j]
         kernels.append(kerneln)
 
-    return kernels
+    return [kernels]
 
 #############################################################################################################
 
@@ -168,13 +168,16 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
         for ii in xrange(nat[i]):
             norm[i,ii] = 1.0 / np.sqrt(np.linalg.norm(skernel[i,i,ii,ii,:,:]))
 
-    # Compute global kernel between structures, averaging over all the (normalized) kernels of local environments
+    # compute the kernel
     kernel = np.zeros((npoints,npoints,2*lval+1,2*lval+1), dtype=complex)
+    kloc = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1),dtype=complex)
     for i,j in product(xrange(npoints),xrange(npoints)):
         for ii,jj in product(xrange(nat[i]),xrange(nat[j])):
-            kernel[i,j,:,:] += skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj] 
+            kloc[i,j,ii,jj,:,:] = skernel[i,j,ii,jj,:,:] * norm[i,ii] * norm[j,jj]
+            kernel[i,j,:,:] += kloc[i,j,ii,jj,:,:]
         kernel[i,j] /= float(nat[i]*nat[j])
-    kernels = [kernel]
+
+    kernels = [kloc,kernel]
 
     # If needed, compute kernels which arise from exponentiation of the local environment kernels to a power n
     skernelsq = np.zeros((npoints,npoints,natmax,natmax,2*lval+1,2*lval+1), complex)
@@ -206,7 +209,7 @@ def build_SOAP_kernels(lval,npoints,lcut,natmax,nspecies,nat,nneigh,length,theta
                 kerneln[i,j,:,:] = kernel[i,j,:,:]
         kernels.append(kerneln)
         
-    return kernels
+    return [kernels]
  
 #########################################################################################
 
@@ -216,23 +219,21 @@ def build_kernels(n,ftrs,npoints,sg,lc,rcut,cweight,vrb,centers,nlist):
     # Interpret the coordinate file
     [coords,cell,all_names] = utils.read_xyz.readftrs(ftrs)
     # Do neighbour list and precompute variables for SOAP power spectrum
-    [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies] = utils.read_xyz.find_neighbours(all_names,coords,cell,rcut,cweight,npoints,sg,centers)
+    [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies,centers,atom_indexes] = utils.read_xyz.find_neighbours(all_names,coords,cell,rcut,cweight,npoints,sg,centers)
 
-    kernels = []
-    
     if (n == 0):
 
         if (vrb):
             print "Calculating L=0 kernel."
 
-        kernels.append(build_SOAP0_kernels(npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist))
+        [kernels] = build_SOAP0_kernels(npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist)
 
     elif (n > 0):
 
         if (vrb):
             print "Calculating L=%i kernel."%n
 
-        kernels.append(build_SOAP_kernels(n,npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist))
+        [kernels] = build_SOAP_kernels(n,npoints,lc,natmax,nspecies,nat,nneigh,length,theta,phi,efact,nnmax,vrb,nlist)
 
     else:
 
@@ -241,4 +242,4 @@ def build_kernels(n,ftrs,npoints,sg,lc,rcut,cweight,vrb,centers,nlist):
 
     print "Kernel built."
 
-    return kernels
+    return [centers,atom_indexes,natmax,nat,kernels]

@@ -18,6 +18,7 @@ def add_command_line_arguments_tenskernel(parsetext):
     parser.add_argument("-sub",  "--subset",    type=float, default=1.0,                     help="Fraction of the input data set")
     parser.add_argument("-cen",  "--center",    type=str,   default='',          nargs='+',  help="List of atoms to center on (default all)")
     parser.add_argument("-n",    "--nlist",     type=int,   default=[0],         nargs='+',  help="List of n values for kernel calculation")
+    parser.add_argument("-atom","--atomic",                 action='store_true',             help="Call for kernels of atomic environments")
     args = parser.parse_args()
     return args
 
@@ -40,7 +41,7 @@ def set_variable_values_tenskernel(args):
     ftrs = read(ffile,':')
     npoints = int(sub*len(ftrs))
 
-    return [ftrs,npoints,lval,sg,lc,rc,cw,args.verbose,cen,nlist]
+    return [ftrs,npoints,lval,sg,lc,rc,cw,args.verbose,cen,nlist,args.atomic]
 
 ###############################################################################################################################
 

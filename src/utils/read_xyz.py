@@ -123,7 +123,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,npoints,sg,centers):
                     iat += 1
 
         print "Computed neighbors", time()-start        
-        return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies]
+        return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies,centers,atom_indexes]
 
     else:
         # Cluster
@@ -166,7 +166,7 @@ def find_neighbours(names,coord,cel,rcut,cweight,npoints,sg,centers):
                         ispe += 1
                     iat += 1
 
-        return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies]
+        return [natmax,nat,nneigh,length,theta,phi,efact,nnmax,nspecies,centers,atom_indexes]
 
 
 ########################################################################################################################
