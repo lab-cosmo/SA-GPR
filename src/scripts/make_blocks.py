@@ -3,6 +3,7 @@
 from ase.io import read,write
 import argparse
 import os
+import math
 
 parser = argparse.ArgumentParser(description="Separate XYZ file into blocks for kernel calculation")
 parser.add_argument("-f", "--file",   type=str,    required=True, help="Files to read in")
@@ -14,7 +15,7 @@ infile = args.file
 
 all_coords = read(infile,':',format='extxyz')
 nconfigs = len(all_coords)
-blocksize = (nconfigs / nblock) + 1
+blocksize = int(math.ceil(float(nconfigs)/float(nblock)))
 
 print "Read in file with %i frames."%(nconfigs)
 print "Creating %i blocks."%(nblock)
