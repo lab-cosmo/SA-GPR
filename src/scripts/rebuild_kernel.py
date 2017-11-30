@@ -23,6 +23,7 @@ sg = float(args.sigma)
 cw = float(args.cweight)
 
 blocksize = int(math.ceil(float(nstruct)/float(nblocks)))
+nblocks = int(math.ceil(float(nstruct)/float(blocksize)))
 mcut = 2*soapl+1
 mcut2 = mcut*mcut
 kij = np.zeros((nstruct, nstruct, mcut, mcut),dtype=float)
