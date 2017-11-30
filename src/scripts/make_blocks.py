@@ -16,6 +16,7 @@ infile = args.file
 all_coords = read(infile,':',format='extxyz')
 nconfigs = len(all_coords)
 blocksize = int(math.ceil(float(nconfigs)/float(nblock)))
+nblock = int(math.ceil(float(nconfigs)/float(blocksize)))
 
 print "Read in file with %i frames."%(nconfigs)
 print "Creating %i blocks."%(nblock)
