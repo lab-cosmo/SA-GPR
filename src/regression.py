@@ -42,7 +42,7 @@ lval = args.lval
 
 if lval == 0:
     tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
-elif lval == 2:
+elif lval == 4:
     tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
 else:
     tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
