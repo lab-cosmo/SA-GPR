@@ -107,17 +107,6 @@ args = utils.parsing.add_command_line_arguments_learn("SA-GPR")
 
 # Read-in kernels
 print "Loading kernel matrices..."
-#kernel = [np.loadtxt(kernels[k],dtype=float) for k in xrange(len(kernels))]
-#kernel = [np.load(kernels[k]) for k in xrange(len(kernels))]
-#kernel = [np.concatenate(np.fromfile(kernels[k])) for k in xrange(len(kernels))]
-
-#kr = np.load(kernels[0])
-#kr = np.reshape(kr,np.size(kr))
-#print np.size(kr)
-#kr = np.concatenate(kr)
-
-#print np.array(kr,dtype=float)
-#sys.exit(0)
 
 kernel = []
 for k in xrange(len(kernels)):

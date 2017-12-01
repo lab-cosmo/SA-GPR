@@ -78,10 +78,11 @@ if atomic:
         envfile.append(open(filename,"w"))
     nspecies = len(centers)
     for ispe in xrange(nspecies):
-        for i in xrange(natspe[ispe]*npoints):
-            for j in xrange(natspe[ispe]*npoints):
-                for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
-                    print >> envfile[ispe], katomic[ispe][i,j,iim,jjm]
+        np.save(envfile[ispe],katomic[ispce])
+#        for i in xrange(natspe[ispe]*npoints):
+#            for j in xrange(natspe[ispe]*npoints):
+#                for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
+#                    print >> envfile[ispe], katomic[ispe][i,j,iim,jjm]
 
 else:
     for n in xrange(len(nlist)):
@@ -90,13 +91,5 @@ else:
         for i,j in product(xrange(npoints),xrange(npoints)):
             kernel[i,j] = np.real(np.dot(np.dot(CC,kernels[1+n][i,j]),CT))
         # Save kernel.
-#        kernel_file = open("kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+"_n"+str(nlist[n])+".txt","w")
-#        for i,j in product(xrange(npoints),xrange(npoints)):
-#            for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
-#                print >> kernel_file,kernel[i,j,iim,jjm]
         kernel_file = "kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+"_n"+str(nlist[n])+".npy"
-#        print kernel
-#        kernel.tofile(kernel_file)
         np.save(kernel_file,kernel)
-
-#        kernel_file.close()
