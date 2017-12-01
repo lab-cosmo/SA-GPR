@@ -115,13 +115,12 @@ This will add two properties, :code:`beta_L1` and :code:`beta_L3` to the file :c
 
 ::
 
-  $ regression.py -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L1 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL1.out
+  $ regression.py -k kernel1_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t processed_coords_1000.xyz -p "beta_L1" -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL1.out
 
 To perform regression on the L=3 component, run the command:
 
 ::
 
-  $ regression.py -k kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -t beta_1000.in.L3 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL3.out 
   $ regression.py -k kernel3_1000_sigma0.3_lcut6_cutoff4.0_cweight1.0.txt -f processed_coords_1000.xyz -p "beta_L3" -l 3 -rdm 200 -nc 5 -ftr 1.0 -lm 1e-6 -o outputL3.out
 
 In these examples, we loop over 5 random selections of the training set. There will be 5 output files printed out, each of which gives the members of the training set for this selection, along with the regression errors and the SA-GPR weights.

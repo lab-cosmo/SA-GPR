@@ -15,7 +15,6 @@ from ase.io import read
 parser = argparse.ArgumentParser(description="SA-GPR Regression")
 parser.add_argument("-lm",  "--lmda",     type=float, required=True,                   help="Lambda value for KRR calculation")
 parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                     help="Fraction of data points used for testing")
-parser.add_argument("-t",   "--tensors",  type=str,   required=True,                   help="File containing tensors")
 parser.add_argument("-f",   "--features", type=str,   required=True,                   help="File containing atomic coordinates")
 parser.add_argument("-p",   "--property", type=str,   required=True,                   help="Property to be learned")
 parser.add_argument("-l",   "--lval",     type=int,   required=True,                   help="l value of tensor")
