@@ -82,7 +82,6 @@ def set_variable_values_learn(args):
 
     if rank == 0:
         tens = [str(ftrs[i].info[args.property]/ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
-        print tens
     elif rank == 2:
         tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
     else:
@@ -100,4 +99,4 @@ def set_variable_values_learn(args):
     ncycles = args.ncycles
 
     return [lvals,lm,ftr,tens,kernels,sel,rdm,rank,ncycles]
-###############################################################################################################################
+#########################################################################
