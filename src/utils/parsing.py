@@ -9,7 +9,7 @@ from ase.io import read
 def add_command_line_arguments_tenskernel(parsetext):
     parser = argparse.ArgumentParser(description=parsetext)
     parser.add_argument("-lval", "--lvalue",    type=int,   required=True,                   help="Order of the spherical tensor")
-    parser.add_argument("-f",    "--features",  type=str,   required=True,                   help="File containing atomic coordinates")
+    parser.add_argument("-f",    "--features",  type=str,   required=True,                   help="File containing atomic coordinates and properties")
     parser.add_argument("-sg",   "--sigma",     type=float, default=0.3,                     help="Sigma for SOAP kernels")
     parser.add_argument("-lc",   "--lcut",      type=int,   default=6,                       help="lcut for SOAP kernels")
     parser.add_argument("-rc",   "--rcut",      type=float, default=3.0,                     help="Cutoff value for bulk systems as a fraction of the box length")
@@ -81,11 +81,12 @@ def set_variable_values_learn(args):
     ftrs = read(args.features,':')
 
     if rank == 0:
-        tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+        tens = [str(ftrs[i].info[args.property]/ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
+        print tens
     elif rank == 2:
-        tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+        tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
     else:
-        tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+        tens = [' '.join((np.array(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
 
     kernels = args.kernel
 
