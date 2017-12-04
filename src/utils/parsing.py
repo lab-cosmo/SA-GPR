@@ -49,13 +49,14 @@ def add_command_line_arguments_learn(parsetext):
     parser = argparse.ArgumentParser(description=parsetext)
     parser.add_argument("-r",   "--rank",     type=int,   required=True,              help="Rank of tensor to learn")
     parser.add_argument("-lm",  "--lmda",     type=float, required=True,  nargs='+',  help="Lambda values list for KRR calculation")
-    parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                 help="Fraction of data points used for testing")
+    parser.add_argument("-ftr", "--ftrain",   type=float, default=1.0,                help="Fraction of data points used for testing")
     parser.add_argument("-f",   "--features", type=str,   required=True,              help="File containing atomic coordinates")
     parser.add_argument("-p",   "--property", type=str,   required=True,              help="Property to be learned")
     parser.add_argument("-k",   "--kernel",   type=str,   required=True,  nargs='+',  help="Files containing kernels")
     parser.add_argument("-sel", "--select",   type=int,   default=[],     nargs='+',  help="Select maximum training partition")
     parser.add_argument("-rdm", "--random",   type=int,   default=0,                  help="Number of random training points")
     parser.add_argument("-nc",  "--ncycles",  type=int,   default=1,                  help="Number of cycles for regression with random selection")
+    parser.add_argument("-perat","--peratom",             action='store_true',        help="Call for scaling the properties by the number of atoms")
     args = parser.parse_args()
     return args
 
@@ -80,12 +81,20 @@ def set_variable_values_learn(args):
     # Read in features
     ftrs = read(args.features,':')
 
-    if rank == 0:
-        tens = [str(ftrs[i].info[args.property]/ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
-    elif rank == 2:
-        tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
+    if args.peratom:
+        if rank == 0:
+            tens = [str(ftrs[i].info[args.property]/ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
+        elif rank == 2:
+            tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
+        else:
+            tens = [' '.join((np.array(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
     else:
-        tens = [' '.join((np.array(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
+    	if rank == 0:
+       	    tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+        elif rank == 2:
+            tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+        else:
+            tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
 
     kernels = args.kernel
 
