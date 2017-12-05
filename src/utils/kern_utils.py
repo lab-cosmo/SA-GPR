@@ -240,11 +240,13 @@ def complex_to_real_transformation(sizes):
 
 ###############################################################################################################################
 
-def partition_kernels_properties(data,kernels,trrange,terange):
+def partition_kernels_properties(data,kernels,trrange,terange,nat):
     # Partition kernels and properties for training and testing
 
     train  = [data[i] for i in trrange]
     test   = [data[i] for i in terange]
+    nattrain  = [nat[i] for i in trrange]
+    nattest   = [nat[i] for i in terange]
     vtrain = np.array([i.split() for i in train]).astype(float)
     vtest  = np.array([i.split() for i in test]).astype(float)
     ktr = []
@@ -255,7 +257,7 @@ def partition_kernels_properties(data,kernels,trrange,terange):
         ktr.append(kttr)
         kte.append(ktte)
 
-    return [vtrain,vtest,ktr,kte]
+    return [vtrain,vtest,ktr,kte,nattrain,nattest]
 
 ###############################################################################################################################
 

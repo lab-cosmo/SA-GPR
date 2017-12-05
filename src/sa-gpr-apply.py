@@ -9,7 +9,7 @@ import numpy as np
 
 ###############################################################################################################################
 
-def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
+def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles,nat,peratom):
 
     # initialize regression
     degen = [(2*l+1) for l in lvals]
@@ -30,7 +30,7 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
         kernel = [utils.kern_utils.unflatten_kernel(ndata,degen[i],kernel_flatten[i]) for i in xrange(len(lvals))]
 
         # Partition properties and kernel for training and testing
-        [vtrain,vtest,ktr,kte] = utils.kern_utils.partition_kernels_properties(tens,kernel,trrange,terange)
+        [vtrain,vtest,ktr,kte,nattrain,nattest] = utils.kern_utils.partition_kernels_properties(tens,kernel,trrange,terange,nat)
 
         # Extract the non-equivalent tensor components; include degeneracy
         [tenstrain,tenstest,mask1,mask2] = utils.kern_utils.get_non_equivalent_components(vtrain,vtest)
@@ -79,6 +79,17 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
         predcart = utils.kern_utils.spherical_to_cartesian(outvec,degen,ns,CR,CS,mask1,mask2)
         testcart = np.real(np.concatenate(vtest)).astype(float)
 
+        if peratom:
+            corrfile = open("prediction.txt","w")
+            for i in range(ns):
+                print >> corrfile, ' '.join(str(e) for e in list(np.split(testcart,ns)[i]*nattest[i])),"  ", ' '.join(str(e) for e in list(np.split(predcart,ns)[i]*nattest[i]))
+            corrfile.close()
+        else:
+            corrfile = open("prediction.txt","w")
+            for i in range(ns):
+                print >> corrfile, ' '.join(str(e) for e in list(np.split(testcart,ns)[i])),"  ", ' '.join(str(e) for e in list(np.split(predcart,ns)[i]))
+            corrfile.close()
+
     # Find average error
     for i in xrange(len(degen)):
         intrins_dev[i] = np.sqrt(intrins_dev[i]/float(ncycles))
@@ -103,7 +114,7 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles):
 
 # Parse input arguments
 args = utils.parsing.add_command_line_arguments_learn("SA-GPR")
-[lvals,lm,fractrain,tens,kernels,sel,rdm,rank,ncycles] = utils.parsing.set_variable_values_learn(args)
+[lvals,lm,fractrain,tens,kernels,sel,rdm,rank,ncycles,nat,peratom] = utils.parsing.set_variable_values_learn(args)
 
 # Read-in kernels
 print "Loading kernel matrices..."
@@ -116,4 +127,4 @@ for k in xrange(len(kernels)):
 
 print "...Kernels loaded."
 
-do_sagpr(lvals,lm,fractrain,tens,kernel,sel,rdm,rank,ncycles)
+do_sagpr(lvals,lm,fractrain,tens,kernel,sel,rdm,rank,ncycles,nat,peratom)

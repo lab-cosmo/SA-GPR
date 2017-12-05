@@ -81,13 +81,15 @@ def set_variable_values_learn(args):
     # Read in features
     ftrs = read(args.features,':')
 
+    nat = []
+    [nat.append(ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
     if args.peratom:
         if rank == 0:
-            tens = [str(ftrs[i].info[args.property]/ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
+            tens = [str(ftrs[i].info[args.property]/nat[i]) for i in xrange(len(ftrs))]
         elif rank == 2:
-            tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in xrange(len(ftrs))]
         else:
-            tens = [' '.join((np.array(ftrs[i].info[args.property])/float(ftrs[i].get_number_of_atoms())).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join((np.array(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in xrange(len(ftrs))]
     else:
     	if rank == 0:
        	    tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
@@ -107,5 +109,5 @@ def set_variable_values_learn(args):
     rdm = args.random
     ncycles = args.ncycles
 
-    return [lvals,lm,ftr,tens,kernels,sel,rdm,rank,ncycles]
+    return [lvals,lm,ftr,tens,kernels,sel,rdm,rank,ncycles,nat,args.peratom]
 #########################################################################
