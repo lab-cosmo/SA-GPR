@@ -74,11 +74,11 @@ if atomic:
     # Print out kernels
     envfile = []
     for k in centers:
-        filename = "kernel"+str(lval)+"_atom"+str(k)+"_nconf"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".txt"
+        filename = "kernel"+str(lval)+"_atom"+str(k)+"_nconf"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+".npy"
         envfile.append(open(filename,"w"))
     nspecies = len(centers)
     for ispe in xrange(nspecies):
-        np.save(envfile[ispe],katomic[ispce])
+        np.save(envfile[ispe],katomic[ispe])
 #        for i in xrange(natspe[ispe]*npoints):
 #            for j in xrange(natspe[ispe]*npoints):
 #                for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
