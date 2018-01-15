@@ -93,3 +93,9 @@ else:
         # Save kernel.
         kernel_file = "kernel"+str(lval)+"_"+str(npoints)+"_sigma"+str(sg)+"_lcut"+str(lc)+"_cutoff"+str(rcut)+"_cweight"+str(cweight)+"_n"+str(nlist[n])+".npy"
         np.save(kernel_file,kernel)
+        #kernfile = open(kernel_file,"w")
+        #for i in xrange(npoints):
+        #    for j in xrange(npoints):
+        #        for iim,jjm in product(xrange(2*lval+1),xrange(2*lval+1)):
+        #            print >> kernfile, kernel[i,j,iim,jjm]
+        #kernfile.close()

@@ -10,7 +10,7 @@ import utils.read_xyz
 from itertools import product
 import time
 import pow_spec
-from time import time
+import com_spe
 
 ##########################################################################################################
 
@@ -18,6 +18,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
     """Compute the L=0 SOAP kernel according to Eqns.(33-34) of Ref. Phys. Rev. B 87, 184115 (2013)"""
 
     mcut = 2*lcut+1
+    #divfac = np.array([1.0/np.sqrt(float(2*l+1)) for l in xrange(lcut+1)])
     divfac = np.array([1.0/float(2*l+1) for l in xrange(lcut+1)])
 
     # Precompute spherical harmonics evaluated at the direction of atomic positions
@@ -32,6 +33,7 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                             sph_i6[i,ii,ix,iii,l,im] = special.sph_harm(m,l,phi[i,ii,ix,iii],theta[i,ii,ix,iii])
     sph_j6 = np.conj(sph_i6)
 
+    start = time.time()
     # Precompute the kernel of local environments considering each atom species to be independent from each other
     skernel = np.zeros((npoints,npoints,natmax,natmax), dtype=float)
     for i in xrange(npoints):
@@ -49,12 +51,23 @@ def build_SOAP0_kernels(npoints,lcut,natmax,nspecies,nat,nneigh,length,theta,phi
                                  sph_in[iii,jjj,:] = special.sph_in(lcut,length[i,ii,ix,iii]*length[j,jj,ix,jjj])[0] 
  
                         # Perform contraction over neighbour indexes
+                        #ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk,l->lmk',
+                        #                 efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
+                        #                 sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:], divfac[:]     )
                         ISOAP[ix,:,:,:] = np.einsum('a,b,abl,alm,blk->lmk',
                                          efact[i,ii,ix,0:nneigh[i,ii,ix]], efact[j,jj,ix,0:nneigh[j,jj,ix]], sph_in[:,:,:],
-                                         sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:]     
-) 
+                                         sph_i6[i,ii,ix,0:nneigh[i,ii,ix],:,:], sph_j6[j,jj,ix,0:nneigh[j,jj,ix],:,:]   )
+ 
                     # Compute the dot product of power spectra contracted over l,m,k and summing over all pairs of atomic species a,b
-                    skernel[i,j,ii,jj] = np.sum(np.real(np.einsum('almk,blmk,l->ab', np.conj(ISOAP[:,:,:,:]), ISOAP[:,:,:,:], divfac[:])))
+                    #skernel[i,j,ii,jj] = np.sum(np.real(np.einsum('almk,blmk,l->ab', np.conj(ISOAP[:,:,:,:]), ISOAP[:,:,:,:], divfac[:])))
+                    skernel[i,j,ii,jj] = np.real(com_spe.combine_spectra(lcut,mcut,nspecies,ISOAP,divfac))
+                 
+                  # the following has been tried to make it faster but it doesn't cause of the multispecies double sum 
+                 #   for ix in xrange(nspecies):
+	#		for iy in xrange(nspecies):
+#			    skernel[i,j,ii,jj] += np.real(np.dot(np.conj(ISOAP[ix].flatten()), ISOAP[iy].flatten()))
+    end = time.time()
+#    print "time power spectrum = ", end-start
 
     # Compute global kernel between structures, averaging over all the (normalized) kernels of local environments
     kernel = np.zeros((npoints,npoints),dtype=float)
