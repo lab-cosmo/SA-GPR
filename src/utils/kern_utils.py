@@ -28,81 +28,39 @@ def shuffle_data(ndata,sel,rdm,fractrain):
 
 def unflatten_kernel(ndata,size,kernel_flatten):
     # Unpack kernel into the desired format for the code
-
     if size>1:
-        kernel = np.zeros((ndata,ndata,size,size),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                for iim in xrange(size):
-                    for jjm in xrange(size):
-                        kernel[i,j,iim,jjm] = kernel_flatten[k]
-                        k += 1
+        kernel = kernel_flatten.reshape(ndata,ndata,size,size)
     else:
-        kernel = np.zeros((ndata,ndata),dtype=float)
-        k=0
-        for i in xrange(ndata):
-            for j in xrange(ndata):
-                kernel[i,j] = kernel_flatten[k]
-                k += 1
-
+        kernel = kernel_flatten.reshape(ndata,ndata)
     return kernel
 
 ###############################################################################################################################
 
 def unflatten_kernel0(ndata,kernel_flatten):
     # Unpack kernel into the desired format for the code
-
-    kernel = np.zeros((ndata,ndata),dtype=float)
-    k=0
-    for i in xrange(ndata):
-        for j in xrange(ndata):
-            kernel[i,j] = kernel_flatten[k]
-            k += 1
-
+    kernel = kernel_flatten.reshape(ndata,ndata)
     return kernel
 
 ###############################################################################################################################
 
 def build_training_kernel(nt,size,ktr,lm):
     # Build training kernel
-
     if size>1:
-        ktrain = np.zeros((size*nt,size*nt),dtype=float)
-        ktrainpred = np.zeros((size*nt,size*nt),dtype=float)
-        for i in xrange(nt):
-            for j in xrange(nt):
-                krtr = ktr[i][j]
-                for al in xrange(size):
-                    for be in xrange(size):
-                        aval = size*i + al
-                        bval = size*j + be
-                        ktrain[aval][bval] = krtr[al][be] + lm*(aval==bval)
-                        ktrainpred[aval][bval] = krtr[al][be]
+        ktrainpred = ktr.reshape(nt,nt,size,size).transpose(0,2,1,3).reshape(-1,nt*size)
+        ktrain = ktrainpred + lm*np.eye(size*nt)
     else:
         ktrain = np.real(ktr) + lm*np.identity(nt)
         ktrainpred = np.real(ktr)
-
     return [ktrain,ktrainpred]
 
 ###############################################################################################################################
 
 def build_testing_kernel(ns,nt,size,kte):
     # Build testing kernel
-
     if size>1:
-        ktest = np.zeros((size*ns,size*nt),dtype=float)
-        for i in xrange(ns):
-            for j in xrange(nt):
-                krte = kte[i][j]
-                for al in xrange(size):
-                    for be in xrange(size):
-                        aval = size*i + al
-                        bval = size*j + be
-                        ktest[aval][bval] = krte[al][be]
+        ktest = kte.reshape(ns,nt,size,size).transpose(0,2,1,3).reshape(-1,nt*size)
     else:
         ktest = np.real(kte)
-
     return ktest
 
 ###############################################################################################################################

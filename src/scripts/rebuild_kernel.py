@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import argparse
 import math
+import time
 
 parser = argparse.ArgumentParser(description="Rebuild kernel from blocks.")
 parser.add_argument("-l",  "--lval",                                            help="l-value of kernels to rebuild.")
@@ -26,6 +27,8 @@ lcut = int(args.lcut)
 sg = float(args.sigma)
 cw = float(args.cweight)
 
+
+
 blocksize = int(math.ceil(float(nstruct*natoms)/float(nblocks)))
 nblocks = int(math.ceil(float(nstruct*natoms)/float(blocksize)))
 mcut = 2*soapl+1
@@ -34,6 +37,7 @@ kij = np.zeros((nstruct*natoms, nstruct*natoms, mcut, mcut),dtype=float)
 print "Each block will contain (up to) %i frames."%(blocksize)
 for i in xrange(nblocks):
     for j in xrange(i+1):
+        start = time.time()
         imin = i*blocksize
         imax = min(i*blocksize + blocksize,nstruct*natoms)
         jmin = j*blocksize
@@ -50,12 +54,17 @@ for i in xrange(nblocks):
             block = np.load(dirname+"/kernel"+str(soapl)+"_atom"+str(atom_type)+"_nconf"+str(thisblocksize/natoms)+"_sigma"+str(sg)+"_lcut"+str(lcut)+"_cutoff"+str(rcut)+"_cweight"+str(cw)+".npy") 
     	    block = np.reshape(block,np.size(block))
             #block = np.loadtxt(dirname+"/kernel"+str(soapl)+"_atom"+str(atom_type)+"_nconf"+str(thisblocksize/natoms)+"_sigma"+str(sg)+"_lcut"+str(lcut)+"_cutoff"+str(rcut)+"_cweight"+str(cw)+".txt",dtype=float) 
+        end = time.time()
+        print "LOADING TIME = ",end-start
+        start = end
         for k in xrange(di):
             for h in xrange(dj):
                 for ii in xrange(mcut):
                     for jj in xrange(mcut):
                         kij[imin+k,jmin+h,ii,jj] = block[(di+dj)*mcut2*k + mcut*mcut*(di+h) + mcut*ii + jj]
                         kij[jmin+h,imin+k,jj,ii] = block[(di+dj)*mcut2*k + mcut*mcut*(di+h) + mcut*ii + jj]
+        end = time.time()
+        print "LOOPING TIME = ",end-start
 
 # Print out kernel file.
 if atom_type == 0:
