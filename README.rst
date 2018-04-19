@@ -3,7 +3,7 @@ SA-GPR
 
 This repository contains a Python code for carrying out Symmetry-Adapted Gaussian Process Regression (SA-GPR) for the machine-learning of tensors. For more information, see:
 
-<https://arxiv.org/abs/1709.06757>
+A. Grisafi, D. M. Wilkins, G. Csányi, M. Ceriotti, "Symmetry-Adapted Machine Learning for Tensorial Properties of Atomistic Systems", Phys. Rev. Lett. 120, 036002 (2018)
 
 **NOTE: This implementation is intended only to serve as a proof-of-principle of the SA-GPR method. It has not yet been thoroughly tested, and is very slow.**
 
