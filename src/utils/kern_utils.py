@@ -212,8 +212,8 @@ def partition_kernels_properties(data,kernels,trrange,terange,nat):
     for kernel in kernels:
         kttr    = [[kernel[i,j] for j in trrange] for i in trrange]
         ktte    = [[kernel[i,j] for j in trrange] for i in terange]
-        ktr.append(kttr)
-        kte.append(ktte)
+        ktr.append(np.array(kttr))
+        kte.append(np.array(ktte))
 
     return [vtrain,vtest,ktr,kte,nattrain,nattest]
 

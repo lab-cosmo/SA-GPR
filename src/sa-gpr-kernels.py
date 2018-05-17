@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import utils.kernels
-import utils.extra_kernels
 import utils.kern_utils
 import utils.parsing
 import argparse

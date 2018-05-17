@@ -82,7 +82,7 @@ def do_sagpr(lvals,lm,fractrain,tens,kernel_flatten,sel,rdm,rank,ncycles,nat,per
         if peratom:
             corrfile = open("prediction.txt","w")
             for i in range(ns):
-                print >> corrfile, ' '.join(str(e) for e in list(np.split(testcart,ns)[i]*nattest[i])),"  ", ' '.join(str(e) for e in list(np.split(predcart,ns)[i]*nattest[i]))
+                print >> corrfile, ' '.join(str(e) for e in list(np.split(testcart,ns)[i]*nattest[i])),"  ", ' '.join(str(e) for e in list(np.split(predcart,ns)[i]*nattest[i])),"  ",str(nattest[i])
             corrfile.close()
         else:
             corrfile = open("prediction.txt","w")
