@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from __future__ import print_function
+from builtins import range
 import argparse
 import sys
 import numpy as np
@@ -68,45 +70,45 @@ def add_command_line_arguments_learn(parsetext):
 def set_variable_values_learn(args):
 
     rank = int(args.rank)
-    ftr = args.ftrain 
+    ftr = args.ftrain
     # Get list of l values
     if (rank%2 == 0):
         # Even L
-        lvals = [l for l in xrange(0,rank+1,2)]
+        lvals = [l for l in range(0,rank+1,2)]
     else:
         # Odd L
-        lvals = [l for l in xrange(1,rank+1,2)]
+        lvals = [l for l in range(1,rank+1,2)]
     lm = args.lmda
     if (len(lm) != len(lvals)):
-        print "Number of regularization parameters must equal number of L values!"
+        print("Number of regularization parameters must equal number of L values!")
         sys.exit(0)
- 
+
     # Read in features
     ftrs = read(args.features,':')
 
     nat = []
-    [nat.append(ftrs[i].get_number_of_atoms()) for i in xrange(len(ftrs))]
+    [nat.append(ftrs[i].get_number_of_atoms()) for i in range(len(ftrs))]
     if args.peratom:
         if rank == 0:
-            tens = [str(ftrs[i].info[args.property]/nat[i]) for i in xrange(len(ftrs))]
+            tens = [str(ftrs[i].info[args.property]/nat[i]) for i in range(len(ftrs))]
         elif rank == 2:
-            tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join((np.concatenate(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in range(len(ftrs))]
         else:
-            tens = [' '.join((np.array(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join((np.array(ftrs[i].info[args.property])/nat[i]).astype(str)) for i in range(len(ftrs))]
     else:
-    	if rank == 0:
-       	    tens = [str(ftrs[i].info[args.property]) for i in xrange(len(ftrs))]
+        if rank == 0:
+               tens = [str(ftrs[i].info[args.property]) for i in range(len(ftrs))]
         elif rank == 2:
-            tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join(np.concatenate(ftrs[i].info[args.property]).astype(str)) for i in range(len(ftrs))]
         else:
-            tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in xrange(len(ftrs))]
+            tens = [' '.join(np.array(ftrs[i].info[args.property]).astype(str)) for i in range(len(ftrs))]
 
     kernels = args.kernel
 
     # If a selection is given for the training set, read it in
     sel = args.select
     if (len(sel)!=2 & len(sel)!=0):
-        print "Beginning and end of selection must be specified!"
+        print("Beginning and end of selection must be specified!")
         sys.exit(0)
 
     rdm = args.random
